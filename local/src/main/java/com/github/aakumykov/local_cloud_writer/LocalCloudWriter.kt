@@ -10,7 +10,7 @@ import java.io.IOException
 import java.io.InputStream
 
 class LocalCloudWriter constructor(
-    private val authToken: String
+    private val authToken: String = ""
 ): CloudWriter
 {
     @Throws(
