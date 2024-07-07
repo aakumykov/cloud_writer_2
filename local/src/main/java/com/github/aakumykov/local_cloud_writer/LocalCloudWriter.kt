@@ -15,8 +15,7 @@ class LocalCloudWriter constructor(
 {
     @Throws(
         IOException::class,
-        CloudWriter.OperationUnsuccessfulException::class,
-        CloudWriter.AlreadyExistsException::class
+        OperationUnsuccessfulException::class,
     )
     override fun createDir(basePath: String, dirName: String) {
 
@@ -25,7 +24,7 @@ class LocalCloudWriter constructor(
         with(File(fullDirName)) {
             if (!exists())
                 if (!mkdirs())
-                    throw CloudWriter.OperationUnsuccessfulException(0, dirNotCreatedMessage(absolutePath))
+                    throw OperationUnsuccessfulException(0, dirNotCreatedMessage(absolutePath))
         }
     }
 
@@ -38,7 +37,7 @@ class LocalCloudWriter constructor(
         }
     }
 
-    @Throws(IOException::class, CloudWriter.OperationUnsuccessfulException::class)
+    @Throws(IOException::class, OperationUnsuccessfulException::class)
     override fun putFile(file: File, targetPath: String, overwriteIfExists: Boolean) {
 
         val targetFile = File(targetPath)
@@ -50,7 +49,7 @@ class LocalCloudWriter constructor(
     }
 
 
-    @Throws(IOException::class, CloudWriter.OperationUnsuccessfulException::class)
+    @Throws(IOException::class, OperationUnsuccessfulException::class)
     override fun putFile(inputStream: InputStream, targetPath: String, overwriteIfExists: Boolean) {
 
         val targetFile = File(targetPath)
@@ -69,8 +68,8 @@ class LocalCloudWriter constructor(
 
     @Throws(
         IOException::class,
-        CloudWriter.OperationUnsuccessfulException::class,
-        CloudWriter.OperationTimeoutException::class
+        OperationUnsuccessfulException::class,
+        OperationTimeoutException::class
     )
     override fun deleteFile(basePath: String, fileName: String) {
 

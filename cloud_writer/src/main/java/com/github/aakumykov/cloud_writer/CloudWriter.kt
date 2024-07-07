@@ -12,7 +12,6 @@ interface CloudWriter {
     @Throws(
         IOException::class,
         OperationUnsuccessfulException::class,
-        AlreadyExistsException::class
     )
     fun createDir(basePath: String, dirName: String)
 
@@ -21,7 +20,6 @@ interface CloudWriter {
      */
     fun createDirResult(basePath: String, dirName: String): Result<String>
 
-    // TODO: AlreadyExistsException
     /**
      * Отправляет файл по указанному пути.
      * Реализации обязаны использовать параметр targetPath "как есть", не внося в него корректировки!
@@ -76,8 +74,6 @@ interface CloudWriter {
     }
 
     class OperationTimeoutException(errorMsg: String) : CloudWriterException(errorMsg)
-
-    class AlreadyExistsException(dirName: String) : CloudWriterException(dirName)
 
 
     companion object {

@@ -31,7 +31,6 @@ class YandexDiskCloudWriter(
     @Throws(
         IOException::class,
         CloudWriter.OperationUnsuccessfulException::class,
-        CloudWriter.AlreadyExistsException::class
     )
     override fun createDir(basePath: String, dirName: String) {
         Log.d(TAG, "createDir() called with: basePath = $basePath, dirName = $dirName")
@@ -56,14 +55,13 @@ class YandexDiskCloudWriter(
     @Throws(
         IOException::class,
         CloudWriter.OperationUnsuccessfulException::class,
-        CloudWriter.AlreadyExistsException::class
     )
     private fun createMultiLevelDir(parentDirName: String, childDirName: String) {
 
         Log.d(TAG, "createMultiLevelDir() called with: parentDirName = $parentDirName, childDirName = $childDirName")
 
         if (fileExists(parentDirName, childDirName))
-            throw CloudWriter.AlreadyExistsException(childDirName)
+            return
 
         var pathToCreate = ""
 
@@ -71,11 +69,7 @@ class YandexDiskCloudWriter(
 
             pathToCreate += CloudWriter.DS + dirName
 
-            try {
-                createOneLevelDir(parentDirName, pathToCreate)
-            } catch (e: CloudWriter.AlreadyExistsException) {
-                Log.d(TAG, "Dir '$pathToCreate' already exists.")
-            }
+            createOneLevelDir(parentDirName, pathToCreate)
         }
     }
 
@@ -83,7 +77,6 @@ class YandexDiskCloudWriter(
     @Throws(
         IOException::class,
         CloudWriter.OperationUnsuccessfulException::class,
-        CloudWriter.AlreadyExistsException::class
     )
     private fun createOneLevelDir(parentDirName: String, childDirName: String) {
         Log.d(TAG, "createOneLevelDir() called with: parentDirName = $parentDirName, childDirName = $childDirName")
@@ -93,7 +86,6 @@ class YandexDiskCloudWriter(
     @Throws(
         IOException::class,
         CloudWriter.OperationUnsuccessfulException::class,
-        CloudWriter.AlreadyExistsException::class
     )
     private fun createOneLevelDir(absoluteDirPath: String) {
 
@@ -114,7 +106,6 @@ class YandexDiskCloudWriter(
         okHttpClient.newCall(request).execute().use { response ->
             when (response.code) {
                 201 -> return
-                409 -> throw alreadyExistsException(absoluteDirPath)
                 else -> throw unsuccessfulResponseException(response)
             }
         }
@@ -352,9 +343,6 @@ class YandexDiskCloudWriter(
 
     private fun unsuccessfulResponseException(response: Response): Throwable
         = CloudWriter.OperationUnsuccessfulException(response.code, response.message)
-
-    private fun alreadyExistsException(dirName: String): CloudWriter.AlreadyExistsException
-            = CloudWriter.AlreadyExistsException(dirName)
 
 
     private fun linkFromResponse(response: Response): String {
