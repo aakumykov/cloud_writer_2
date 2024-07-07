@@ -16,6 +16,10 @@ interface CloudWriter {
     )
     fun createDir(basePath: String, dirName: String)
 
+    /**
+     * @return Полный путь к созданному каталогу, обёрнутый в [kotlin.Result]
+     */
+    fun createDirResult(basePath: String, dirName: String): Result<String>
 
     // TODO: AlreadyExistsException
     /**

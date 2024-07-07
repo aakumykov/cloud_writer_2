@@ -44,6 +44,14 @@ class YandexDiskCloudWriter(
         else createMultiLevelDir(basePath, dirName)
     }
 
+    override fun createDirResult(basePath: String, dirName: String): Result<String> {
+        return try {
+            createDir(basePath, dirName)
+            Result.success(File(basePath, dirName).absolutePath)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
 
     @Throws(
         IOException::class,
