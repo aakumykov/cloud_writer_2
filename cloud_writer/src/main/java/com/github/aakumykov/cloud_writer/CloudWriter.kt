@@ -25,11 +25,18 @@ interface CloudWriter {
     /**
      * Отправляет файл по указанному пути.
      * Реализации обязаны использовать параметр targetPath "как есть", не внося в него корректировки!
+     *
+     * Метод не умеет создавать родительские каталоги, поэтому каталог назначения
+     * должен существовать заранее. Может быть создан метдами [createDir], [createDirResult],
+     * которые способны создавать "глубокие" каталоги.
      */
     @Throws(IOException::class, OperationUnsuccessfulException::class)
     fun putFile(file: File, targetPath: String, overwriteIfExists: Boolean = false)
 
 
+    /**
+     * @see [putFile]
+     */
     @Throws(IOException::class, OperationUnsuccessfulException::class)
     fun putFile(inputStream: InputStream, targetPath: String, overwriteIfExists: Boolean = false)
 
