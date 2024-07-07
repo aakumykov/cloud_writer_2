@@ -9,6 +9,11 @@ import java.io.InputStream
 // TODO: возвращать Result вместо выборса исключений
 interface CloudWriter {
 
+    /**
+     * Создаёт каталог в указанном каталоге. Дочерний каталог может быть многоуровневым.
+     * @param basePath "Родительский" каталог.
+     * @param dirName Имя создаваемого каталога, может быть многоуровневым.
+     */
     @Throws(
         IOException::class,
         OperationUnsuccessfulException::class,
@@ -16,6 +21,8 @@ interface CloudWriter {
     fun createDir(basePath: String, dirName: String)
 
     /**
+     * Создаёт каталог в указанном каталоге. Дочерний каталог может быть многоуровневым.
+     * @see [createDir]
      * @return Полный путь к созданному каталогу, обёрнутый в [kotlin.Result]
      */
     fun createDirResult(basePath: String, dirName: String): Result<String>
