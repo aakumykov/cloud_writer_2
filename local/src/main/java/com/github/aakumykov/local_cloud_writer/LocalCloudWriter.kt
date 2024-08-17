@@ -3,7 +3,6 @@ package com.github.aakumykov.local_cloud_writer
 import com.github.aakumykov.cloud_writer.CloudWriter
 import com.github.aakumykov.cloud_writer.CloudWriter.OperationTimeoutException
 import com.github.aakumykov.cloud_writer.CloudWriter.OperationUnsuccessfulException
-import com.github.aakumykov.cloud_writer.extensions.copyTo
 import java.io.File
 import java.io.FileNotFoundException
 import java.io.IOException
@@ -50,7 +49,7 @@ class LocalCloudWriter constructor(
 
 
     @Throws(IOException::class, OperationUnsuccessfulException::class)
-    override fun putFile(inputStream: InputStream, targetPath: String, overwriteIfExists: Boolean) {
+    override fun putStream(inputStream: InputStream, targetPath: String, overwriteIfExists: Boolean) {
 
         val targetFile = File(targetPath)
         if (targetFile.exists() && !overwriteIfExists)

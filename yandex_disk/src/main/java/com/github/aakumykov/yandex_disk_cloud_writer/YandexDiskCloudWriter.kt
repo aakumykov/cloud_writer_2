@@ -123,7 +123,7 @@ class YandexDiskCloudWriter(
 
 
     @Throws(IOException::class, CloudWriter.OperationUnsuccessfulException::class)
-    override fun putFile(inputStream: InputStream, targetPath: String, overwriteIfExists: Boolean) {
+    override fun putStream(inputStream: InputStream, targetPath: String, overwriteIfExists: Boolean) {
         val uploadURL = getURLForUpload(targetPath, overwriteIfExists)
         putFileAsStreamReal(inputStream, uploadURL)
     }

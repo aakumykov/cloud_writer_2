@@ -40,10 +40,11 @@ interface CloudWriter {
 
 
     /**
-     * @see [putFile]
+     * Записывает файл по указанному пути, читая данные из InputStream.
+     * @see [putStream]
      */
     @Throws(IOException::class, OperationUnsuccessfulException::class)
-    fun putFile(inputStream: InputStream, targetPath: String, overwriteIfExists: Boolean = false)
+    fun putStream(inputStream: InputStream, targetPath: String, overwriteIfExists: Boolean = false)
 
 
     // TODO: не нужна
