@@ -3,6 +3,7 @@ package com.github.aakumykov.yandex_disk_cloud_writer
 import android.util.Log
 import com.github.aakumykov.cloud_writer.CloudWriter
 import com.github.aakumykov.cloud_writer.StreamWritingCallback
+import com.github.aakumykov.copy_between_streams_with_counting.copyBetweenStreamsWithCounting
 import com.google.gson.Gson
 import com.yandex.disk.rest.json.Link
 import okhttp3.HttpUrl.Companion.toHttpUrl
@@ -19,6 +20,7 @@ import java.io.File
 import java.io.IOException
 import java.io.InputStream
 import java.util.concurrent.TimeUnit
+import kotlin.math.sin
 
 class YandexDiskCloudWriter(
     private val authToken: String,
@@ -124,18 +126,14 @@ class YandexDiskCloudWriter(
 
 
     @Throws(IOException::class, CloudWriter.OperationUnsuccessfulException::class)
-    override fun putStream(inputStream: InputStream, targetPath: String, overwriteIfExists: Boolean) {
-        val uploadURL = getURLForUpload(targetPath, overwriteIfExists)
-        putFileAsStreamReal(inputStream, uploadURL)
-    }
-
     override fun putStream(
         inputStream: InputStream,
         targetPath: String,
         overwriteIfExists: Boolean,
-        writingCallback: StreamWritingCallback
+        writingCallback: StreamWritingCallback?
     ) {
-        TODO("Not yet implemented")
+        val uploadURL = getURLForUpload(targetPath, overwriteIfExists)
+        putStreamReal(inputStream, uploadURL, writingCallback)
     }
 
 
@@ -323,14 +321,24 @@ class YandexDiskCloudWriter(
     }
 
     @Throws(IOException::class, CloudWriter.OperationUnsuccessfulException::class)
-    private fun putFileAsStreamReal(inputStream: InputStream, uploadURL: String) {
+    private fun putStreamReal(
+        inputStream: InputStream,
+        uploadURL: String,
+        writingCallback: StreamWritingCallback? = null
+    ) {
 
         val requestBody: RequestBody = object: RequestBody() {
 
             override fun contentType(): MediaType = defaultMediaType
 
             override fun writeTo(sink: BufferedSink) {
-                inputStream.copyTo(sink.outputStream())
+                copyBetweenStreamsWithCounting(
+                    inputStream = inputStream,
+                    outputStream = sink.outputStream(),
+                    writingCallback = { count: Long ->
+                        writingCallback?.onWriteCountChanged(count)
+                    }
+                )
             }
         }
 
