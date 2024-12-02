@@ -3,6 +3,8 @@ package com.github.aakumykov.local_cloud_writer
 import com.github.aakumykov.cloud_writer.CloudWriter
 import com.github.aakumykov.cloud_writer.CloudWriter.OperationTimeoutException
 import com.github.aakumykov.cloud_writer.CloudWriter.OperationUnsuccessfulException
+import com.github.aakumykov.cloud_writer.StreamWritingCallback
+import com.github.aakumykov.cloud_writer.copyBetweenStreamsWithCounting
 import java.io.File
 import java.io.FileNotFoundException
 import java.io.IOException
@@ -57,6 +59,26 @@ class LocalCloudWriter constructor(
 
         File(targetPath).outputStream().use { os ->
             inputStream.copyTo(os)
+        }
+    }
+
+
+    @Throws(IOException::class, OperationUnsuccessfulException::class)
+    override fun putStream(
+        inputStream: InputStream,
+        targetPath: String,
+        overwriteIfExists: Boolean,
+        writingCallback: StreamWritingCallback
+    ) {
+        val targetFile = File(targetPath)
+        if (targetFile.exists() && !overwriteIfExists)
+            return
+
+        copyBetweenStreamsWithCounting(
+            inputStream = inputStream,
+            outputStream = targetFile.outputStream(),
+        ) { count: Long ->
+            writingCallback.onWriteCountChanged(count)
         }
     }
 
