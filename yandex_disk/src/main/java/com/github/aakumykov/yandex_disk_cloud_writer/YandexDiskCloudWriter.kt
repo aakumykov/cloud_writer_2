@@ -2,6 +2,7 @@ package com.github.aakumykov.yandex_disk_cloud_writer
 
 import android.util.Log
 import com.github.aakumykov.cloud_writer.CloudWriter
+import com.github.aakumykov.cloud_writer.StreamWritingCallback
 import com.google.gson.Gson
 import com.yandex.disk.rest.json.Link
 import okhttp3.HttpUrl.Companion.toHttpUrl
@@ -126,6 +127,15 @@ class YandexDiskCloudWriter(
     override fun putStream(inputStream: InputStream, targetPath: String, overwriteIfExists: Boolean) {
         val uploadURL = getURLForUpload(targetPath, overwriteIfExists)
         putFileAsStreamReal(inputStream, uploadURL)
+    }
+
+    override fun putStream(
+        inputStream: InputStream,
+        targetPath: String,
+        overwriteIfExists: Boolean,
+        writingCallback: StreamWritingCallback
+    ) {
+        TODO("Not yet implemented")
     }
 
 
