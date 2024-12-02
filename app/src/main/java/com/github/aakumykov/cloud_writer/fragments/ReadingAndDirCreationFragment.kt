@@ -210,15 +210,13 @@ class ReadingAndDirCreationFragment :
 
                     Log.d(TAG, "Доступно байт в потоке: ${inputStream.available()}")
 
-                    val countingInputStream = CountingInputStream(inputStream, bufferSize = 1024 * 1024) { bytesRead ->
-                        Log.d(TAG, "Прочитано байт: $bytesRead")
-                    }
-
                     cloudWriter.putStream(
-                        countingInputStream,
-                        targetFilePath,
-                        true
-                    )
+                        inputStream = inputStream,
+                        targetPath = targetFilePath,
+                        overwriteIfExists = true,
+                    ) { writtenBytesCount: Long ->
+                        Log.d(TAG, "Записано байт байт: $writtenBytesCount")
+                    }
                 }
             }
             catch (e: Exception) {
@@ -646,7 +644,7 @@ class ReadingAndDirCreationFragment :
 
 
     companion object {
-        val TAG: String = MainActivity::class.java.simpleName
+        val TAG: String = ReadingAndDirCreationFragment::class.java.simpleName
         const val SOURCE_STORAGE_TYPE = "SOURCE_STORAGE_TYPE"
         const val TARGET_STORAGE_TYPE = "TARGET_STORAGE_TYPE"
         const val YANDEX_AUTH_TOKEN = "AUTH_TOKEN"
