@@ -214,7 +214,7 @@ class ReadingAndDirCreationFragment :
                         Log.d(TAG, "Прочитано байт: $bytesRead")
                     }
 
-                    cloudWriter.putFile(
+                    cloudWriter.putStream(
                         countingInputStream,
                         targetFilePath,
                         true
@@ -485,9 +485,6 @@ class ReadingAndDirCreationFragment :
                 showProgressBar()
                 yandexCloudWriter.createDir("/", inputDirName)
                 showInfo("Папка ${inputDirName} создана")
-            }
-            catch(e: CloudWriter.AlreadyExistsException) {
-                showError("Папка уже существует")
             }
             catch(t: Throwable) {
                 showError(t)
