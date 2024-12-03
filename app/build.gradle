@@ -42,8 +42,6 @@ dependencies {
     implementation libs.androidx.core.ktx
     implementation libs.androidx.appcompat
     implementation libs.material
-    implementation project(':yandex_disk')
-    implementation project(':local')
     testImplementation libs.junit
     androidTestImplementation libs.androidx.junit
     androidTestImplementation libs.androidx.espresso.core
@@ -61,6 +59,7 @@ dependencies {
     implementation 'androidx.fragment:fragment-ktx:1.6.2'
 
     implementation 'com.github.aakumykov:cloud_reader_2:3.1.0-alpha'
-//    implementation 'com.github.aakumykov:cloud_writer_2:3.2.0-alpha'
+
+    implementation 'com.github.aakumykov:cloud_writer_2:5.0.0-alpha'
 //    implementation 'com.github.aakumykov:yandex_disk_cloud_writer:3.2.0-alpha'
 }
