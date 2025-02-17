@@ -69,6 +69,14 @@ class LocalCloudWriter constructor(
         }
     }
 
+    override fun deleteDir(basePath: String, dirName: String) {
+        val fsObject = File(basePath, dirName)
+        fsObject.also {
+            if (it.isDirectory) it.delete()
+            else throw IllegalArgumentException("'${fsObject.absolutePath}' is not directory")
+        }
+    }
+
 
     override fun fileExists(parentDirName: String, childName: String): Boolean {
         return File(parentDirName, childName).exists()
