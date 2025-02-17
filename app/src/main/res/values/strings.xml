@@ -10,4 +10,6 @@
     <string name="to_storage">В:</string>
     <string name="type_name_yandex_disk">Яндекс.Диск</string>
     <string name="type_name_local">Локальный</string>
+    <string name="auth_mode_native">native</string>
+    <string name="auth_mode_webview">webview</string>
 </resources>

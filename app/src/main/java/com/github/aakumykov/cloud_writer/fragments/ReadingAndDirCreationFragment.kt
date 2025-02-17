@@ -11,7 +11,6 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.github.aakumykov.cloud_reader.CloudReader
 import com.github.aakumykov.cloud_writer.CloudWriter
-import com.github.aakumykov.cloud_writer.MainActivity
 import com.github.aakumykov.cloud_writer.cloud_authenticator.CloudAuthenticator
 import com.github.aakumykov.cloud_writer.cloud_authenticator.YandexAuthenticator
 import com.github.aakumykov.cloud_writer.extentions.getStringFromPreferences
@@ -47,6 +46,9 @@ class ReadingAndDirCreationFragment :
     private lateinit var permissionsRequester: PermissionsRequester
     private lateinit var storageAccessHelper: StorageAccessHelper
 
+    private val loginType: LoginType
+        get() = if (binding.loginType.isChecked) LoginType.WEBVIEW else LoginType.NATIVE
+
     private val fullSourceFileName: String get() {
         return if (sourceIsLocal) filePathInLocalDownloads(inputFileName)
         else inputFileName
@@ -70,7 +72,11 @@ class ReadingAndDirCreationFragment :
             requiresPermission = ::createLocalDirReal
         )
 
-        yandexAuthenticator = YandexAuthenticator(requireActivity(), LoginType.NATIVE, this)
+        yandexAuthenticator = YandexAuthenticator(
+            requireActivity(),
+            loginType,
+            this
+        )
         yandexAuthToken = getStringFromPreferences(YANDEX_AUTH_TOKEN)
         displayYandexAuthStatus()
 
@@ -176,8 +182,36 @@ class ReadingAndDirCreationFragment :
         //        binding.selectFileButton.setOnClickListener { pickFile() }
 //        binding.uploadFileButton.setOnClickListener { uploadFile() }
 //        binding.checkUploadedFileButton.setOnClickListener { checkUploadedFile() }
-//        binding.deleteDirButton.setOnClickListener { deleteDirectory() }
+        binding.deleteDirButton.setOnClickListener { deleteDirectory() }
     }
+
+    private fun deleteDirectory() {
+        if (sourceIsLocal) deleteLocalDir()
+        else deleteCloudDir()
+    }
+
+
+    private fun deleteLocalDir() {
+        thread {
+            cloudWriter.deleteDir(localDownloadsDirPath(), inputDirName)
+        }
+    }
+
+    private fun deleteCloudDir() {
+        thread {
+            try {
+                resetView()
+                showProgressBar()
+                cloudWriter.deleteDir("/", inputDirName)
+                showInfo("Папка '${inputDirName}' удалена")
+            } catch (t: Throwable) {
+                showError(t)
+            } finally {
+                hideProgressBar()
+            }
+        }
+    }
+
 
     private fun onWriteToFileButtonClicked() {
 

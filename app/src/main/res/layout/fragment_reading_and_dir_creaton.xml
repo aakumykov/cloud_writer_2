@@ -107,14 +107,28 @@
 
     </LinearLayout>
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/yandexAuthButton"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:backgroundTint="#ED5E32"
-            app:icon="@drawable/ic_logged_out"
-            app:iconGravity="textStart"
-            android:text="@string/login_to_yandex" />
+            android:orientation="horizontal">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/yandexAuthButton"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:backgroundTint="#ED5E32"
+                android:text="@string/login_to_yandex"
+                app:icon="@drawable/ic_logged_out"
+                app:iconGravity="textStart" />
+
+            <ToggleButton
+                android:id="@+id/loginType"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:textOff="@string/auth_mode_native"
+                android:textOn="@string/auth_mode_webview" />
+        </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -263,7 +277,6 @@
             android:layout_weight="1"
             android:backgroundTint="#F06292"
             android:text="Удалить папку"
-            android:visibility="gone"
             app:icon="@drawable/ic_folder_delete"
             app:iconGravity="textStart" />
 
