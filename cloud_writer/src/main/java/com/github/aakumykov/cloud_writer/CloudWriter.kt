@@ -73,6 +73,14 @@ interface CloudWriter {
 
     @Throws(
         IOException::class,
+        IllegalArgumentException::class,
+        OperationUnsuccessfulException::class,
+        OperationTimeoutException::class
+    )
+    fun deleteDir(basePath: String, dirName: String)
+
+    @Throws(
+        IOException::class,
         OperationUnsuccessfulException::class,
         OperationTimeoutException::class
     )

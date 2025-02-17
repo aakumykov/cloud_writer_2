@@ -208,6 +208,13 @@ class YandexDiskCloudWriter(
         }
     }
 
+
+    // TODO: проверять, что это каталог
+    override fun deleteDir(basePath: String, dirName: String) {
+        deleteFileSimple(basePath, dirName)
+    }
+
+
     override fun deleteDirRecursively(basePath: String, dirName: String) {
         var timeElapsed = 0L
         try {
