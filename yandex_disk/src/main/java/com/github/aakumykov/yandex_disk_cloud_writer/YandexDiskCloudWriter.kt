@@ -265,12 +265,13 @@ class YandexDiskCloudWriter(
     @Throws(IndeterminateOperationException::class)
     private fun deleteFileSimple(basePath: String, fileName: String) {
 
-        Log.d(TAG, "deleteFileSimple() called with: basePath = $basePath, fileName = $fileName")
+//        Log.d(TAG, "deleteFileSimple() called with: basePath = $basePath, fileName = $fileName")
 
         val path = CloudWriter.composeFullPath(basePath, fileName)
 
         val url = RESOURCES_BASE_URL.toHttpUrl().newBuilder().apply {
             addQueryParameter("path", path)
+            addQueryParameter("permanently", path)
         }.build()
 
         val request: Request = Request.Builder()
