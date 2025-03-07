@@ -3,6 +3,7 @@ package com.github.aakumykov.local_cloud_writer
 import com.github.aakumykov.cloud_writer.CloudWriter
 import com.github.aakumykov.cloud_writer.CloudWriter.OperationTimeoutException
 import com.github.aakumykov.cloud_writer.CloudWriter.OperationUnsuccessfulException
+import com.github.aakumykov.cloud_writer.StreamFinishCallback
 import com.github.aakumykov.cloud_writer.StreamWritingCallback
 import com.github.aakumykov.copy_between_streams_with_counting.copyBetweenStreamsWithCounting
 import java.io.File
@@ -55,18 +56,22 @@ class LocalCloudWriter constructor(
         inputStream: InputStream,
         targetPath: String,
         overwriteIfExists: Boolean,
-        writingCallback: StreamWritingCallback?
+        writingCallback: StreamWritingCallback?,
+        finishCallback: StreamFinishCallback?,
     ) {
         val targetFile = File(targetPath)
+
         if (targetFile.exists() && !overwriteIfExists)
             return
 
         copyBetweenStreamsWithCounting(
             inputStream = inputStream,
             outputStream = targetFile.outputStream(),
-        ) { count: Long ->
-            writingCallback?.onWriteCountChanged(count)
-        }
+            writingCallback = {},
+            finishCallback = { writtenBytesCount, readBytesCount ->
+                finishCallback?.onFinish(writtenBytesCount, readBytesCount)
+            }
+        )
     }
 
     override fun deleteDir(basePath: String, dirName: String) {
