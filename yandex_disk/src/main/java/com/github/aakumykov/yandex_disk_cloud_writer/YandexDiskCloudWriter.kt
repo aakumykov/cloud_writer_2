@@ -2,6 +2,8 @@ package com.github.aakumykov.yandex_disk_cloud_writer
 
 import android.util.Log
 import com.github.aakumykov.cloud_writer.CloudWriter
+import com.github.aakumykov.cloud_writer.CloudWriter.OperationTimeoutException
+import com.github.aakumykov.cloud_writer.CloudWriter.OperationUnsuccessfulException
 import com.github.aakumykov.cloud_writer.StreamFinishCallback
 import com.github.aakumykov.cloud_writer.StreamWritingCallback
 import com.github.aakumykov.copy_between_streams_with_counting.copyBetweenStreamsWithCounting
@@ -239,7 +241,12 @@ class YandexDiskCloudWriter(
         }
     }
 
-    override fun renameFileWithinOneStorage(
+    @Throws(
+        IOException::class,
+        OperationUnsuccessfulException::class,
+        OperationTimeoutException::class
+    )
+    override fun renameFileOrEmptyDir(
         fromAbsolutePath: String,
         toAbsolutePath: String,
         overwriteIfExists: Boolean
