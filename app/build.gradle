@@ -5,7 +5,7 @@ plugins {
 
 android {
     namespace 'com.github.aakumykov.cloud_writer_2'
-    compileSdk 34
+    compileSdk 35
 
     defaultConfig {
         applicationId "com.github.aakumykov.cloud_writer_2"
@@ -39,6 +39,8 @@ dependencies {
     implementation libs.material
     implementation project(':yandex_disk')
     implementation project(':local')
+    implementation libs.androidx.activity
+    implementation libs.androidx.constraintlayout
     testImplementation libs.junit
     androidTestImplementation libs.androidx.junit
     androidTestImplementation libs.androidx.espresso.core

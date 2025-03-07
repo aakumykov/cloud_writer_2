@@ -20,7 +20,7 @@ project.ext {
 
 android {
     namespace 'com.github.aakumykov.local_cloud_writer'
-    compileSdk 34
+    compileSdk 35
 
     defaultConfig {
         minSdk 21

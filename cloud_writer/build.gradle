@@ -20,7 +20,7 @@ project.ext {
 
 android {
     namespace groupId + '.' + artifactId
-    compileSdk 34
+    compileSdk 35
 
     defaultConfig {
         minSdk 21
