@@ -91,6 +91,28 @@ interface CloudWriter {
     fun deleteDirRecursively(basePath: String, dirName: String)
 
 
+    /**
+     * Переименовывает файл или пустой каталог.
+     * Не работает с локальным хранилищем, если целевой
+     * файл находится на физическом разделе, отличном
+     * от исходного.
+     */
+    @Throws(
+        IOException::class,
+        OperationUnsuccessfulException::class,
+        OperationTimeoutException::class
+    )
+    fun renameFileOrEmptyDir(
+        fromAbsolutePath: String,
+        toAbsolutePath: String,
+        overwriteIfExists: Boolean = true
+    ): Boolean
+
+
+//    @Throws(IOException::class)
+//    fun renameEmptyDir(fromAbsolutePath: String, toAbsolutePath: String)
+
+
     // TODO: выделить в отдельный файл...
     sealed class CloudWriterException(message: String) : Exception(message)
 

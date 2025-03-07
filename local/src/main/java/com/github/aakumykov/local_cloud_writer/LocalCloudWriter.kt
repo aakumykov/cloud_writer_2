@@ -123,6 +123,17 @@ class LocalCloudWriter constructor(
         }
     }
 
+    override fun renameFileOrEmptyDir(
+        fromAbsolutePath: String,
+        toAbsolutePath: String,
+        overwriteIfExists: Boolean
+    ): Boolean {
+        val targetFile = File(toAbsolutePath)
+        if (!overwriteIfExists && targetFile.exists())
+            return false
+        return File(fromAbsolutePath).renameTo(targetFile)
+    }
+
 
     private fun dirNotCreatedMessage(dirName: String): String
             = "Directory '${dirName}' not created."
