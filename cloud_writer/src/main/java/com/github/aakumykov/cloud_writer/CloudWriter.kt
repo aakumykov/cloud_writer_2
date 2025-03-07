@@ -42,7 +42,9 @@ interface CloudWriter {
 
     /**
      * Записывает поток в файл по указанному пути, читая данные из InputStream.
-     * Через коллбек возвращает количество записанных байт.
+     * @param writingCallback Коллбек, вызывающийся при записи потока, через
+     * каждые [DEFAULT_BUFFER_SIZE].
+     * @param finishCallback Сигнал завершения записи. Возвращает количество записанных байт.
      */
     @Throws(IOException::class, OperationUnsuccessfulException::class)
     fun putStream(
@@ -50,6 +52,7 @@ interface CloudWriter {
         targetPath: String,
         overwriteIfExists: Boolean = false,
         writingCallback: StreamWritingCallback? = null,
+        finishCallback: StreamFinishCallback? = null,
     )
 
 
