@@ -118,12 +118,12 @@ class YandexDiskCloudWriter(
 
 
     @Throws(IOException::class, CloudWriter.OperationUnsuccessfulException::class)
-    override fun putFile(file: File, targetPath: String, overwriteIfExists: Boolean) {
+    override fun putFile(sourceFile: File, targetAbsolutePath: String, overwriteIfExists: Boolean) {
 
-        Log.d(TAG, "putFile() called with: file = $file, targetDirPath = $targetPath, overwriteIfExists = $overwriteIfExists")
+        Log.d(TAG, "putFile() called with: file = $sourceFile, targetDirPath = $targetAbsolutePath, overwriteIfExists = $overwriteIfExists")
 
-        val uploadURL = getURLForUpload(targetPath, overwriteIfExists)
-        putFileReal(file, uploadURL)
+        val uploadURL = getURLForUpload(targetAbsolutePath, overwriteIfExists)
+        putFileReal(sourceFile, uploadURL)
     }
 
 
