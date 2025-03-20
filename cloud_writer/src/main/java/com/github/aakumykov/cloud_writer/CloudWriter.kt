@@ -49,7 +49,7 @@ interface CloudWriter {
         inputStream: InputStream,
         targetPath: String,
         overwriteIfExists: Boolean = false,
-        writingCallback: StreamWritingCallback? = null,
+        writingCallback: ((Long) -> Unit)? = null,
     )
 
 

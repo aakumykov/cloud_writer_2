@@ -2,7 +2,6 @@ package com.github.aakumykov.yandex_disk_cloud_writer
 
 import android.util.Log
 import com.github.aakumykov.cloud_writer.CloudWriter
-import com.github.aakumykov.cloud_writer.StreamWritingCallback
 import com.github.aakumykov.copy_between_streams_with_counting.copyBetweenStreamsWithCounting
 import com.google.gson.Gson
 import com.yandex.disk.rest.json.Link
@@ -130,7 +129,7 @@ class YandexDiskCloudWriter(
         inputStream: InputStream,
         targetPath: String,
         overwriteIfExists: Boolean,
-        writingCallback: StreamWritingCallback?
+        writingCallback: ((Long) -> Unit)?
     ) {
         val uploadURL = getURLForUpload(targetPath, overwriteIfExists)
         putStreamReal(inputStream, uploadURL, writingCallback)
@@ -332,7 +331,7 @@ class YandexDiskCloudWriter(
     private fun putStreamReal(
         inputStream: InputStream,
         uploadURL: String,
-        writingCallback: StreamWritingCallback? = null
+        writingCallback: ((Long) -> Unit)? = null
     ) {
 
         val requestBody: RequestBody = object: RequestBody() {
@@ -343,9 +342,7 @@ class YandexDiskCloudWriter(
                 copyBetweenStreamsWithCounting(
                     inputStream = inputStream,
                     outputStream = sink.outputStream(),
-                    writingCallback = { count: Long ->
-                        writingCallback?.onWriteCountChanged(count)
-                    }
+                    writingCallback = writingCallback
                 )
             }
         }
