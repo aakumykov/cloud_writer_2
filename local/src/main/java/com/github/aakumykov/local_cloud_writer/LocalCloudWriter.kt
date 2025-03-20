@@ -3,8 +3,6 @@ package com.github.aakumykov.local_cloud_writer
 import com.github.aakumykov.cloud_writer.CloudWriter
 import com.github.aakumykov.cloud_writer.CloudWriter.OperationTimeoutException
 import com.github.aakumykov.cloud_writer.CloudWriter.OperationUnsuccessfulException
-import com.github.aakumykov.cloud_writer.StreamFinishCallback
-import com.github.aakumykov.cloud_writer.StreamWritingCallback
 import com.github.aakumykov.copy_between_streams_with_counting.copyBetweenStreamsWithCounting
 import java.io.File
 import java.io.FileNotFoundException
@@ -40,14 +38,14 @@ class LocalCloudWriter constructor(
     }
 
     @Throws(IOException::class, OperationUnsuccessfulException::class)
-    override fun putFile(sourceFile: File, targetAbsolutePath: String, overwriteIfExists: Boolean) {
+    override fun putFile(file: File, targetPath: String, overwriteIfExists: Boolean) {
 
-        val targetFile = File(targetAbsolutePath)
+        val targetFile = File(targetPath)
 
-        val isMoved = sourceFile.renameTo(targetFile)
+        val isMoved = file.renameTo(targetFile)
 
         if (!isMoved)
-            throw IOException("File cannot be not moved from '${sourceFile.absolutePath}' to '${targetAbsolutePath}'")
+            throw IOException("File cannot be not moved from '${file.absolutePath}' to '${targetPath}'")
     }
 
 
@@ -56,21 +54,16 @@ class LocalCloudWriter constructor(
         inputStream: InputStream,
         targetPath: String,
         overwriteIfExists: Boolean,
-        writingCallback: StreamWritingCallback?,
-        finishCallback: StreamFinishCallback?,
+        writingCallback: ((Long) -> Unit)?
     ) {
         val targetFile = File(targetPath)
-
         if (targetFile.exists() && !overwriteIfExists)
             return
 
         copyBetweenStreamsWithCounting(
             inputStream = inputStream,
             outputStream = targetFile.outputStream(),
-            writingCallback = {},
-            finishCallback = { writtenBytesCount, readBytesCount ->
-                finishCallback?.onFinish(writtenBytesCount, readBytesCount)
-            }
+            writingCallback = writingCallback
         )
     }
 
@@ -121,17 +114,6 @@ class LocalCloudWriter constructor(
             if (!deleteRecursively())
                 throw OperationUnsuccessfulException("Dir was not deleted recursively: $path")
         }
-    }
-
-    override fun renameFileOrEmptyDir(
-        fromAbsolutePath: String,
-        toAbsolutePath: String,
-        overwriteIfExists: Boolean
-    ): Boolean {
-        val targetFile = File(toAbsolutePath)
-        if (!overwriteIfExists && targetFile.exists())
-            return false
-        return File(fromAbsolutePath).renameTo(targetFile)
     }
 
 

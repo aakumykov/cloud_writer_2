@@ -2,10 +2,6 @@ package com.github.aakumykov.yandex_disk_cloud_writer
 
 import android.util.Log
 import com.github.aakumykov.cloud_writer.CloudWriter
-import com.github.aakumykov.cloud_writer.CloudWriter.OperationTimeoutException
-import com.github.aakumykov.cloud_writer.CloudWriter.OperationUnsuccessfulException
-import com.github.aakumykov.cloud_writer.StreamFinishCallback
-import com.github.aakumykov.cloud_writer.StreamWritingCallback
 import com.github.aakumykov.copy_between_streams_with_counting.copyBetweenStreamsWithCounting
 import com.google.gson.Gson
 import com.yandex.disk.rest.json.Link
@@ -23,6 +19,7 @@ import java.io.File
 import java.io.IOException
 import java.io.InputStream
 import java.util.concurrent.TimeUnit
+import kotlin.math.sin
 
 class YandexDiskCloudWriter(
     private val authToken: String,
@@ -118,12 +115,12 @@ class YandexDiskCloudWriter(
 
 
     @Throws(IOException::class, CloudWriter.OperationUnsuccessfulException::class)
-    override fun putFile(sourceFile: File, targetAbsolutePath: String, overwriteIfExists: Boolean) {
+    override fun putFile(file: File, targetPath: String, overwriteIfExists: Boolean) {
 
-        Log.d(TAG, "putFile() called with: file = $sourceFile, targetDirPath = $targetAbsolutePath, overwriteIfExists = $overwriteIfExists")
+        Log.d(TAG, "putFile() called with: file = $file, targetDirPath = $targetPath, overwriteIfExists = $overwriteIfExists")
 
-        val uploadURL = getURLForUpload(targetAbsolutePath, overwriteIfExists)
-        putFileReal(sourceFile, uploadURL)
+        val uploadURL = getURLForUpload(targetPath, overwriteIfExists)
+        putFileReal(file, uploadURL)
     }
 
 
@@ -132,11 +129,10 @@ class YandexDiskCloudWriter(
         inputStream: InputStream,
         targetPath: String,
         overwriteIfExists: Boolean,
-        writingCallback: StreamWritingCallback?,
-        finishCallback: StreamFinishCallback?,
+        writingCallback: ((Long) -> Unit)?
     ) {
         val uploadURL = getURLForUpload(targetPath, overwriteIfExists)
-        putStreamReal(inputStream, uploadURL, writingCallback, finishCallback)
+        putStreamReal(inputStream, uploadURL, writingCallback)
     }
 
 
@@ -241,39 +237,6 @@ class YandexDiskCloudWriter(
         }
     }
 
-    @Throws(
-        IOException::class,
-        OperationUnsuccessfulException::class,
-        OperationTimeoutException::class
-    )
-    override fun renameFileOrEmptyDir(
-        fromAbsolutePath: String,
-        toAbsolutePath: String,
-        overwriteIfExists: Boolean
-    ): Boolean {
-
-        val url = MOVE_BASE_URL.toHttpUrl().newBuilder().apply {
-            addQueryParameter("from", fromAbsolutePath)
-            addQueryParameter("path", toAbsolutePath)
-            addQueryParameter("overwrite", overwriteIfExists.toString())
-            addQueryParameter("force_async", "false")
-        }.build()
-
-        val request: Request = Request.Builder()
-            .header("Authorization", authToken)
-            .url(url)
-            .post(ByteArray(0).toRequestBody(null))
-            .build()
-
-        okHttpClient.newCall(request).execute().use { response ->
-            when (response.code) {
-                201 -> return true
-                202 -> throw IndeterminateOperationException(linkFromResponse(response))
-                else -> throw unsuccessfulResponseException(response)
-            }
-        }
-    }
-
     @Throws(CloudWriter.OperationUnsuccessfulException::class)
     private fun operationIsFinished(operationStatusLink: String): Boolean {
         Log.d(TAG, "operationIsFinished() called with: operationStatusLink = $operationStatusLink")
@@ -368,8 +331,7 @@ class YandexDiskCloudWriter(
     private fun putStreamReal(
         inputStream: InputStream,
         uploadURL: String,
-        writingCallback: StreamWritingCallback? = null,
-        finishCallback: StreamFinishCallback? = null,
+        writingCallback: ((Long) -> Unit)? = null
     ) {
 
         val requestBody: RequestBody = object: RequestBody() {
@@ -380,12 +342,7 @@ class YandexDiskCloudWriter(
                 copyBetweenStreamsWithCounting(
                     inputStream = inputStream,
                     outputStream = sink.outputStream(),
-                    writingCallback = { count: Long ->
-                        writingCallback?.onWriteCountChanged(count)
-                    },
-                    finishCallback = { readBytesCount, writtenBytesCount ->
-                        finishCallback?.onFinish(readBytesCount, writtenBytesCount)
-                    }
+                    writingCallback = writingCallback
                 )
             }
         }
@@ -426,7 +383,6 @@ class YandexDiskCloudWriter(
         private const val DISK_BASE_URL = "https://cloud-api.yandex.net/v1/disk"
         private const val RESOURCES_BASE_URL = "$DISK_BASE_URL/resources"
         private const val UPLOAD_BASE_URL = "$RESOURCES_BASE_URL/upload"
-        private const val MOVE_BASE_URL = "$RESOURCES_BASE_URL/move"
 
         private const val DEFAULT_MEDIA_TYPE = "application/octet-stream"
     }

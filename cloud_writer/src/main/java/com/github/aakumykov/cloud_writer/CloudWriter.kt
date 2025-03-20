@@ -37,22 +37,19 @@ interface CloudWriter {
      * которые способны создавать "глубокие" каталоги.
      */
     @Throws(IOException::class, OperationUnsuccessfulException::class)
-    fun putFile(sourceFile: File, targetAbsolutePath: String, overwriteIfExists: Boolean = false)
+    fun putFile(file: File, targetPath: String, overwriteIfExists: Boolean = false)
 
 
     /**
      * Записывает поток в файл по указанному пути, читая данные из InputStream.
-     * @param writingCallback Коллбек, вызывающийся при записи потока, через
-     * каждые [DEFAULT_BUFFER_SIZE].
-     * @param finishCallback Сигнал завершения записи. Возвращает количество записанных байт.
+     * Через коллбек возвращает количество записанных байт.
      */
     @Throws(IOException::class, OperationUnsuccessfulException::class)
     fun putStream(
         inputStream: InputStream,
         targetPath: String,
         overwriteIfExists: Boolean = false,
-        writingCallback: StreamWritingCallback? = null,
-        finishCallback: StreamFinishCallback? = null,
+        writingCallback: ((Long) -> Unit)? = null,
     )
 
 
@@ -89,28 +86,6 @@ interface CloudWriter {
     )
     // TODO: удаление в копзину/полное
     fun deleteDirRecursively(basePath: String, dirName: String)
-
-
-    /**
-     * Переименовывает файл или пустой каталог.
-     * Не работает с локальным хранилищем, если целевой
-     * файл находится на физическом разделе, отличном
-     * от исходного.
-     */
-    @Throws(
-        IOException::class,
-        OperationUnsuccessfulException::class,
-        OperationTimeoutException::class
-    )
-    fun renameFileOrEmptyDir(
-        fromAbsolutePath: String,
-        toAbsolutePath: String,
-        overwriteIfExists: Boolean = true
-    ): Boolean
-
-
-//    @Throws(IOException::class)
-//    fun renameEmptyDir(fromAbsolutePath: String, toAbsolutePath: String)
 
 
     // TODO: выделить в отдельный файл...
