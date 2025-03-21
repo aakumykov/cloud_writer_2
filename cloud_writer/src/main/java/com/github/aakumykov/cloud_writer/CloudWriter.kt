@@ -37,7 +37,7 @@ interface CloudWriter {
      * которые способны создавать "глубокие" каталоги.
      */
     @Throws(IOException::class, OperationUnsuccessfulException::class)
-    fun putFile(file: File, targetPath: String, overwriteIfExists: Boolean = false)
+    fun putFile(sourceFile: File, targetAbsolutePath: String, overwriteIfExists: Boolean = false)
 
 
     /**
@@ -88,6 +88,24 @@ interface CloudWriter {
     )
     // TODO: удаление в копзину/полное
     fun deleteDirRecursively(basePath: String, dirName: String)
+
+
+    /**
+     * Переименовывает файл или пустой каталог.
+     * Не работает с локальным хранилищем, если целевой
+     * файл находится на физическом разделе, отличном
+     * от исходного.
+     */
+    @Throws(
+        IOException::class,
+        OperationUnsuccessfulException::class,
+        OperationTimeoutException::class
+    )
+    fun renameFileOrEmptyDir(
+        fromAbsolutePath: String,
+        toAbsolutePath: String,
+        overwriteIfExists: Boolean = true
+    ): Boolean
 
 
     // TODO: выделить в отдельный файл...

@@ -2,6 +2,8 @@ package com.github.aakumykov.yandex_disk_cloud_writer
 
 import android.util.Log
 import com.github.aakumykov.cloud_writer.CloudWriter
+import com.github.aakumykov.cloud_writer.CloudWriter.OperationTimeoutException
+import com.github.aakumykov.cloud_writer.CloudWriter.OperationUnsuccessfulException
 import com.github.aakumykov.copy_between_streams_with_counting.copyBetweenStreamsWithCounting
 import com.google.gson.Gson
 import com.yandex.disk.rest.json.Link
@@ -237,6 +239,39 @@ class YandexDiskCloudWriter(
         }
     }
 
+    @Throws(
+        IOException::class,
+        OperationUnsuccessfulException::class,
+        OperationTimeoutException::class
+    )
+    override fun renameFileOrEmptyDir(
+        fromAbsolutePath: String,
+        toAbsolutePath: String,
+        overwriteIfExists: Boolean
+    ): Boolean {
+
+        val url = MOVE_BASE_URL.toHttpUrl().newBuilder().apply {
+            addQueryParameter("from", fromAbsolutePath)
+            addQueryParameter("path", toAbsolutePath)
+            addQueryParameter("overwrite", overwriteIfExists.toString())
+            addQueryParameter("force_async", "false")
+        }.build()
+
+        val request: Request = Request.Builder()
+            .header("Authorization", authToken)
+            .url(url)
+            .post(ByteArray(0).toRequestBody(null))
+            .build()
+
+        okHttpClient.newCall(request).execute().use { response ->
+            when (response.code) {
+                201 -> return true
+                202 -> throw IndeterminateOperationException(linkFromResponse(response))
+                else -> throw unsuccessfulResponseException(response)
+            }
+        }
+    }
+
     @Throws(CloudWriter.OperationUnsuccessfulException::class)
     private fun operationIsFinished(operationStatusLink: String): Boolean {
         Log.d(TAG, "operationIsFinished() called with: operationStatusLink = $operationStatusLink")
@@ -385,6 +420,7 @@ class YandexDiskCloudWriter(
         private const val DISK_BASE_URL = "https://cloud-api.yandex.net/v1/disk"
         private const val RESOURCES_BASE_URL = "$DISK_BASE_URL/resources"
         private const val UPLOAD_BASE_URL = "$RESOURCES_BASE_URL/upload"
+        private const val MOVE_BASE_URL = "$RESOURCES_BASE_URL/move"
 
         private const val DEFAULT_MEDIA_TYPE = "application/octet-stream"
     }
