@@ -54,7 +54,8 @@ class LocalCloudWriter constructor(
         inputStream: InputStream,
         targetPath: String,
         overwriteIfExists: Boolean,
-        writingCallback: ((Long) -> Unit)?
+        writingCallback: ((Long) -> Unit)?,
+        finishCallback: ((Long,Long) -> Unit)?,
     ) {
         val targetFile = File(targetPath)
         if (targetFile.exists() && !overwriteIfExists)
@@ -63,7 +64,8 @@ class LocalCloudWriter constructor(
         copyBetweenStreamsWithCounting(
             inputStream = inputStream,
             outputStream = targetFile.outputStream(),
-            writingCallback = writingCallback
+            writingCallback = writingCallback,
+            finishCallback = finishCallback,
         )
     }
 

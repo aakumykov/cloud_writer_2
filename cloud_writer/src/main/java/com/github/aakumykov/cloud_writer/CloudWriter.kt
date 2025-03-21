@@ -42,7 +42,8 @@ interface CloudWriter {
 
     /**
      * Записывает поток в файл по указанному пути, читая данные из InputStream.
-     * Через коллбек возвращает количество записанных байт.
+     * @param writingCallback
+     * @param finishCallback
      */
     @Throws(IOException::class, OperationUnsuccessfulException::class)
     fun putStream(
@@ -50,6 +51,7 @@ interface CloudWriter {
         targetPath: String,
         overwriteIfExists: Boolean = false,
         writingCallback: ((Long) -> Unit)? = null,
+        finishCallback: ((Long,Long) -> Unit)? = null,
     )
 
 

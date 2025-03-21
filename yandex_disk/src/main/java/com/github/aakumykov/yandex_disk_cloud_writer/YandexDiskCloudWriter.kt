@@ -19,7 +19,6 @@ import java.io.File
 import java.io.IOException
 import java.io.InputStream
 import java.util.concurrent.TimeUnit
-import kotlin.math.sin
 
 class YandexDiskCloudWriter(
     private val authToken: String,
@@ -129,10 +128,11 @@ class YandexDiskCloudWriter(
         inputStream: InputStream,
         targetPath: String,
         overwriteIfExists: Boolean,
-        writingCallback: ((Long) -> Unit)?
+        writingCallback: ((Long) -> Unit)?,
+        finishCallback: ((Long,Long) -> Unit)?,
     ) {
         val uploadURL = getURLForUpload(targetPath, overwriteIfExists)
-        putStreamReal(inputStream, uploadURL, writingCallback)
+        putStreamReal(inputStream, uploadURL, writingCallback, finishCallback)
     }
 
 
@@ -331,7 +331,8 @@ class YandexDiskCloudWriter(
     private fun putStreamReal(
         inputStream: InputStream,
         uploadURL: String,
-        writingCallback: ((Long) -> Unit)? = null
+        writingCallback: ((Long) -> Unit)? = null,
+        finishCallback: ((Long, Long) -> Unit)? = null,
     ) {
 
         val requestBody: RequestBody = object: RequestBody() {
@@ -342,7 +343,8 @@ class YandexDiskCloudWriter(
                 copyBetweenStreamsWithCounting(
                     inputStream = inputStream,
                     outputStream = sink.outputStream(),
-                    writingCallback = writingCallback
+                    writingCallback = writingCallback,
+                    finishCallback = finishCallback,
                 )
             }
         }
