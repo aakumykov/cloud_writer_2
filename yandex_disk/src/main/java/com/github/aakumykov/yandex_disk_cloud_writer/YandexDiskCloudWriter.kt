@@ -291,6 +291,7 @@ class YandexDiskCloudWriter(
         }
     }
 
+    @Deprecated("Избавиться")
     private fun statusResponseToBoolean(response: Response): Boolean {
         val operationStatus = gson.fromJson(response.body?.string(), OperationStatus::class.java)
         return "success" == operationStatus.status
@@ -387,6 +388,30 @@ class YandexDiskCloudWriter(
         performUploadRequest(requestBody, uploadURL)
     }
 
+    override fun copyFile(fromAbsolutePath: String, toAbsolutePath: String, overwriteIfExists: Boolean) {
+
+        val url = COPY_BASE_URL.toHttpUrl().newBuilder().apply {
+            addQueryParameter("from", fromAbsolutePath)
+            addQueryParameter("path", toAbsolutePath)
+            addQueryParameter("overwrite", overwriteIfExists.toString())
+            addQueryParameter("force_async", "false")
+        }.build()
+
+        val request: Request = Request.Builder()
+            .header("Authorization", authToken)
+            .url(url)
+            .post(ByteArray(0).toRequestBody(null))
+            .build()
+
+        okHttpClient.newCall(request).execute().use { response ->
+            when (response.code) {
+                201 -> return
+                202 -> throw IndeterminateOperationException(linkFromResponse(response))
+                else -> throw unsuccessfulResponseException(response)
+            }
+        }
+    }
+
 
     private fun performUploadRequest(requestBody: RequestBody, uploadURL: String) {
 
@@ -421,10 +446,12 @@ class YandexDiskCloudWriter(
         private const val RESOURCES_BASE_URL = "$DISK_BASE_URL/resources"
         private const val UPLOAD_BASE_URL = "$RESOURCES_BASE_URL/upload"
         private const val MOVE_BASE_URL = "$RESOURCES_BASE_URL/move"
+        private const val COPY_BASE_URL = "$RESOURCES_BASE_URL/copy"
 
         private const val DEFAULT_MEDIA_TYPE = "application/octet-stream"
     }
 
+    @Deprecated("Избавиться")
     class IndeterminateOperationException(val operationStatusLink: String) : Exception()
 
     inner class OperationStatus(val status: String)

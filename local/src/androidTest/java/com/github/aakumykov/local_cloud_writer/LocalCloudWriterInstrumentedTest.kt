@@ -3,12 +3,14 @@ package com.github.aakumykov.local_cloud_writer
 import android.content.Context
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
+import junit.framework.TestCase.assertEquals
 import junit.framework.TestCase.assertTrue
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.io.File
+import kotlin.random.Random
 
 @RunWith(AndroidJUnit4::class)
 class LocalCloudWriterInstrumentedTest {
@@ -27,7 +29,10 @@ class LocalCloudWriterInstrumentedTest {
     @Before
     fun prepareSourceFile() {
         removeAllTestFiles()
-        sourceFile.createNewFile()
+        sourceFile.apply {
+            createNewFile()
+            writeBytes(randomBytes)
+        }
     }
 
     @After
@@ -45,10 +50,29 @@ class LocalCloudWriterInstrumentedTest {
     }
 
 
+    @Test
+    fun when_copy_file_then_it_copied_with_its_content() {
+        LocalCloudWriter().copyFile(
+            sourceFile.absolutePath,
+            targetFile.absolutePath,
+            true
+        ).also {
+            assertTrue(targetFile.exists())
+            assertEquals(
+                sourceFile.readBytes().joinToString(""),
+                targetFile.readBytes().joinToString(""),
+            )
+        }
+    }
+
+
     private fun removeAllTestFiles() {
         sourceFile.delete()
         sourceFile.delete()
     }
+
+    private val randomBytes: ByteArray
+        get() = Random.nextBytes(10)
 
     companion object {
         const val SOURCE_FILE_NAME = "source_file.txt"

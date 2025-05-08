@@ -69,6 +69,16 @@ class LocalCloudWriter constructor(
         )
     }
 
+
+    @Throws(
+        IOException::class,
+        OperationUnsuccessfulException::class
+    )
+    override fun copyFile(fromAbsolutePath: String, toAbsolutePath: String, overwriteIfExists: Boolean) {
+        File(fromAbsolutePath).copyTo(File(toAbsolutePath), overwriteIfExists)
+    }
+
+
     override fun deleteDir(basePath: String, dirName: String) {
         val fsObject = File(basePath, dirName)
         fsObject.also {

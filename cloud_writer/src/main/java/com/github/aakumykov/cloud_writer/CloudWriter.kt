@@ -70,6 +70,7 @@ interface CloudWriter {
         OperationUnsuccessfulException::class,
         OperationTimeoutException::class
     )
+    @Deprecated("Избавиться")
     fun deleteFile(basePath: String, fileName: String)
 
 
@@ -81,12 +82,14 @@ interface CloudWriter {
     )
     fun deleteDir(basePath: String, dirName: String)
 
+
     @Throws(
         IOException::class,
         OperationUnsuccessfulException::class,
         OperationTimeoutException::class
     )
     // TODO: удаление в копзину/полное
+    @Deprecated("Избавиться")
     fun deleteDirRecursively(basePath: String, dirName: String)
 
 
