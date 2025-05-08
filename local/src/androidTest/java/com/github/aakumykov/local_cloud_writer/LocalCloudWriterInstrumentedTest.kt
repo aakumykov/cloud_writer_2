@@ -3,6 +3,7 @@ package com.github.aakumykov.local_cloud_writer
 import android.content.Context
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
+import com.github.aakumykov.cloud_writer.CloudWriter
 import junit.framework.TestCase.assertEquals
 import junit.framework.TestCase.assertTrue
 import org.junit.After
@@ -24,6 +25,12 @@ class LocalCloudWriterInstrumentedTest {
 
     private val targetFile: File
         get() = File(context.cacheDir, TARGET_FILE_NAME)
+
+    private val sourceDirParentDirPath: String
+        get() = context.cacheDir.absolutePath
+
+    private val sourceDirName: String
+        get() = "dirInSource_1"
 
 
     @Before
@@ -64,6 +71,22 @@ class LocalCloudWriterInstrumentedTest {
             )
         }
     }
+
+
+    @Test
+    fun when_create_dir_then() {
+        LocalCloudWriter().createDir(
+            sourceDirParentDirPath,
+            sourceDirName
+        ).also { dirPath ->
+            assertTrue(File(dirPath).exists())
+            assertEquals(
+                CloudWriter.composeFullPath(sourceDirParentDirPath, sourceDirName),
+                dirPath
+            )
+        }
+    }
+
 
 
     private fun removeAllTestFiles() {

@@ -17,7 +17,7 @@ class LocalCloudWriter constructor(
         IOException::class,
         OperationUnsuccessfulException::class,
     )
-    override fun createDir(basePath: String, dirName: String) {
+    override fun createDir(basePath: String, dirName: String): String {
 
         val fullDirName = CloudWriter.composeFullPath(basePath, dirName)
 
@@ -26,6 +26,8 @@ class LocalCloudWriter constructor(
                 if (!mkdirs())
                     throw OperationUnsuccessfulException(0, dirNotCreatedMessage(absolutePath))
         }
+
+        return fullDirName
     }
 
     override fun createDirResult(basePath: String, dirName: String): Result<String> {
@@ -38,14 +40,14 @@ class LocalCloudWriter constructor(
     }
 
     @Throws(IOException::class, OperationUnsuccessfulException::class)
-    override fun putFile(file: File, targetPath: String, overwriteIfExists: Boolean) {
+    override fun putFile(sourceFile: File, targetAbsolutePath: String, overwriteIfExists: Boolean) {
 
-        val targetFile = File(targetPath)
+        val targetFile = File(targetAbsolutePath)
 
-        val isMoved = file.renameTo(targetFile)
+        val isMoved = sourceFile.renameTo(targetFile)
 
         if (!isMoved)
-            throw IOException("File cannot be not moved from '${file.absolutePath}' to '${targetPath}'")
+            throw IOException("File cannot be not moved from '${sourceFile.absolutePath}' to '${targetAbsolutePath}'")
     }
 
 

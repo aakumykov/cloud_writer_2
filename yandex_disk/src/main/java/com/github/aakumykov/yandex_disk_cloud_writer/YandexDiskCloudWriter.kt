@@ -35,9 +35,9 @@ class YandexDiskCloudWriter(
         IOException::class,
         CloudWriter.OperationUnsuccessfulException::class,
     )
-    override fun createDir(basePath: String, dirName: String) {
+    override fun createDir(basePath: String, dirName: String): String {
         Log.d(TAG, "createDir() called with: basePath = $basePath, dirName = $dirName")
-        if (!dirName.contains(CloudWriter.DS)) createOneLevelDir(
+        return if (!dirName.contains(CloudWriter.DS)) createOneLevelDir(
             CloudWriter.composeFullPath(
                 basePath,
                 dirName
@@ -59,12 +59,14 @@ class YandexDiskCloudWriter(
         IOException::class,
         CloudWriter.OperationUnsuccessfulException::class,
     )
-    private fun createMultiLevelDir(parentDirName: String, childDirName: String) {
+    private fun createMultiLevelDir(parentDirName: String, childDirName: String): String {
 
         Log.d(TAG, "createMultiLevelDir() called with: parentDirName = $parentDirName, childDirName = $childDirName")
 
+        val absoluteDirPath = CloudWriter.composeFullPath(parentDirName, childDirName)
+
         if (fileExists(parentDirName, childDirName))
-            return
+            return absoluteDirPath
 
         var pathToCreate = ""
 
@@ -74,6 +76,8 @@ class YandexDiskCloudWriter(
 
             createOneLevelDir(parentDirName, pathToCreate)
         }
+
+        return absoluteDirPath
     }
 
 
@@ -90,7 +94,7 @@ class YandexDiskCloudWriter(
         IOException::class,
         CloudWriter.OperationUnsuccessfulException::class,
     )
-    private fun createOneLevelDir(absoluteDirPath: String) {
+    private fun createOneLevelDir(absoluteDirPath: String): String {
 
         Log.d(TAG, "createOneLevelDir() called with: absoluteDirPath = $absoluteDirPath")
 
@@ -108,7 +112,7 @@ class YandexDiskCloudWriter(
 
         okHttpClient.newCall(request).execute().use { response ->
             when (response.code) {
-                201 -> return
+                201 -> return absoluteDirPath
                 else -> throw unsuccessfulResponseException(response)
             }
         }
@@ -138,7 +142,7 @@ class YandexDiskCloudWriter(
     }
 
 
-    @Throws(IOException::class, CloudWriter.OperationUnsuccessfulException::class)
+    @Throws(IOException::class, OperationUnsuccessfulException::class)
     override fun fileExists(parentDirName: String, childName: String): Boolean {
 
         Log.d(

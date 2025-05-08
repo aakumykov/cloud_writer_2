@@ -18,7 +18,7 @@ interface CloudWriter {
         IOException::class,
         OperationUnsuccessfulException::class,
     )
-    fun createDir(basePath: String, dirName: String)
+    fun createDir(basePath: String, dirName: String): String
 
     /**
      * Создаёт каталог в указанном каталоге. Дочерний каталог может быть многоуровневым.
