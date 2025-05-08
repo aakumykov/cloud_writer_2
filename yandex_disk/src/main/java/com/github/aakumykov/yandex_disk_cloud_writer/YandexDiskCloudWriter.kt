@@ -277,6 +277,14 @@ class YandexDiskCloudWriter(
         }
     }
 
+    override fun moveFileOrEmptyDir(
+        fromAbsolutePath: String,
+        toAbsolutePath: String,
+        overwriteIfExists: Boolean
+    ) {
+        renameFileOrEmptyDir(fromAbsolutePath, toAbsolutePath, overwriteIfExists)
+    }
+
 
     @Throws(CloudWriter.OperationUnsuccessfulException::class)
     private fun operationIsFinished(operationStatusLink: String): Boolean {
