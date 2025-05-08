@@ -239,6 +239,7 @@ class YandexDiskCloudWriter(
         }
     }
 
+
     @Throws(
         IOException::class,
         OperationUnsuccessfulException::class,
@@ -272,6 +273,7 @@ class YandexDiskCloudWriter(
         }
     }
 
+
     @Throws(CloudWriter.OperationUnsuccessfulException::class)
     private fun operationIsFinished(operationStatusLink: String): Boolean {
         Log.d(TAG, "operationIsFinished() called with: operationStatusLink = $operationStatusLink")
@@ -291,11 +293,13 @@ class YandexDiskCloudWriter(
         }
     }
 
+
     @Deprecated("Избавиться")
     private fun statusResponseToBoolean(response: Response): Boolean {
         val operationStatus = gson.fromJson(response.body?.string(), OperationStatus::class.java)
         return "success" == operationStatus.status
     }
+
 
     @Throws(IndeterminateOperationException::class)
     private fun deleteFileSimple(basePath: String, fileName: String) {
@@ -363,6 +367,7 @@ class YandexDiskCloudWriter(
         performUploadRequest(requestBody, uploadURL)
     }
 
+
     @Throws(IOException::class, CloudWriter.OperationUnsuccessfulException::class)
     private fun putStreamReal(
         inputStream: InputStream,
@@ -387,6 +392,7 @@ class YandexDiskCloudWriter(
 
         performUploadRequest(requestBody, uploadURL)
     }
+
 
     override fun copyFile(fromAbsolutePath: String, toAbsolutePath: String, overwriteIfExists: Boolean) {
 

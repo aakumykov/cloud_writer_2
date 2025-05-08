@@ -111,6 +111,13 @@ interface CloudWriter {
     ): Boolean
 
 
+    @Throws(
+        IOException::class,
+        OperationUnsuccessfulException::class
+    )
+    fun copyFile(fromAbsolutePath: String, toAbsolutePath: String, overwriteIfExists: Boolean)
+
+
     // TODO: выделить в отдельный файл...
     sealed class CloudWriterException(message: String) : Exception(message)
 
