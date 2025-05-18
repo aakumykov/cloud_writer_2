@@ -123,7 +123,11 @@ interface CloudWriter {
         IOException::class,
         OperationUnsuccessfulException::class
     )
-    fun moveFileOrEmptyDir(fromAbsolutePath: String, toAbsolutePath: String, overwriteIfExists: Boolean)
+    fun moveFileOrEmptyDir(
+        fromAbsolutePath: String,
+        toAbsolutePath: String,
+        overwriteIfExists: Boolean
+    ): Boolean
 
 
     // TODO: выделить в отдельный файл...

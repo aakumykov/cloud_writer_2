@@ -34,8 +34,8 @@ class LocalCloudWriter constructor(
         fromAbsolutePath: String,
         toAbsolutePath: String,
         overwriteIfExists: Boolean
-    ) {
-        renameFileOrEmptyDir(fromAbsolutePath, toAbsolutePath, overwriteIfExists)
+    ): Boolean {
+        return renameFileOrEmptyDir(fromAbsolutePath, toAbsolutePath, overwriteIfExists)
     }
 
     override fun createDirResult(basePath: String, dirName: String): Result<String> {

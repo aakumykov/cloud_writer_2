@@ -281,8 +281,8 @@ class YandexDiskCloudWriter(
         fromAbsolutePath: String,
         toAbsolutePath: String,
         overwriteIfExists: Boolean
-    ) {
-        renameFileOrEmptyDir(fromAbsolutePath, toAbsolutePath, overwriteIfExists)
+    ): Boolean {
+        return renameFileOrEmptyDir(fromAbsolutePath, toAbsolutePath, overwriteIfExists)
     }
 
 
