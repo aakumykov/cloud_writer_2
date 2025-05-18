@@ -5,8 +5,9 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.github.aakumykov.cloud_writer.CloudWriter
 import junit.framework.TestCase.assertEquals
+import junit.framework.TestCase.assertFalse
 import junit.framework.TestCase.assertTrue
-import org.junit.After
+import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -14,88 +15,79 @@ import java.io.File
 import kotlin.random.Random
 
 @RunWith(AndroidJUnit4::class)
-class LocalCloudWriterInstrumentedTest {
+open class LocalCloudWriterInstrumentedTest {
 
-    private val context: Context by lazy {
+    protected val context: Context by lazy {
         InstrumentationRegistry.getInstrumentation().context
     }
 
-    private val sourceFile: File
+    protected val sourceFile: File
         get() = File(context.cacheDir, SOURCE_FILE_NAME)
 
-    private val targetFile: File
+    protected val targetFile: File
         get() = File(context.cacheDir, TARGET_FILE_NAME)
 
-    private val sourceDirParentDirPath: String
+
+    protected val testDirParentPath: String
         get() = context.cacheDir.absolutePath
 
-    private val sourceDirName: String
-        get() = "dirInSource_1"
+    protected val testDirName: String
+        get() = "test_dir_1"
+
+    protected val testDir: File
+        get() = File(testDirParentPath, testDirName)
+
+
+    protected val sourceFileContents: String
+        get() = sourceFile.readBytes().joinToString("")
+
+    protected val targetFileContents: String
+        get() = targetFile.readBytes().joinToString("")
 
 
     @Before
-    fun prepareSourceFile() {
-        removeAllTestFiles()
+    fun removeAllTestFiles() {
+        sourceFile.delete()
+        targetFile.delete()
+        testDir.delete()
+
+        Assert.assertFalse(sourceFile.exists())
+        Assert.assertFalse(targetFile.exists())
+        Assert.assertFalse(testDir.exists())
+    }
+
+
+    @Test
+    fun empty_test(){}
+
+
+
+    fun createSourceFile() {
         sourceFile.apply {
             createNewFile()
             writeBytes(randomBytes)
         }
+        Assert.assertTrue(sourceFile.exists())
+        Assert.assertTrue(sourceFileContents.isNotEmpty())
     }
 
-    @After
-    fun removeTestFiles() {
-        removeAllTestFiles()
-    }
-
-    @Test
-    fun when_rename_file_then_it_renamed() {
-        LocalCloudWriter().renameFileOrEmptyDir(
-            sourceFile.absolutePath,
-            targetFile.absolutePath
-        )
-        assertTrue(targetFile.exists())
-    }
-
-
-    @Test
-    fun when_copy_file_then_it_copied_with_its_content() {
-        LocalCloudWriter().copyFile(
-            sourceFile.absolutePath,
-            targetFile.absolutePath,
-            true
-        ).also {
-            assertTrue(targetFile.exists())
-            assertEquals(
-                sourceFile.readBytes().joinToString(""),
-                targetFile.readBytes().joinToString(""),
-            )
+    fun createTargetFile() {
+        targetFile.apply {
+            createNewFile()
+            writeBytes(randomBytes)
         }
+        Assert.assertTrue(targetFile.exists())
+        Assert.assertTrue(targetFileContents.isNotEmpty())
     }
 
 
-    @Test
-    fun when_create_dir_then() {
-        LocalCloudWriter().createDir(
-            sourceDirParentDirPath,
-            sourceDirName
-        ).also { dirPath ->
-            assertTrue(File(dirPath).exists())
-            assertEquals(
-                CloudWriter.composeFullPath(sourceDirParentDirPath, sourceDirName),
-                dirPath
-            )
-        }
-    }
-
-
-
-    private fun removeAllTestFiles() {
-        sourceFile.delete()
-        sourceFile.delete()
-    }
-
-    private val randomBytes: ByteArray
+    protected val randomBytes: ByteArray
         get() = Random.nextBytes(10)
+
+
+    protected val localCloudWriter: CloudWriter
+        get() = LocalCloudWriter()
+
 
     companion object {
         const val SOURCE_FILE_NAME = "source_file.txt"
