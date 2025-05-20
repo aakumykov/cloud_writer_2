@@ -1,7 +1,3 @@
 # Default ignored files
 /shelf/
-/workspace.xml
-/misc.xml
-/other.xml
-/deploymentTargetSelector.xml
-/other.xml
+/*.xml
