@@ -13,6 +13,7 @@ import com.github.aakumykov.cloud_reader.CloudReader
 import com.github.aakumykov.cloud_writer.CloudWriter
 import com.github.aakumykov.cloud_writer.cloud_authenticator.CloudAuthenticator
 import com.github.aakumykov.cloud_writer.cloud_authenticator.YandexAuthenticator
+import com.github.aakumykov.cloud_writer.enums.StorageType
 import com.github.aakumykov.cloud_writer.extentions.getStringFromPreferences
 import com.github.aakumykov.cloud_writer.extentions.storeStringInPreferences
 import com.github.aakumykov.cloud_writer_2.R

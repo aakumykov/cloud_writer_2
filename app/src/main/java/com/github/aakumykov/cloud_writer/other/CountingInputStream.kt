@@ -1,4 +1,4 @@
-package com.github.aakumykov.cloud_writer.fragments
+package com.github.aakumykov.cloud_writer.other
 
 import java.io.BufferedInputStream
 import java.io.IOException

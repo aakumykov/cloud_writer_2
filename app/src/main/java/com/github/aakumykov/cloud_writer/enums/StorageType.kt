@@ -1,4 +1,4 @@
-package com.github.aakumykov.cloud_writer.fragments
+package com.github.aakumykov.cloud_writer.enums
 
 enum class StorageType {
     LOCAL,
