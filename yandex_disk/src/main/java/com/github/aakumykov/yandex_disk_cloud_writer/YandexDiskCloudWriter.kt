@@ -36,14 +36,18 @@ class YandexDiskCloudWriter(
         CloudWriter.OperationUnsuccessfulException::class,
     )
     override fun createDir(basePath: String, dirName: String): String {
+
         Log.d(TAG, "createDir() called with: basePath = $basePath, dirName = $dirName")
-        return if (!dirName.contains(CloudWriter.DS)) createOneLevelDir(
+
+        /*return if (!dirName.contains(CloudWriter.DS)) createOneLevelDir(
             CloudWriter.composeFullPath(
                 basePath,
                 dirName
             )
         )
-        else createMultiLevelDir(basePath, dirName)
+        else createMultiLevelDir(basePath, dirName)*/
+
+        return createOneLevelDir(CloudWriter.composeFullPath(basePath, dirName))
     }
 
     override fun createDirResult(basePath: String, dirName: String): Result<String> {
