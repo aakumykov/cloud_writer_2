@@ -87,7 +87,7 @@ class YandexDiskCloudWriter(
 
     @Throws(
         IOException::class,
-        CloudWriter.OperationUnsuccessfulException::class,
+        OperationUnsuccessfulException::class,
     )
     private fun createOneLevelDir(parentDirName: String, childDirName: String) {
         Log.d(TAG, "createOneLevelDir() called with: parentDirName = $parentDirName, childDirName = $childDirName")
@@ -96,7 +96,7 @@ class YandexDiskCloudWriter(
 
     @Throws(
         IOException::class,
-        CloudWriter.OperationUnsuccessfulException::class,
+        OperationUnsuccessfulException::class,
     )
     private fun createOneLevelDir(absoluteDirPath: String): String {
 
@@ -117,7 +117,7 @@ class YandexDiskCloudWriter(
         okHttpClient.newCall(request).execute().use { response ->
             when (response.code) {
                 201 -> return absoluteDirPath
-                else -> throw unsuccessfulResponseException(response)
+                else -> throw unsuccessfulResponseException(response, "Failed creating one level dir '$absoluteDirPath'")
             }
         }
     }
@@ -154,12 +154,12 @@ class YandexDiskCloudWriter(
             "fileExists() called with: parentDirName = $parentDirName, childName = $childName"
         )
 
-        val dirName = CloudWriter.composeFullPath(parentDirName, childName)
+        val dirPath = CloudWriter.composeFullPath(parentDirName, childName)
 
-        Log.d(TAG, "dirName: $dirName")
+        Log.d(TAG, "dirPath: $dirPath")
 
         val url = RESOURCES_BASE_URL.toHttpUrl().newBuilder().apply {
-            addQueryParameter("path", dirName)
+            addQueryParameter("path", dirPath)
         }.build()
 
         val request: Request = Request.Builder()
@@ -171,7 +171,7 @@ class YandexDiskCloudWriter(
             return when (response.code) {
                 200 -> true
                 404 -> false
-                else -> throw unsuccessfulResponseException(response)
+                else -> throw unsuccessfulResponseException(response, "File checking file existence: '$dirPath'")
             }
         }
     }
@@ -276,7 +276,7 @@ class YandexDiskCloudWriter(
             when (response.code) {
                 201 -> return true
                 202 -> throw IndeterminateOperationException(linkFromResponse(response))
-                else -> throw unsuccessfulResponseException(response)
+                else -> throw unsuccessfulResponseException(response, "Fail renaming file from '$fromAbsolutePath' to '$toAbsolutePath' with overwriteIfExists='$overwriteIfExists'")
             }
         }
     }
@@ -339,7 +339,7 @@ class YandexDiskCloudWriter(
             when (response.code) {
                 204 -> return
                 202 -> throw IndeterminateOperationException(linkFromResponse(response))
-                else -> throw unsuccessfulResponseException(response)
+                else -> throw unsuccessfulResponseException(response, "Fail deleting file '$path'")
             }
         }
     }
@@ -368,7 +368,7 @@ class YandexDiskCloudWriter(
             if (response.isSuccessful)
                 return linkFromResponse(response)
             else
-                throw unsuccessfulResponseException(response)
+                throw unsuccessfulResponseException(response, "Fail getting url for upload for path '$targetFilePath' with overwriteIfExists='$overwriteIfExists'")
         }
     }
 
@@ -429,7 +429,7 @@ class YandexDiskCloudWriter(
             when (response.code) {
                 201 -> return
                 202 -> throw IndeterminateOperationException(linkFromResponse(response))
-                else -> throw unsuccessfulResponseException(response)
+                else -> throw unsuccessfulResponseException(response, "Fail copying file from '$fromAbsolutePath' to '$toAbsolutePath' with overwriting='$overwriteIfExists'")
             }
         }
     }
@@ -443,13 +443,17 @@ class YandexDiskCloudWriter(
             .build()
 
         okHttpClient.newCall(fileUploadRequest).execute().use { response ->
-            if (!response.isSuccessful) throw unsuccessfulResponseException(response)
+            if (!response.isSuccessful) throw unsuccessfulResponseException(response, "Perform upload request failed.")
         }
     }
 
 
-    private fun unsuccessfulResponseException(response: Response): Throwable
-        = CloudWriter.OperationUnsuccessfulException(response.code, response.message)
+    private fun unsuccessfulResponseException(response: Response, extraText: String? = null): Throwable {
+        return OperationUnsuccessfulException(
+            response.code,
+            extraText?.let { "${response.message}; $extraText" } ?: response.message,
+        )
+    }
 
 
     private fun linkFromResponse(response: Response): String {
