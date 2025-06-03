@@ -22,6 +22,19 @@ interface CloudWriter {
     fun createDir(basePath: String, dirName: String): String
 
     /**
+     * Создаёт каталог с именем [dirName] в указанном [basePath] каталоге,
+     * если такового не существует (что актуально для облачных хранилищ: их API
+     * могут выбрасывать ошибку при попытке повторного создания каталога).
+     *
+     * @param force Пытаться создать каталог, даже если он уже существует.
+     */
+    @Throws(
+        IOException::class,
+        OperationUnsuccessfulException::class,
+    )
+    fun createDirIfNotExists(basePath: String, dirName: String, force: Boolean = false): String
+
+    /**
      * Создаёт каталог в указанном каталоге. Дочерний каталог может быть многоуровневым.
      * @see [createDir]
      * @return Полный путь к созданному каталогу, обёрнутый в [kotlin.Result]

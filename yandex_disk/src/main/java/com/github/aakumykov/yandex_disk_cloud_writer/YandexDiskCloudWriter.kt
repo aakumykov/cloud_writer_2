@@ -7,6 +7,7 @@ import com.github.aakumykov.cloud_writer.CloudWriter.OperationUnsuccessfulExcept
 import com.github.aakumykov.copy_between_streams_with_counting.copyBetweenStreamsWithCounting
 import com.google.gson.Gson
 import com.yandex.disk.rest.json.Link
+import okhttp3.HttpUrl.Companion.defaultPort
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.MediaType
 import okhttp3.MediaType.Companion.toMediaType
@@ -122,6 +123,11 @@ class YandexDiskCloudWriter(
         }
     }
 
+    override fun createDirIfNotExists(basePath: String, dirName: String, force: Boolean): String {
+        if (!fileExists(basePath, dirName) && !force)
+            createOneLevelDir(basePath, dirName)
+        return CloudWriter.composeFullPath(basePath, dirName)
+    }
 
     @Throws(IOException::class, CloudWriter.OperationUnsuccessfulException::class)
     override fun putFile(file: File, targetPath: String, overwriteIfExists: Boolean) {

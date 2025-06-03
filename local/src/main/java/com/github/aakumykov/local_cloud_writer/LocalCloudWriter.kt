@@ -30,6 +30,10 @@ class LocalCloudWriter constructor(
         return fullDirName
     }
 
+    override fun createDirIfNotExists(basePath: String, dirName: String, force: Boolean): String {
+        return createDir(basePath = basePath, dirName = dirName)
+    }
+
     override fun moveFileOrEmptyDir(
         fromAbsolutePath: String,
         toAbsolutePath: String,
