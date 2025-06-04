@@ -10,16 +10,33 @@ import java.io.InputStream
 interface CloudWriter {
 
     /**
-     * Создаёт каталог в указанном каталоге. Дочерний каталог может быть многоуровневым.
+     * Пробует создать каталог по указанному пути.
+     * Дочерний каталог может быть многоуровневым.
      * @param basePath "Родительский" каталог.
-     * @param dirName Имя создаваемого каталога, может быть многоуровневым.
+     * @param dirName Имя создаваемого каталога, может быть многоуровневым. // FIXME: нужна ли эта многоуровневость?
      * @return Абсолютный путь к созданному каталогу.
+     * @throws [IOException], [OperationUnsuccessfulException]
      */
-    @Throws(
-        IOException::class,
-        OperationUnsuccessfulException::class,
-    )
+    @Throws(IOException::class, OperationUnsuccessfulException::class)
     fun createDir(basePath: String, dirName: String): String
+
+
+    /**
+     * Пробует создать каталог по указанному пути.
+     * @throws [IOException], [OperationUnsuccessfulException]
+     */
+    @Throws(IOException::class, OperationUnsuccessfulException::class,)
+    fun createDir(absoluteDirPath: String)
+
+
+    /**
+     * Создаёт каталог, по отдельности создавая каждый каталог в глубину
+     * пути, если такого ещё не существует.
+     * @param force Не проверять наличие каталога, пробовать создавать сразу.
+     */
+    @Throws(IOException::class, OperationUnsuccessfulException::class,)
+    fun createDeepDirIfNotExists(absoluteDirPath: String, force: Boolean = false)
+
 
     /**
      * Создаёт каталог с именем [dirName] в указанном [basePath] каталоге,
@@ -28,13 +45,21 @@ interface CloudWriter {
      *
      * @param force Пытаться создать каталог, даже если он уже существует.
      */
-    @Throws(
-        IOException::class,
-        OperationUnsuccessfulException::class,
-    )
+    @Throws(IOException::class, OperationUnsuccessfulException::class)
     fun createDirIfNotExists(basePath: String, dirName: String, force: Boolean = false): String
 
+
     /**
+     * Пробует создать каталог по указанному пути, если такого ещё не существует.
+     * (В случае облачного API это приводит к задержке на проверку.)
+     * @throws [IOException], [OperationUnsuccessfulException]
+     */
+    @Throws(IOException::class, OperationUnsuccessfulException::class)
+    fun createDirIfNotExists(absoluteDirPath: String, force: Boolean = false)
+
+
+
+            /**
      * Создаёт каталог в указанном каталоге. Дочерний каталог может быть многоуровневым.
      * @see [createDir]
      * @return Полный путь к созданному каталогу, обёрнутый в [kotlin.Result]
@@ -69,10 +94,12 @@ interface CloudWriter {
     )
 
 
-    // TODO: не нужна
-    // FIXME: добавить аннотацию в реализации
     @Throws(IOException::class, OperationUnsuccessfulException::class)
     fun fileExists(parentDirName: String, childName: String): Boolean
+
+
+    @Throws(IOException::class, OperationUnsuccessfulException::class)
+    fun fileExists(absolutePath: String): Boolean
 
 
     // TODO: локальное удаление в корзину

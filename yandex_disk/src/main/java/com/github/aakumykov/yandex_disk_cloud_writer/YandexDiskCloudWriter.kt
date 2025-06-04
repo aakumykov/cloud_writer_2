@@ -7,7 +7,6 @@ import com.github.aakumykov.cloud_writer.CloudWriter.OperationUnsuccessfulExcept
 import com.github.aakumykov.copy_between_streams_with_counting.copyBetweenStreamsWithCounting
 import com.google.gson.Gson
 import com.yandex.disk.rest.json.Link
-import okhttp3.HttpUrl.Companion.defaultPort
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.MediaType
 import okhttp3.MediaType.Companion.toMediaType
@@ -32,26 +31,35 @@ class YandexDiskCloudWriter(
     private val defaultMediaType: MediaType get() = DEFAULT_MEDIA_TYPE.toMediaType()
 
     // TODO: проверить с разными аргументами
-    @Throws(
-        IOException::class,
-        CloudWriter.OperationUnsuccessfulException::class,
-    )
+    @Throws(IOException::class, OperationUnsuccessfulException::class)
     override fun createDir(basePath: String, dirName: String): String {
-
-        Log.d(TAG, "createDir() called with: basePath = $basePath, dirName = $dirName")
-
-        /*return if (!dirName.contains(CloudWriter.DS)) createOneLevelDir(
-            CloudWriter.composeFullPath(
-                basePath,
-                dirName
-            )
-        )
-        else createMultiLevelDir(basePath, dirName)*/
-
-        return createOneLevelDir(CloudWriter.composeFullPath(basePath, dirName))
+        Log.d(TAG, "createDir(basePath = $basePath, dirName = $dirName)")
+        return CloudWriter.composeFullPath(basePath, dirName).let {
+            createDir(it)
+            it
+        }
     }
 
+
+    @Throws(IOException::class, OperationUnsuccessfulException::class)
+    override fun createDir(absoluteDirPath: String) {
+        Log.d(TAG, "createDir($absoluteDirPath)")
+        createOneLevelDir(absoluteDirPath)
+    }
+
+
+    @Throws(IOException::class, OperationUnsuccessfulException::class)
+    override fun createDeepDirIfNotExists(absoluteDirPath: String, force: Boolean) {
+        Log.d(TAG, "createDeepDirIfNotExists(absoluteDirPath = $absoluteDirPath, force = $force)")
+        absoluteDirPath.split(CloudWriter.DS).forEach { dirName ->
+            createDirIfNotExists(dirName, force)
+        }
+    }
+
+
+    @Throws(IOException::class, OperationUnsuccessfulException::class)
     override fun createDirResult(basePath: String, dirName: String): Result<String> {
+        Log.d(TAG, "createDirResult(basePath = $basePath, dirName = $dirName)")
         return try {
             createDir(basePath, dirName)
             Result.success(File(basePath, dirName).absolutePath)
@@ -60,13 +68,11 @@ class YandexDiskCloudWriter(
         }
     }
 
-    @Throws(
-        IOException::class,
-        CloudWriter.OperationUnsuccessfulException::class,
-    )
+
+    @Throws(IOException::class, OperationUnsuccessfulException::class)
     private fun createMultiLevelDir(parentDirName: String, childDirName: String): String {
 
-        Log.d(TAG, "createMultiLevelDir() called with: parentDirName = $parentDirName, childDirName = $childDirName")
+        Log.d(TAG, "createMultiLevelDir(parentDirName = $parentDirName, childDirName = $childDirName)")
 
         val absoluteDirPath = CloudWriter.composeFullPath(parentDirName, childDirName)
 
@@ -86,22 +92,17 @@ class YandexDiskCloudWriter(
     }
 
 
-    @Throws(
-        IOException::class,
-        OperationUnsuccessfulException::class,
-    )
+    @Throws(IOException::class, OperationUnsuccessfulException::class)
     private fun createOneLevelDir(parentDirName: String, childDirName: String) {
-        Log.d(TAG, "createOneLevelDir() called with: parentDirName = $parentDirName, childDirName = $childDirName")
+        Log.d(TAG, "createOneLevelDir(parentDirName = $parentDirName, childDirName = $childDirName)")
         createOneLevelDir(CloudWriter.composeFullPath(parentDirName, childDirName))
     }
 
-    @Throws(
-        IOException::class,
-        OperationUnsuccessfulException::class,
-    )
+
+    @Throws(IOException::class, OperationUnsuccessfulException::class)
     private fun createOneLevelDir(absoluteDirPath: String): String {
 
-        Log.d(TAG, "createOneLevelDir() called with: absoluteDirPath = $absoluteDirPath")
+        Log.d(TAG, "createOneLevelDir($absoluteDirPath)")
 
         val url = RESOURCES_BASE_URL.toHttpUrl().newBuilder().apply {
             addQueryParameter("path", absoluteDirPath)
@@ -123,23 +124,33 @@ class YandexDiskCloudWriter(
         }
     }
 
+
+    @Throws(IOException::class, OperationUnsuccessfulException::class)
     override fun createDirIfNotExists(basePath: String, dirName: String, force: Boolean): String {
-        if (!fileExists(basePath, dirName) && !force)
+        Log.d(TAG, "createDirIfNotExists(basePath = $basePath, dirName = $dirName, force = $force)")
+        if (!force && !fileExists(basePath, dirName))
             createOneLevelDir(basePath, dirName)
         return CloudWriter.composeFullPath(basePath, dirName)
     }
 
-    @Throws(IOException::class, CloudWriter.OperationUnsuccessfulException::class)
-    override fun putFile(file: File, targetPath: String, overwriteIfExists: Boolean) {
 
-        Log.d(TAG, "putFile() called with: file = $file, targetDirPath = $targetPath, overwriteIfExists = $overwriteIfExists")
-
-        val uploadURL = getURLForUpload(targetPath, overwriteIfExists)
-        putFileReal(file, uploadURL)
+    @Throws(IOException::class, OperationUnsuccessfulException::class)
+    override fun createDirIfNotExists(absoluteDirPath: String, force: Boolean) {
+        Log.d(TAG, "createDirIfNotExists(absoluteDirPath = $absoluteDirPath, force = $force)")
+        if (!force && !fileExists(absoluteDirPath))
+            createOneLevelDir(absoluteDirPath)
     }
 
 
-    @Throws(IOException::class, CloudWriter.OperationUnsuccessfulException::class)
+    @Throws(IOException::class, OperationUnsuccessfulException::class)
+    override fun putFile(sourceFile: File, targetAbsolutePath: String, overwriteIfExists: Boolean) {
+        Log.d(TAG, "putFile(sourceFile = '$sourceFile', targetAbsolutePath = '$targetAbsolutePath', overwriteIfExists = $overwriteIfExists)")
+        val uploadURL = getURLForUpload(targetAbsolutePath, overwriteIfExists)
+        putFileReal(sourceFile, uploadURL)
+    }
+
+
+    @Throws(IOException::class, OperationUnsuccessfulException::class)
     override fun putStream(
         inputStream: InputStream,
         targetPath: String,
@@ -147,6 +158,7 @@ class YandexDiskCloudWriter(
         writingCallback: ((Long) -> Unit)?,
         finishCallback: ((Long,Long) -> Unit)?,
     ) {
+        Log.d(TAG, "putStream(inputStream = $inputStream, targetPath = $targetPath, overwriteIfExists = $overwriteIfExists, writingCallback = $writingCallback, finishCallback = $finishCallback)")
         val uploadURL = getURLForUpload(targetPath, overwriteIfExists)
         putStreamReal(inputStream, uploadURL, writingCallback, finishCallback)
     }
@@ -154,18 +166,18 @@ class YandexDiskCloudWriter(
 
     @Throws(IOException::class, OperationUnsuccessfulException::class)
     override fun fileExists(parentDirName: String, childName: String): Boolean {
+        Log.d(TAG, "fileExists(parentDirName='$parentDirName', childName='$childName')")
+        return fileExists(CloudWriter.composeFullPath(parentDirName, childName))
+    }
 
-        Log.d(
-            TAG,
-            "fileExists() called with: parentDirName = $parentDirName, childName = $childName"
-        )
 
-        val dirPath = CloudWriter.composeFullPath(parentDirName, childName)
+    @Throws(IOException::class, OperationUnsuccessfulException::class)
+    override fun fileExists(absolutePath: String): Boolean {
 
-        Log.d(TAG, "dirPath: $dirPath")
+        Log.d(TAG, "fileExists('$absolutePath')")
 
         val url = RESOURCES_BASE_URL.toHttpUrl().newBuilder().apply {
-            addQueryParameter("path", dirPath)
+            addQueryParameter("path", absolutePath)
         }.build()
 
         val request: Request = Request.Builder()
@@ -177,7 +189,7 @@ class YandexDiskCloudWriter(
             return when (response.code) {
                 200 -> true
                 404 -> false
-                else -> throw unsuccessfulResponseException(response, "File checking file existence: '$dirPath'")
+                else -> throw unsuccessfulResponseException(response, "File checking file existence: '$absolutePath'")
             }
         }
     }
@@ -185,12 +197,12 @@ class YandexDiskCloudWriter(
 
     @Throws(
         IOException::class,
-        CloudWriter.OperationUnsuccessfulException::class,
-        CloudWriter.OperationTimeoutException::class
+        OperationUnsuccessfulException::class,
+        OperationTimeoutException::class
     )
     override fun deleteFile(basePath: String, fileName: String) {
 
-        Log.d(TAG, "deleteFile() called with: basePath = $basePath, fileName = $fileName")
+        Log.d(TAG, "deleteFile(basePath = $basePath, fileName = $fileName)")
 
         var timeElapsed = 0L
 
@@ -209,7 +221,7 @@ class YandexDiskCloudWriter(
                 timeElapsed += OPERATION_WAITING_STEP_MILLIS
 
                 if (timeElapsed > FILE_OPERATION_WAITING_TIMEOUT_MILLIS)
-                    throw CloudWriter.OperationTimeoutException(
+                    throw OperationTimeoutException(
                         "Deletion of file '${
                             CloudWriter.composeFullPath(
                                 basePath,
@@ -226,11 +238,13 @@ class YandexDiskCloudWriter(
 
     // TODO: проверять, что это каталог
     override fun deleteDir(basePath: String, dirName: String) {
+        Log.d(TAG, "deleteDir(basePath = $basePath, dirName = $dirName)")
         deleteFileSimple(basePath, dirName)
     }
 
 
     override fun deleteDirRecursively(basePath: String, dirName: String) {
+        Log.d(TAG, "deleteDirRecursively(basePath = $basePath, dirName = $dirName)")
         var timeElapsed = 0L
         try {
             deleteFileSimple(basePath, dirName)
@@ -240,7 +254,7 @@ class YandexDiskCloudWriter(
                 TimeUnit.MILLISECONDS.sleep(OPERATION_WAITING_STEP_MILLIS)
                 timeElapsed += OPERATION_WAITING_STEP_MILLIS
                 if (timeElapsed > DIR_OPERATION_WAITING_TIMEOUT_MILLIS)
-                    throw CloudWriter.OperationTimeoutException(
+                    throw OperationTimeoutException(
                         "Deletion of file '${
                             CloudWriter.composeFullPath(
                                 basePath,
@@ -265,6 +279,8 @@ class YandexDiskCloudWriter(
         overwriteIfExists: Boolean
     ): Boolean {
 
+        Log.d(TAG, "renameFileOrEmptyDir(fromAbsolutePath = $fromAbsolutePath, toAbsolutePath = $toAbsolutePath, overwriteIfExists = $overwriteIfExists)")
+
         val url = MOVE_BASE_URL.toHttpUrl().newBuilder().apply {
             addQueryParameter("from", fromAbsolutePath)
             addQueryParameter("path", toAbsolutePath)
@@ -287,18 +303,21 @@ class YandexDiskCloudWriter(
         }
     }
 
+
+    @Throws(IOException::class, OperationUnsuccessfulException::class)
     override fun moveFileOrEmptyDir(
         fromAbsolutePath: String,
         toAbsolutePath: String,
         overwriteIfExists: Boolean
     ): Boolean {
+        Log.d(TAG, "moveFileOrEmptyDir(fromAbsolutePath = $fromAbsolutePath, toAbsolutePath = $toAbsolutePath, overwriteIfExists = $overwriteIfExists)")
         return renameFileOrEmptyDir(fromAbsolutePath, toAbsolutePath, overwriteIfExists)
     }
 
 
-    @Throws(CloudWriter.OperationUnsuccessfulException::class)
+    @Throws(OperationUnsuccessfulException::class)
     private fun operationIsFinished(operationStatusLink: String): Boolean {
-        Log.d(TAG, "operationIsFinished() called with: operationStatusLink = $operationStatusLink")
+        Log.d(TAG, "operationIsFinished(operationStatusLink = $operationStatusLink)")
         val request = Request.Builder()
             .url(operationStatusLink)
             .header("Authorization", authToken)
@@ -307,7 +326,7 @@ class YandexDiskCloudWriter(
         return okHttpClient.newCall(request).execute().use { response ->
             when(response.code) {
                 200 -> statusResponseToBoolean(response)
-                else -> throw CloudWriter.OperationUnsuccessfulException(
+                else -> throw OperationUnsuccessfulException(
                     response.code,
                     response.message
                 )
@@ -318,6 +337,7 @@ class YandexDiskCloudWriter(
 
     @Deprecated("Избавиться")
     private fun statusResponseToBoolean(response: Response): Boolean {
+        Log.d(TAG, "statusResponseToBoolean(response = $response)")
         val operationStatus = gson.fromJson(response.body?.string(), OperationStatus::class.java)
         return "success" == operationStatus.status
     }
@@ -326,7 +346,7 @@ class YandexDiskCloudWriter(
     @Throws(IndeterminateOperationException::class)
     private fun deleteFileSimple(basePath: String, fileName: String) {
 
-//        Log.d(TAG, "deleteFileSimple() called with: basePath = $basePath, fileName = $fileName")
+        Log.d(TAG, "deleteFileSimple(basePath = $basePath, fileName = $fileName)")
 
         val path = CloudWriter.composeFullPath(basePath, fileName)
 
@@ -351,13 +371,10 @@ class YandexDiskCloudWriter(
     }
 
 
-    @Throws(IOException::class, CloudWriter.OperationUnsuccessfulException::class)
+    @Throws(IOException::class, OperationUnsuccessfulException::class)
     private fun getURLForUpload(targetFilePath: String, overwriteIfExists: Boolean): String {
 
-        Log.d(
-            TAG,
-            "getURLForUpload() called with: targetFilePath = $targetFilePath, overwriteIfExists = $overwriteIfExists"
-        )
+        Log.d(TAG, "getURLForUpload(targetFilePath = $targetFilePath, overwriteIfExists = $overwriteIfExists)")
 
         val url = UPLOAD_BASE_URL.toHttpUrl().newBuilder()
             .apply {
@@ -379,10 +396,10 @@ class YandexDiskCloudWriter(
     }
 
 
-    @Throws(IOException::class, CloudWriter.OperationUnsuccessfulException::class)
+    @Throws(IOException::class, OperationUnsuccessfulException::class)
     private fun putFileReal(file: File, uploadURL: String) {
 
-        Log.d(TAG, "putFileReal() called with: file = $file, uploadURL = $uploadURL")
+        Log.d(TAG, "putFileReal(file = $file, uploadURL = $uploadURL)")
 
         val requestBody: RequestBody = file.asRequestBody(defaultMediaType)
 
@@ -390,13 +407,14 @@ class YandexDiskCloudWriter(
     }
 
 
-    @Throws(IOException::class, CloudWriter.OperationUnsuccessfulException::class)
+    @Throws(IOException::class, OperationUnsuccessfulException::class)
     private fun putStreamReal(
         inputStream: InputStream,
         uploadURL: String,
         writingCallback: ((Long) -> Unit)? = null,
         finishCallback: ((Long, Long) -> Unit)? = null,
     ) {
+        Log.d(TAG, "putStreamReal(inputStream = $inputStream, uploadURL = $uploadURL, writingCallback = $writingCallback, finishCallback = $finishCallback)")
 
         val requestBody: RequestBody = object: RequestBody() {
 
@@ -417,6 +435,8 @@ class YandexDiskCloudWriter(
 
 
     override fun copyFile(fromAbsolutePath: String, toAbsolutePath: String, overwriteIfExists: Boolean) {
+
+        Log.d(TAG, "copyFile(fromAbsolutePath = $fromAbsolutePath, toAbsolutePath = $toAbsolutePath, overwriteIfExists = $overwriteIfExists)")
 
         val url = COPY_BASE_URL.toHttpUrl().newBuilder().apply {
             addQueryParameter("from", fromAbsolutePath)
@@ -442,6 +462,8 @@ class YandexDiskCloudWriter(
 
 
     private fun performUploadRequest(requestBody: RequestBody, uploadURL: String) {
+
+        Log.d(TAG, "performUploadRequest(requestBody = $requestBody, uploadURL = $uploadURL)")
 
         val fileUploadRequest = Request.Builder()
             .put(requestBody)

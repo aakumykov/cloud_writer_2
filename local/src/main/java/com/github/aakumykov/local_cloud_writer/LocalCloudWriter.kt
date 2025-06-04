@@ -1,5 +1,6 @@
 package com.github.aakumykov.local_cloud_writer
 
+import android.util.Log
 import com.github.aakumykov.cloud_writer.CloudWriter
 import com.github.aakumykov.cloud_writer.CloudWriter.OperationTimeoutException
 import com.github.aakumykov.cloud_writer.CloudWriter.OperationUnsuccessfulException
@@ -13,27 +14,50 @@ class LocalCloudWriter constructor(
     private val authToken: String = ""
 ): CloudWriter
 {
-    @Throws(
-        IOException::class,
-        OperationUnsuccessfulException::class,
-    )
+    @Throws(IOException::class, OperationUnsuccessfulException::class)
     override fun createDir(basePath: String, dirName: String): String {
+        return CloudWriter.composeFullPath(basePath, dirName).let { absolutePath ->
+            createDir(absolutePath)
+            absolutePath
+        }
+    }
 
-        val fullDirName = CloudWriter.composeFullPath(basePath, dirName)
 
-        with(File(fullDirName)) {
+    @Throws(IOException::class, OperationUnsuccessfulException::class)
+    override fun createDir(absoluteDirPath: String) {
+        with(File(absoluteDirPath)) {
             if (!exists())
                 if (!mkdirs())
                     throw OperationUnsuccessfulException(0, dirNotCreatedMessage(absolutePath))
         }
-
-        return fullDirName
     }
 
+
+    @Throws(IOException::class, OperationUnsuccessfulException::class)
+    override fun createDeepDirIfNotExists(absoluteDirPath: String, force: Boolean) {
+        Log.d(TAG, "createDeepDirIfNotExists(absoluteDirPath = $absoluteDirPath, force = $force)")
+        absoluteDirPath.split(CloudWriter.DS).forEach { dirName ->
+            createDirIfNotExists(dirName, force)
+        }
+    }
+
+
+    @Throws(IOException::class, OperationUnsuccessfulException::class)
     override fun createDirIfNotExists(basePath: String, dirName: String, force: Boolean): String {
-        return createDir(basePath = basePath, dirName = dirName)
+        if (!force && !fileExists(basePath, dirName))
+            createDir(basePath = basePath, dirName = dirName)
+        return CloudWriter.composeFullPath(basePath, dirName)
     }
 
+
+    @Throws(IOException::class, OperationUnsuccessfulException::class)
+    override fun createDirIfNotExists(absoluteDirPath: String, force: Boolean) {
+        if (!force && !fileExists(absoluteDirPath))
+            createDir(absoluteDirPath)
+    }
+
+
+    @Throws(IOException::class, OperationUnsuccessfulException::class)
     override fun moveFileOrEmptyDir(
         fromAbsolutePath: String,
         toAbsolutePath: String,
@@ -42,6 +66,8 @@ class LocalCloudWriter constructor(
         return renameFileOrEmptyDir(fromAbsolutePath, toAbsolutePath, overwriteIfExists)
     }
 
+
+    @Throws(IOException::class, OperationUnsuccessfulException::class)
     override fun createDirResult(basePath: String, dirName: String): Result<String> {
         return try {
             createDir(basePath, dirName)
@@ -50,6 +76,7 @@ class LocalCloudWriter constructor(
             Result.failure(e)
         }
     }
+
 
     @Throws(IOException::class, OperationUnsuccessfulException::class)
     override fun putFile(sourceFile: File, targetAbsolutePath: String, overwriteIfExists: Boolean) {
@@ -93,6 +120,7 @@ class LocalCloudWriter constructor(
     }
 
 
+    @Throws(IOException::class, OperationUnsuccessfulException::class)
     override fun deleteDir(basePath: String, dirName: String) {
         val fsObject = File(basePath, dirName)
         fsObject.also {
@@ -102,9 +130,17 @@ class LocalCloudWriter constructor(
     }
 
 
+    @Throws(IOException::class, OperationUnsuccessfulException::class)
     override fun fileExists(parentDirName: String, childName: String): Boolean {
-        return File(parentDirName, childName).exists()
+        return fileExists(CloudWriter.composeFullPath(parentDirName, childName))
     }
+
+
+    @Throws(IOException::class, OperationUnsuccessfulException::class)
+    override fun fileExists(absolutePath: String): Boolean {
+        return File(absolutePath).exists()
+    }
+
 
     @Throws(
         IOException::class,
@@ -124,6 +160,7 @@ class LocalCloudWriter constructor(
         }
     }
 
+
     @Throws(
         IOException::class,
         OperationUnsuccessfulException::class,
@@ -142,6 +179,7 @@ class LocalCloudWriter constructor(
         }
     }
 
+
     override fun renameFileOrEmptyDir(
         fromAbsolutePath: String,
         toAbsolutePath: String,
@@ -155,4 +193,8 @@ class LocalCloudWriter constructor(
 
     private fun dirNotCreatedMessage(dirName: String): String
             = "Directory '${dirName}' not created."
+
+    companion object {
+        val TAG: String = LocalCloudWriter::class.java.simpleName
+    }
 }
