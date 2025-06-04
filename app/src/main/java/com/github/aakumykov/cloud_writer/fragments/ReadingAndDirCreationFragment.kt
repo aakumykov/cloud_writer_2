@@ -33,7 +33,9 @@ import okhttp3.OkHttpClient
 import permissions.dispatcher.ktx.PermissionsRequester
 import permissions.dispatcher.ktx.constructPermissionsRequest
 import java.io.InputStream
+import java.util.UUID
 import kotlin.concurrent.thread
+import kotlin.random.Random
 
 class ReadingAndDirCreationFragment :
     Fragment(R.layout.fragment_reading_and_dir_creaton),
@@ -83,6 +85,8 @@ class ReadingAndDirCreationFragment :
 
         prepareButtons()
         prepareInputFields()
+
+        updateDeepDirPath()
     }
 
     override fun onDestroyView() {
@@ -137,24 +141,9 @@ class ReadingAndDirCreationFragment :
 
     private fun prepareButtons() {
 
-        /*binding.requestReadAccess.setOnClickListener {
-            storageAccessHelper.requestReadAccess { isGranted ->
-                showToast("Доступ на чтение: ${if(isGranted) "получен" else "не получен"}")
-            }
-        }
+        binding.createDeepDirButton.setOnClickListener { createDeepDir() }
 
-        binding.requestWriteAccess.setOnClickListener {
-            storageAccessHelper.requestReadAccess { isGranted ->
-                showToast("Доступ на запись: ${if(isGranted) "получен" else "не получен"}")
-            }
-        }
-
-        binding.requestFullAccess.setOnClickListener {
-            storageAccessHelper.requestReadAccess { isGranted ->
-                showToast("Полный доступ: ${if(isGranted) "получен" else "не получен"}")
-            }
-        }*/
-
+        binding.refreshDeepNameButton.setOnClickListener { updateDeepDirPath() }
 
         binding.yandexAuthButton.setOnClickListener {
             if (null == yandexAuthToken)
@@ -184,6 +173,36 @@ class ReadingAndDirCreationFragment :
 //        binding.uploadFileButton.setOnClickListener { uploadFile() }
 //        binding.checkUploadedFileButton.setOnClickListener { checkUploadedFile() }
         binding.deleteDirButton.setOnClickListener { deleteDirectory() }
+
+
+    }
+
+    private fun updateDeepDirPath() {
+        binding.deepDirPath.setText(randomDirPath)
+    }
+
+    private val random: Random = Random
+
+    private val randomInt10: Int get() = random.nextInt(1,11)
+
+    private val randomId: String get() = UUID.randomUUID().toString()
+
+    private val shortRandomId: String get() = randomId.split("-").first()
+
+    private val randomDirPath: String get() = buildList<String> {
+        repeat(randomInt10) {
+            add(shortRandomId)
+        }
+    }.joinToString("/")
+
+    private val randomDirPathFromInterface: String
+        get() = binding.deepDirPath.text.toString()
+
+    private fun createDeepDir() {
+        val dirPath = randomDirPathFromInterface
+        createCloudDir(dirPath)
+        showToast(dirPath)
+        Log.d(TAG, "Папка с именем создана: $dirPath")
     }
 
     private fun deleteDirectory() {
@@ -511,12 +530,12 @@ class ReadingAndDirCreationFragment :
         hideInfo()
     }
 
-    private fun createCloudDir() {
+    private fun createCloudDir(dirName: String = inputDirName) {
         thread {
             try {
                 resetView()
                 showProgressBar()
-                yandexCloudWriter.createDir("/", inputDirName)
+                yandexCloudWriter.createDir("/", dirName)
                 showInfo("Папка ${inputDirName} создана")
             }
             catch(t: Throwable) {

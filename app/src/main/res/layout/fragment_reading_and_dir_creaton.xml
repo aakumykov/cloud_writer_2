@@ -51,6 +51,39 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <EditText
+                android:id="@+id/deepDirPath"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:ellipsize="middle"
+                android:ems="10"
+                android:inputType="text"
+                android:singleLine="true"
+                android:text="Имя глубокого каталога"
+                android:textAlignment="center" />
+
+            <ImageButton
+                android:id="@+id/refreshDeepNameButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="0"
+                app:srcCompat="@drawable/baseline_refresh_24" />
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/createDeepDirButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Создать глубокую папку"
+            android:textAllCaps="false"
+            android:textSize="16sp"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:gravity="center_horizontal"
             android:orientation="horizontal">
 
