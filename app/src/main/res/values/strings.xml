@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">cloud_writer_2</string>
+    <string name="auth_in_yandex">Авторизоваться в Яндекс</string>
+    <string name="auth_cancelled">Авторизация отменена</string>
+    <string name="login_type">Метод авторизации</string>
+    <string name="login_type_chrome_native">Через приложение</string>
+    <string name="login_type_chrome_web_view">Web View</string>
+    <string name="login_type_chrome_tab">Вкладка Chrome (плохой)</string>
 </resources>
