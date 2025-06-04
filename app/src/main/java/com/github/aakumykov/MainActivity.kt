@@ -10,10 +10,12 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.github.aakumykov.cloud_writer_2.R
 import com.github.aakumykov.cloud_writer_2.databinding.ActivityMainBinding
-import com.github.aakumykov.fragments.AuthFragment
+import com.github.aakumykov.fragments.BlankFragment
 import com.github.aakumykov.yandex_auth_helper.YandexAuthHelper
 
 class MainActivity : AppCompatActivity(), YandexAuthHelper.Callbacks {
+
+    private var currentAuthToken: String? = null
 
     private lateinit var yandexAuthHelper: YandexAuthHelper
 
@@ -29,7 +31,7 @@ class MainActivity : AppCompatActivity(), YandexAuthHelper.Callbacks {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        binding.yandexAuthButton.setOnClickListener { yandexAuthHelper.beginAuthorization() }
+        binding.yandexAuthButton.setOnClickListener { onAuthButtonClicked() }
 
         restoreAuthToken()
 
@@ -43,8 +45,14 @@ class MainActivity : AppCompatActivity(), YandexAuthHelper.Callbacks {
 
         supportFragmentManager
             .beginTransaction()
-            .replace(R.id.fragmentContainerView, AuthFragment.create())
+            .replace(R.id.fragmentContainerView, BlankFragment.create())
             .commit()
+    }
+
+    private fun onAuthButtonClicked() {
+        hideError()
+        if (null == currentAuthToken) yandexAuthHelper.beginAuthorization()
+        else hideAuthToken()
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -94,11 +102,15 @@ class MainActivity : AppCompatActivity(), YandexAuthHelper.Callbacks {
     }
 
     private fun showAuthToken(authToken: String) {
+        currentAuthToken = authToken
         binding.authTokenView.text = authToken
+        binding.yandexAuthButton.setText(R.string.clear_auth)
     }
 
     private fun hideAuthToken() {
+        currentAuthToken = null
         binding.authTokenView.text = ""
+        binding.yandexAuthButton.setText(R.string.auth_in_yandex)
     }
 
 

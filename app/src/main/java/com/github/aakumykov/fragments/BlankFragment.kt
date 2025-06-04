@@ -8,13 +8,13 @@ import android.view.ViewGroup
 import com.github.aakumykov.cloud_writer_2.R
 
 
-class AuthFragment : Fragment() {
+class BlankFragment : Fragment() {
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        return inflater.inflate(R.layout.fragment_auth, container, false)
+        return inflater.inflate(R.layout.fragment_blank, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -25,6 +25,6 @@ class AuthFragment : Fragment() {
 
     companion object {
         @JvmStatic
-        fun create() = AuthFragment()
+        fun create() = BlankFragment()
     }
 }
