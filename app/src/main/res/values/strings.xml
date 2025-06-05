@@ -7,4 +7,8 @@
     <string name="login_type_chrome_web_view">Web View</string>
     <string name="login_type_chrome_tab">Вкладка Chrome (плохой)</string>
     <string name="clear_auth">Удалить авторизацию</string>
+    <string name="start">Начать</string>
+    <string name="hint_dir_name">Имя каталога</string>
+    <string name="creating_dir_fragment_button">Создание папок</string>
+    <string name="fragment_name_create_dir">Создание папок</string>
 </resources>

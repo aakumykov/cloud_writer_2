@@ -1,0 +1,15 @@
+class CreateDirFragment : Fragment(R.layout.fragment_create_dir) {
+
+    private var _binding: FragmentCreateDirBinding? = null
+    private val binding: FragmentCreateDirBinding get() = _binding!!
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        _binding = FragmentCreateDirBinding.bind(view)
+    }
+
+    override fun onDestroyView() {
+        _binding = null
+        super.onDestroyView()
+    }
+}

@@ -10,7 +10,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.github.aakumykov.cloud_writer_2.R
 import com.github.aakumykov.cloud_writer_2.databinding.ActivityMainBinding
-import com.github.aakumykov.fragments.BlankFragment
+import com.github.aakumykov.fragments.StartFragment
 import com.github.aakumykov.yandex_auth_helper.YandexAuthHelper
 
 class MainActivity : AppCompatActivity(), YandexAuthHelper.Callbacks {
@@ -45,7 +45,7 @@ class MainActivity : AppCompatActivity(), YandexAuthHelper.Callbacks {
 
         supportFragmentManager
             .beginTransaction()
-            .replace(R.id.fragmentContainerView, BlankFragment.create())
+            .replace(R.id.fragmentContainerView, StartFragment.create())
             .commit()
     }
 
