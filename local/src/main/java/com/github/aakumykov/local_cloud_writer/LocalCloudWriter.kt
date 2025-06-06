@@ -36,9 +36,14 @@ class LocalCloudWriter constructor(
     @Throws(IOException::class, OperationUnsuccessfulException::class)
     override fun createDeepDirIfNotExists(absoluteDirPath: String, force: Boolean) {
         Log.d(TAG, "createDeepDirIfNotExists(absoluteDirPath = $absoluteDirPath, force = $force)")
-        absoluteDirPath.split(CloudWriter.DS).forEach { dirName ->
-            createDirIfNotExists(dirName, force)
-        }
+        absoluteDirPath
+            .split(CloudWriter.DS)
+            .reduce { acc, s ->
+                createDirIfNotExists(acc, force)
+                acc + CloudWriter.DS + s
+            }.also { tailDir: String ->
+                createDirIfNotExists(tailDir, force)
+            }
     }
 
 

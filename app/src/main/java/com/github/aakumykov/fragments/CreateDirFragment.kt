@@ -1,6 +1,7 @@
 package com.github.aakumykov.fragments
 
 import android.os.Bundle
+import android.os.Environment
 import android.view.View
 import com.github.aakumykov.cloud_writer.CloudWriter
 import com.github.aakumykov.cloud_writer_2.R
@@ -11,6 +12,7 @@ import com.github.aakumykov.utils.randomInt3
 import com.github.aakumykov.utils.shortUUID
 import com.github.aakumykov.yandex_disk_cloud_writer.YandexDiskCloudWriter
 import kotlinx.coroutines.Dispatchers
+import java.io.File
 
 class CreateDirFragment : BasicFragment<FragmentCreateDirBinding>(R.layout.fragment_create_dir) {
 
@@ -96,8 +98,13 @@ class CreateDirFragment : BasicFragment<FragmentCreateDirBinding>(R.layout.fragm
 
 
 
-    private val dirPath: String
-        get() = binding.pathInput.text.toString()
+    private val dirPath: String get() = binding.pathInput.text.toString().let { dirName ->
+        when(currentStorageType) {
+            StorageType.LOCAL -> File(Environment.getExternalStorageDirectory(), dirName).absolutePath
+            StorageType.YANDEX_DISK -> dirName
+            else -> throw  IllegalStateException("currentStorageType is null")
+        }
+    }
 
 
     companion object {
