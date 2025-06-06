@@ -19,6 +19,16 @@ class CreateDirFragment : BasicFragment<FragmentCreateDirBinding>(R.layout.fragm
     private var currentStorageType: StorageType? = null
     private var currentAuthToken: String? = null
 
+
+    override fun onStartButtonClicked() {
+        doWorkWithGuiFeedback (Dispatchers.IO) {
+            cloudWriter?.createDeepDirIfNotExists(dirPath).let { createdDirPath ->
+                getString(R.string.dir_created, createdDirPath)
+            }
+        }
+    }
+
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
         super.onViewCreated(view, savedInstanceState)
@@ -39,6 +49,7 @@ class CreateDirFragment : BasicFragment<FragmentCreateDirBinding>(R.layout.fragm
         refreshPath()
     }
 
+
     private fun radioButton2authToken(checkedId: Int): String? {
         return when(checkedId) {
             R.id.storageTypeLocal -> ""
@@ -58,7 +69,7 @@ class CreateDirFragment : BasicFragment<FragmentCreateDirBinding>(R.layout.fragm
     private val cloudWriter: CloudWriter? get() {
         return try {
             when(currentStorageType) {
-                StorageType.LOCAL -> LocalCloudWriter(virtualRootDir = Environment.getExternalStorageDirectory().absolutePath)
+                StorageType.LOCAL -> LocalCloudWriter(Environment.getExternalStorageDirectory().absolutePath)
                 StorageType.YANDEX_DISK -> YandexDiskCloudWriter(currentAuthToken!!)
                 else -> {
                     throw Exception("currentStorageType == null")
@@ -86,16 +97,6 @@ class CreateDirFragment : BasicFragment<FragmentCreateDirBinding>(R.layout.fragm
     private fun clearPath() {
         binding.pathInput.setText("")
     }
-
-
-    override fun onStartButtonClicked() {
-        doWorkWithGuiFeedback (Dispatchers.IO) {
-            cloudWriter?.createDeepDirIfNotExists(dirPath).let {
-                getString(R.string.dir_created, dirPath)
-            }
-        }
-    }
-
 
 
     private val dirPath: String get() = binding.pathInput.text.toString()

@@ -50,9 +50,9 @@ class YandexDiskCloudWriter(
 
 
     @Throws(IOException::class, OperationUnsuccessfulException::class)
-    override fun createDeepDirIfNotExists(absoluteDirPath: String, force: Boolean): String {
-        Log.d(TAG, "createDeepDirIfNotExists(absoluteDirPath = $absoluteDirPath, force = $force)")
-        return absoluteDirPath
+    override fun createDeepDirIfNotExists(absolutePath: String, force: Boolean): String {
+        Log.d(TAG, "createDeepDirIfNotExists(absoluteDirPath = $absolutePath, force = $force)")
+        return absolutePath
             .split(CloudWriter.DS)
             .reduce { acc, s ->
                 createDirIfNotExists(acc, force)
@@ -74,6 +74,14 @@ class YandexDiskCloudWriter(
         }
     }
 
+    override fun createDeepDirIfNotExists(
+        basePath: String,
+        dirName: String,
+        force: Boolean
+    ): String {
+        Log.d(TAG, "createDeepDirIfNotExists(basePath = $basePath, dirName = $dirName, force = $force)")
+        return createDirIfNotExists(CloudWriter.composeFullPath(basePath, dirName), force)
+    }
 
     @Throws(IOException::class, OperationUnsuccessfulException::class)
     private fun createMultiLevelDir(parentDirName: String, childDirName: String): String {

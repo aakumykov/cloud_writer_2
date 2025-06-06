@@ -65,22 +65,38 @@ class LocalCloudWriter(
 
 
     /**
-     * Создаёт "глубокий" каталог по пути [virtualRootDir] + [absoluteDirPath]
+     * Создаёт "глубокий" каталог по пути [virtualRootDir] + [absolutePath]
      * @see CloudWriter.createDeepDirIfNotExists
      */
     @Throws(IOException::class, OperationUnsuccessfulException::class)
-    override fun createDeepDirIfNotExists(absoluteDirPath: String, force: Boolean): String {
+    override fun createDeepDirIfNotExists(absolutePath: String, force: Boolean): String {
 
-        Log.d(TAG, "createDeepDirIfNotExists(absoluteDirPath = $absoluteDirPath, force = $force)")
+        Log.d(TAG, "createDeepDirIfNotExists(path = $absolutePath, force = $force)")
 
-        return virtualRootPlus(absoluteDirPath)
-            .split(CloudWriter.DS)
-            .reduce { acc, s ->
-                createDirIfNotExists(acc, force)
-                acc + CloudWriter.DS + s
-            }.also { tailDir: String ->
-                createDirIfNotExists(tailDir, force)
-            }
+        //
+        // Разбивать нужно путь, не включающий виртуальный!
+        //
+
+        return virtualRootPlus(absolutePath).let { path ->
+            path
+                .split(CloudWriter.DS)
+                .reduce { acc, s ->
+                    createDirIfNotExists(acc, force)
+                    acc + CloudWriter.DS + s
+                }.also { tailDir: String ->
+                    createDirIfNotExists(tailDir, force)
+                }
+            path
+        }
+    }
+
+    override fun createDeepDirIfNotExists(
+        basePath: String,
+        dirName: String,
+        force: Boolean
+    ): String {
+        Log.d(TAG, "createDeepDirIfNotExists(basePath = $basePath, dirName = $dirName, force = $force)")
+        return createDirIfNotExists(CloudWriter.composeFullPath(basePath, dirName), force)
     }
 
 
@@ -225,10 +241,12 @@ class LocalCloudWriter(
     }
 
 
-    private fun virtualRootPlus(vararg pathParts: String): String = CloudWriter.composeFullPath(
-        virtualRootDir,
-        pathParts.joinToString(CloudWriter.DS)
-    )
+    private fun virtualRootPlus(vararg pathParts: String): String {
+        return CloudWriter.composeFullPath(
+            virtualRootDir,
+            pathParts.joinToString(CloudWriter.DS)
+        )
+    }
 
 
     /**
@@ -237,7 +255,8 @@ class LocalCloudWriter(
      */
     private fun createDirReal(absolutePath: String) {
         with(File(absolutePath)) {
-            mkdirs()
+            if (!mkdirs())
+                throw OperationUnsuccessfulException("Каталог '$absolutePath' не создан.")
         }
     }
 

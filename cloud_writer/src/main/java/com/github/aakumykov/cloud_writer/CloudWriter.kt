@@ -37,7 +37,14 @@ interface CloudWriter {
      * @return Полный путь к созданному каталогу.
      */
     @Throws(IOException::class, OperationUnsuccessfulException::class,)
-    fun createDeepDirIfNotExists(absoluteDirPath: String, force: Boolean = false): String
+    fun createDeepDirIfNotExists(absolutePath: String, force: Boolean = false): String
+
+
+    /**
+     * @see [createDirIfNotExists]
+     */
+    @Throws(IOException::class, OperationUnsuccessfulException::class,)
+    fun createDeepDirIfNotExists(basePath: String, dirName: String, force: Boolean = false): String
 
 
     /**
@@ -185,8 +192,8 @@ interface CloudWriter {
     companion object {
         const val DS = "/"
 
-        fun composeFullPath(basePath: String, fileName: String): String {
-            return "${basePath}${DS}${fileName}".stripMultiSlashes()
+        fun composeFullPath(vararg pathParts: String): String {
+            return pathParts.joinToString(DS).stripMultiSlashes()
         }
     }
 }
