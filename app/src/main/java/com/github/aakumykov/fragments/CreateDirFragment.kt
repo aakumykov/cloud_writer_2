@@ -58,7 +58,7 @@ class CreateDirFragment : BasicFragment<FragmentCreateDirBinding>(R.layout.fragm
     private val cloudWriter: CloudWriter? get() {
         return try {
             when(currentStorageType) {
-                StorageType.LOCAL -> LocalCloudWriter()
+                StorageType.LOCAL -> LocalCloudWriter(virtualRootDir = Environment.getExternalStorageDirectory().absolutePath)
                 StorageType.YANDEX_DISK -> YandexDiskCloudWriter(currentAuthToken!!)
                 else -> {
                     throw Exception("currentStorageType == null")
@@ -98,13 +98,7 @@ class CreateDirFragment : BasicFragment<FragmentCreateDirBinding>(R.layout.fragm
 
 
 
-    private val dirPath: String get() = binding.pathInput.text.toString().let { dirName ->
-        when(currentStorageType) {
-            StorageType.LOCAL -> File(Environment.getExternalStorageDirectory(), dirName).absolutePath
-            StorageType.YANDEX_DISK -> dirName
-            else -> throw  IllegalStateException("currentStorageType is null")
-        }
-    }
+    private val dirPath: String get() = binding.pathInput.text.toString()
 
 
     companion object {

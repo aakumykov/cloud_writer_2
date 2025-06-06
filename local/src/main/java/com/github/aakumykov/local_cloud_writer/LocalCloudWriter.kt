@@ -10,33 +10,70 @@ import java.io.FileNotFoundException
 import java.io.IOException
 import java.io.InputStream
 
-class LocalCloudWriter constructor(
+/**
+ * @param virtualRootDir Параметр конструктора. Путь, относительно которого будут создаваться каталоги.
+ *  Необходимость его возникла в связи с тем, что, например,
+ *  в Android корневой каталог недоступен для записи. Для сохранения совместимости по умолчанию
+ *  установлен в пустую строку ("").
+ *  @param authToken Не используется.
+ */
+class LocalCloudWriter(
+    private val virtualRootDir: String = "",
     private val authToken: String = ""
 ): CloudWriter
 {
+    /**
+     * Создаёт каталог по пути [virtualRootDir] + [basePath] + [dirName]
+     */
     @Throws(IOException::class, OperationUnsuccessfulException::class)
     override fun createDir(basePath: String, dirName: String): String {
-        return CloudWriter.composeFullPath(basePath, dirName).let { absolutePath ->
-            createDir(absolutePath)
-            absolutePath
-        }
+        Log.d(TAG, "createDir(basePath = $basePath, dirName = $dirName)")
+        return createDir(virtualRootPlus(basePath, dirName))
+    }
+
+
+    /**
+     * Создаёт каталог по пути [absoluteDirPath]
+     * Если промежуточные каталоги отсутствуют, они будут созданы.
+     */
+    @Throws(IOException::class, OperationUnsuccessfulException::class)
+    override fun createDir(absoluteDirPath: String): String {
+        createDirReal(absoluteDirPath)
+        return absoluteDirPath
+    }
+
+
+    /**
+     * Создаёт каталог по пути [virtualRootDir] + [basePath] + [dirName],
+     * если таковой не существует.
+     * @return Полный путь к каталогу.
+     */
+    @Throws(IOException::class, OperationUnsuccessfulException::class)
+    override fun createDirIfNotExists(basePath: String, dirName: String, force: Boolean): String {
+        Log.d(TAG, "createDirIfNotExists(basePath = $basePath, dirName = $dirName, force = $force)")
+        return createDirIfNotExists(virtualRootPlus(basePath, dirName))
     }
 
 
     @Throws(IOException::class, OperationUnsuccessfulException::class)
-    override fun createDir(absoluteDirPath: String) {
-        with(File(absoluteDirPath)) {
-            if (!exists())
-                if (!mkdirs())
-                    throw OperationUnsuccessfulException(0, dirNotCreatedMessage(absolutePath))
-        }
+    override fun createDirIfNotExists(absoluteDirPath: String, force: Boolean): String {
+        Log.d(TAG, "createDirIfNotExists(absoluteDirPath = $absoluteDirPath, force = $force)")
+        if (!force && !fileExists(absoluteDirPath))
+                createDirReal(absoluteDirPath)
+        return absoluteDirPath
     }
 
 
+    /**
+     * Создаёт "глубокий" каталог по пути [virtualRootDir] + [absoluteDirPath]
+     * @see CloudWriter.createDeepDirIfNotExists
+     */
     @Throws(IOException::class, OperationUnsuccessfulException::class)
-    override fun createDeepDirIfNotExists(absoluteDirPath: String, force: Boolean) {
+    override fun createDeepDirIfNotExists(absoluteDirPath: String, force: Boolean): String {
+
         Log.d(TAG, "createDeepDirIfNotExists(absoluteDirPath = $absoluteDirPath, force = $force)")
-        absoluteDirPath
+
+        return virtualRootPlus(absoluteDirPath)
             .split(CloudWriter.DS)
             .reduce { acc, s ->
                 createDirIfNotExists(acc, force)
@@ -44,21 +81,6 @@ class LocalCloudWriter constructor(
             }.also { tailDir: String ->
                 createDirIfNotExists(tailDir, force)
             }
-    }
-
-
-    @Throws(IOException::class, OperationUnsuccessfulException::class)
-    override fun createDirIfNotExists(basePath: String, dirName: String, force: Boolean): String {
-        if (!force && !fileExists(basePath, dirName))
-            createDir(basePath = basePath, dirName = dirName)
-        return CloudWriter.composeFullPath(basePath, dirName)
-    }
-
-
-    @Throws(IOException::class, OperationUnsuccessfulException::class)
-    override fun createDirIfNotExists(absoluteDirPath: String, force: Boolean) {
-        if (!force && !fileExists(absoluteDirPath))
-            createDir(absoluteDirPath)
     }
 
 
@@ -72,6 +94,9 @@ class LocalCloudWriter constructor(
     }
 
 
+    /**
+     * @see [createDir]
+     */
     @Throws(IOException::class, OperationUnsuccessfulException::class)
     override fun createDirResult(basePath: String, dirName: String): Result<String> {
         return try {
@@ -98,12 +123,13 @@ class LocalCloudWriter constructor(
     @Throws(IOException::class, OperationUnsuccessfulException::class)
     override fun putStream(
         inputStream: InputStream,
-        targetPath: String,
+        targetAbsolutePath: String,
         overwriteIfExists: Boolean,
         writingCallback: ((Long) -> Unit)?,
         finishCallback: ((Long,Long) -> Unit)?,
     ) {
-        val targetFile = File(targetPath)
+        val targetFile = File(targetAbsolutePath)
+
         if (targetFile.exists() && !overwriteIfExists)
             return
 
@@ -147,6 +173,7 @@ class LocalCloudWriter constructor(
     }
 
 
+    @Deprecated("Избавиться")
     @Throws(
         IOException::class,
         OperationUnsuccessfulException::class,
@@ -166,6 +193,7 @@ class LocalCloudWriter constructor(
     }
 
 
+    @Deprecated("Избавиться")
     @Throws(
         IOException::class,
         OperationUnsuccessfulException::class,
@@ -196,8 +224,23 @@ class LocalCloudWriter constructor(
         return File(fromAbsolutePath).renameTo(targetFile)
     }
 
-    private fun dirNotCreatedMessage(dirName: String): String
-            = "Directory '${dirName}' not created."
+
+    private fun virtualRootPlus(vararg pathParts: String): String = CloudWriter.composeFullPath(
+        virtualRootDir,
+        pathParts.joinToString(CloudWriter.DS)
+    )
+
+
+    /**
+     * Создаёт каталог (включая отсутствующие) по указанному в аргументе [absolutePath] пути.
+     * Не добавляет виртуальный корень в качестве префикса.
+     */
+    private fun createDirReal(absolutePath: String) {
+        with(File(absolutePath)) {
+            mkdirs()
+        }
+    }
+
 
     companion object {
         val TAG: String = LocalCloudWriter::class.java.simpleName

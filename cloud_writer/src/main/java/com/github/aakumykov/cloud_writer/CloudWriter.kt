@@ -23,19 +23,21 @@ interface CloudWriter {
 
     /**
      * Пробует создать каталог по указанному пути.
+     * @return Полный путь к созданному каталогу.
      * @throws [IOException], [OperationUnsuccessfulException]
      */
     @Throws(IOException::class, OperationUnsuccessfulException::class,)
-    fun createDir(absoluteDirPath: String)
+    fun createDir(absoluteDirPath: String): String
 
 
     /**
      * Создаёт каталог, по отдельности создавая каждый каталог в глубину
      * пути, если такого ещё не существует.
      * @param force Не проверять наличие каталога, пробовать создавать сразу.
+     * @return Полный путь к созданному каталогу.
      */
     @Throws(IOException::class, OperationUnsuccessfulException::class,)
-    fun createDeepDirIfNotExists(absoluteDirPath: String, force: Boolean = false)
+    fun createDeepDirIfNotExists(absoluteDirPath: String, force: Boolean = false): String
 
 
     /**
@@ -55,7 +57,7 @@ interface CloudWriter {
      * @throws [IOException], [OperationUnsuccessfulException]
      */
     @Throws(IOException::class, OperationUnsuccessfulException::class)
-    fun createDirIfNotExists(absoluteDirPath: String, force: Boolean = false)
+    fun createDirIfNotExists(absoluteDirPath: String, force: Boolean = false): String
 
 
 
