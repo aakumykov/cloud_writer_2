@@ -11,4 +11,8 @@
     <string name="hint_dir_name">Имя каталога</string>
     <string name="creating_dir_fragment_button">Создание папок</string>
     <string name="fragment_name_create_dir">Создание папок</string>
+    <string name="dir_created">Папка создана: %1$s</string>
+    <string name="there_is_no_auth_token">Нет токена авторизации!</string>
+    <string name="yandex_disk_storage">Яндекс.Диск</string>
+    <string name="local_storage">Локальное хранилище</string>
 </resources>

@@ -9,5 +9,5 @@ val randomId: String get() = UUID.randomUUID().toString()
 
 val shortUUID: String get() = randomId.split("-").first()
 
-val randomInt5: Int get() = random.nextInt(1,6)
+val randomInt3: Int get() = random.nextInt(1,4)
 

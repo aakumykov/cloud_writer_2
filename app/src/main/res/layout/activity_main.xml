@@ -8,11 +8,12 @@
     android:orientation="vertical"
     tools:context="com.github.aakumykov.MainActivity">
 
-    <TextView
-        android:id="@+id/textView2"
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/yandexAuthButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/login_type" />
+        android:text="@string/auth_in_yandex"
+        android:backgroundTint="#f8604a"/>
 
     <RadioGroup
         android:id="@+id/loginType"
@@ -40,13 +41,6 @@
 
     </RadioGroup>
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/yandexAuthButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/auth_in_yandex"
-        android:backgroundTint="#f8604a"/>
-
     <TextView
         android:id="@+id/authTokenView"
         android:layout_width="match_parent"
@@ -65,6 +59,7 @@
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/fragmentContainerView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:paddingTop="6dp"/>
 
 </LinearLayout>

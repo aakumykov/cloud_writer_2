@@ -12,6 +12,25 @@
         android:textStyle="bold"
         android:text="@string/fragment_name_create_dir" />
 
+    <RadioGroup
+        android:id="@+id/storageTypeRadioGroup"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+
+        <RadioButton
+            android:id="@+id/storageTypeLocal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/local_storage" />
+
+        <RadioButton
+            android:id="@+id/storageTypeYandexDisk"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/yandex_disk_storage"
+            android:checked="true"/>
+    </RadioGroup>
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -24,16 +43,16 @@
             android:layout_weight="0"
             app:srcCompat="@drawable/baseline_refresh_24" />
 
-        <TextView
+        <EditText
             android:id="@+id/pathInput"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_weight="1"
+            android:inputType="text"
             android:textSize="16sp"
             android:gravity="center_vertical"
             android:singleLine="true"
             android:ellipsize="middle"
-            android:textColor="@color/black"
             android:hint="@string/hint_dir_name" />
 
         <ImageButton

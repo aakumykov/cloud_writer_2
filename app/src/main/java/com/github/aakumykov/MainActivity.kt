@@ -4,12 +4,17 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.preference.PreferenceManager
+import android.view.View
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.github.aakumykov.cloud_writer_2.R
 import com.github.aakumykov.cloud_writer_2.databinding.ActivityMainBinding
+import com.github.aakumykov.extensions.defaultSharedPreferences
+import com.github.aakumykov.extensions.gone
+import com.github.aakumykov.extensions.visible
+import com.github.aakumykov.extensions.yandexAuthToken
 import com.github.aakumykov.fragments.StartFragment
 import com.github.aakumykov.yandex_auth_helper.YandexAuthHelper
 
@@ -18,8 +23,6 @@ class MainActivity : AppCompatActivity(), YandexAuthHelper.Callbacks {
     private var currentAuthToken: String? = null
 
     private lateinit var yandexAuthHelper: YandexAuthHelper
-
-    private val sharedPreferences: SharedPreferences get() = PreferenceManager.getDefaultSharedPreferences(this)
 
     private lateinit var binding: ActivityMainBinding
 
@@ -80,16 +83,24 @@ class MainActivity : AppCompatActivity(), YandexAuthHelper.Callbacks {
     }
 
     private fun storeAuthToken(authToken: String) {
-        sharedPreferences
+        defaultSharedPreferences
             .edit()
             .putString(YANDEX_AUTH_TOKEN, authToken)
             .apply()
     }
 
+    private fun clearStoredAuthToken() {
+        defaultSharedPreferences
+            .edit()
+            .remove(YANDEX_AUTH_TOKEN)
+            .apply()
+    }
+
     private fun restoreAuthToken() {
-        sharedPreferences.getString(YANDEX_AUTH_TOKEN,null).also { authToken: String? ->
-            if (null != authToken) showAuthToken(authToken)
-            else hideAuthToken()
+        yandexAuthToken?.also {
+            showAuthToken(it)
+        } ?: run {
+            hideAuthToken()
         }
     }
 
@@ -105,12 +116,18 @@ class MainActivity : AppCompatActivity(), YandexAuthHelper.Callbacks {
         currentAuthToken = authToken
         binding.authTokenView.text = authToken
         binding.yandexAuthButton.setText(R.string.clear_auth)
+        binding.loginType.gone()
+        binding.errorView.gone()
     }
 
     private fun hideAuthToken() {
+        clearStoredAuthToken()
+
         currentAuthToken = null
         binding.authTokenView.text = ""
         binding.yandexAuthButton.setText(R.string.auth_in_yandex)
+        binding.loginType.visible()
+        binding.errorView.visible()
     }
 
 
