@@ -58,4 +58,7 @@ dependencies {
     implementation libs.yandex.auth.helper
 
     implementation libs.storage.access.helper
+
+    androidTestImplementation(libs.kaspresso)
+    androidTestUtil libs.androidx.orchestrator
 }
