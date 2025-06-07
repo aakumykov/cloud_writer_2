@@ -57,4 +57,5 @@ dependencies {
 
     implementation libs.yandex.auth.helper
 
+    implementation libs.storage.access.helper
 }

@@ -27,7 +27,7 @@ interface CloudWriter {
      * @throws [IOException], [OperationUnsuccessfulException]
      */
     @Throws(IOException::class, OperationUnsuccessfulException::class,)
-    fun createDir(absoluteDirPath: String): String
+    fun createDir(path: String): String
 
 
     /**

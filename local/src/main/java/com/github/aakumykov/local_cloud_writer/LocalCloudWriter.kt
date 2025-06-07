@@ -33,13 +33,14 @@ class LocalCloudWriter(
 
 
     /**
-     * Создаёт каталог по пути [absoluteDirPath]
+     * Создаёт каталог по пути [virtualRootDir] + [path]
      * Если промежуточные каталоги отсутствуют, они будут созданы.
      */
     @Throws(IOException::class, OperationUnsuccessfulException::class)
-    override fun createDir(absoluteDirPath: String): String {
-        createDirReal(absoluteDirPath)
-        return absoluteDirPath
+    override fun createDir(path: String): String {
+        return virtualRootPlus(path).apply {
+            createDirReal(this)
+        }
     }
 
 
@@ -177,9 +178,15 @@ class LocalCloudWriter(
     }
 
 
+    /**
+     * Проверяет наличие файла (каталога) по пути
+     * [virtualRootDir] + [parentDirName] + [childName]
+     */
     @Throws(IOException::class, OperationUnsuccessfulException::class)
     override fun fileExists(parentDirName: String, childName: String): Boolean {
-        return fileExists(CloudWriter.composeFullPath(parentDirName, childName))
+        return fileExists(
+            virtualRootPlus(parentDirName, childName)
+        )
     }
 
 
@@ -250,13 +257,14 @@ class LocalCloudWriter(
 
 
     /**
-     * Создаёт каталог (включая отсутствующие) по указанному в аргументе [absolutePath] пути.
+     * Создаёт каталог по указанному в аргументе [absolutePath] пути.
      * Не добавляет виртуальный корень в качестве префикса.
+     * Не создаёт отсутствующие промежуточные каталоги.
      */
-    private fun createDirReal(absolutePath: String) {
-        with(File(absolutePath)) {
-            if (!mkdirs())
-                throw OperationUnsuccessfulException("Каталог '$absolutePath' не создан.")
+    private fun createDirReal(absolutePath: String): String {
+        return with(File(absolutePath)) {
+            if (mkdir()) absolutePath
+            else throw OperationUnsuccessfulException("Каталог '$absolutePath' не создан.")
         }
     }
 

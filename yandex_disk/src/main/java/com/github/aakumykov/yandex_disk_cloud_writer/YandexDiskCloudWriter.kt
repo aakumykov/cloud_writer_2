@@ -42,10 +42,10 @@ class YandexDiskCloudWriter(
 
 
     @Throws(IOException::class, OperationUnsuccessfulException::class)
-    override fun createDir(absoluteDirPath: String): String {
-        Log.d(TAG, "createDir($absoluteDirPath)")
-        createOneLevelDir(absoluteDirPath)
-        return absoluteDirPath
+    override fun createDir(path: String): String {
+        Log.d(TAG, "createDir($path)")
+        createOneLevelDir(path)
+        return path
     }
 
 
