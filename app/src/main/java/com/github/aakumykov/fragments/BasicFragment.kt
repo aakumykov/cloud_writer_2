@@ -64,7 +64,7 @@ abstract class BasicFragment<T : ViewBinding>(layoutResId: Int) : Fragment(layou
     protected fun showError(t: Throwable) {
         lifecycleScope.launch (Dispatchers.Main) {
             t.errorMsg.also { errorMsg ->
-                Log.e(CreateDirFragment.TAG, errorMsg, t)
+                Log.e(DirCreationFragment.TAG, errorMsg, t)
                 errorView.text = errorMsg
             }
         }
