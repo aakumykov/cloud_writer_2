@@ -5,6 +5,23 @@ import java.io.File
 import java.io.IOException
 import java.io.InputStream
 
+/*
+Нужны методы:
+
+createDir(relativePath): String
+createDir(absolutePath): String
+
+createDirIfNotExist(relativePath): String
+createDirIfNotExist(absolutePath): String
+
+createDirs(relativePath): String
+createDirs(absolutePath): String
+
+createDirsIfNotExists(relativePath): String
+createDirsIfNotExists(absolutePath): String
+ */
+
+
 // TODO: suspend-методы
 // TODO: возвращать Result вместо выборса исключений
 interface CloudWriter {
