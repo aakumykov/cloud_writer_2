@@ -20,6 +20,10 @@ class LocalCloudWriter2(
         else fullPath
     }
 
+    /**
+     * @return Путь к созданному каталогу: абсолютный или относительный,
+     * в зависимости от режима запуска.
+     */
     override fun createDeepDir(path: String, isRelative: Boolean): String {
 
         // Так как идёт пошаговое создание
@@ -27,27 +31,38 @@ class LocalCloudWriter2(
         // то нужно отрезать от него "системную"
         // незаписываемую часть.
 
-        val pathToOperate = (if (isRelative) path
-        else path.replace(virtualRootPath, ""))
-            .replaceFirst(Regex("^/"),"")
+        val pathToOperate = path.replace(Regex("^${virtualRootPath}/+"),"")
 
-        return iterateDeepOnPathWithAction(pathToOperate) { partialPath ->
+        return iterateOverDirsInPathFromRoot(pathToOperate) { partialPath ->
             createRelativeDir(partialPath)
+        }.let {
+            path
         }
     }
 
 
     /**
-     * @return
+     * Проходит путь [path] от корня в грубину, вызывая действие
+     * [action] на каждой итерации.
+     * @return Первоначальное значение [path].
+     *
+     * Пример:
+     *
+     * Если [path] = /dir1/dir2/dir3, то блок [action] будет вызван три раза с параметрами:
+     * 1) "dir1"
+     * 2) "dir1/dir2"
+     * 3) "dir1/dir2/dir3"
      */
-    private fun iterateDeepOnPathWithAction(path: String, action: (String) -> Unit): String {
+    private fun iterateOverDirsInPathFromRoot(path: String, action: (String) -> Unit): String {
         return path
             .split(CloudWriter2.DS)
+            .filterNot { "" == it }
             .reduce { acc, s ->
                 action(acc)
                 acc + CloudWriter2.DS + s
-            }.also { tailDir: String ->
+            }.let { tailDir: String ->
                 action(tailDir)
+                path
             }
     }
 
@@ -61,7 +76,7 @@ class LocalCloudWriter2(
     }
 
     private fun createAbsoluteDeepDirIfNotExists(path: String): String {
-        return iterateDeepOnPathWithAction(path) { partialDeepPath ->
+        return iterateOverDirsInPathFromRoot(path) { partialDeepPath ->
             if (!fileExistsAbsolute(partialDeepPath))
                 createAbsoluteDir(partialDeepPath)
         }
@@ -71,6 +86,7 @@ class LocalCloudWriter2(
     private fun createRelativeDir(path: String): String {
         return createAbsoluteDir(virtualRootPlus(path))
     }
+
 
     private fun createAbsoluteDir(path: String): String {
         return with(File(path)) {
