@@ -1,11 +1,7 @@
 package com.github.aakumykov.cloud_writer_2
 
-import android.os.Environment
 import com.github.aakumykov.cloud_writer.CloudWriterException
-import com.github.aakumykov.local_cloud_writer.LocalCloudWriter2
-import org.junit.After
 import org.junit.Assert
-import org.junit.Before
 import org.junit.Test
 import java.io.File
 
@@ -21,44 +17,7 @@ createDirIfNotExists()
 createDeepDir()
 createDeepDirIfNotExists()
  */
-class LocalCloudWriter2Test : StorageAccessTestCase() {
-
-    private val dirName: String = randomName
-    private val basePath = downloadsPath
-    private val dir = File(basePath,dirName)
-    private val dirAbsolutePath = File(basePath,dirName).absolutePath
-
-    private val localCloudWriter2 by lazy { LocalCloudWriter2(basePath) }
-
-    private val downloadsPath: String
-        get() = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).absolutePath
-
-
-    @Before
-    fun check_dir_not_exists() {
-        Assert.assertFalse(dir.exists())
-    }
-
-    @After
-    fun deleting_dir() {
-        dir.deleteRecursively()
-    }
-
-
-    @Test
-    fun storage_writeability_check() = run {
-        step("Создаю каталог '$dirAbsolutePath' не библиотечным методом") {
-            Assert.assertTrue(dir.mkdir())
-        }
-        step("Проверяю, что он создался") {
-            Assert.assertTrue(dir.exists())
-        }
-    }
-
-
-    //
-    // Проверки, методов создания по абсолютному пути.
-    //
+class LocalCloudWriter2AbsolutePathTests : LocalCloudWriter2TestBase() {
 
     @Test
     fun creates_dir() = run {
@@ -81,6 +40,7 @@ class LocalCloudWriter2Test : StorageAccessTestCase() {
         }
     }
 
+
     @Test
     fun throws_exception_if_dir_exists() = run {
         creates_dir()
@@ -91,13 +51,14 @@ class LocalCloudWriter2Test : StorageAccessTestCase() {
         }
     }
 
+
     @Test
     fun throws_exception_on_not_write_access() = run {
 
         val dir = File("/","123")
         val path = dir.absolutePath
 
-        step("Проверяю, что каталога '$path' ВНЕЗАПНО нет") {
+        step("Проверяю, что каталога '$path', ВНЕЗАПНО, нет") {
             Assert.assertFalse(dir.exists())
         }
         step("Проверяю, что бросается исключение при попытке его создать") {
@@ -139,23 +100,50 @@ class LocalCloudWriter2Test : StorageAccessTestCase() {
 
 
     @Test
-    fun can_create_multi_level_dir() = run {
-
-        val deepDir1 = File(dir, randomName)
-        val deepDir2 = File(deepDir1, randomName)
-        val deepDir3 = File(deepDir2, randomName)
-
-        val deepDir = deepDir3
-        val deepDirPath = deepDir.absolutePath
-
-        step("Проверяю, что глубокого каталога ещё нет") {
-            Assert.assertFalse(deepDir.exists())
+    fun creates_deep_dir() = run {
+        createDeepDirWithChecks(
+            checkingDir = deepDir,
+            resultCheckingDirPath = deepDirAbsolutePath
+        ) {
+            localCloudWriter2.createDeepDir(deepDirAbsolutePath, false)
         }
-        step("Создаю глубокий каталог '$deepDirPath'") {
-            localCloudWriter2.createDeepDir(deepDirPath, false)
+    }
+
+    @Test
+    fun creates_deep_dir_if_not_exists() = run {
+        createDeepDirWithChecks(
+            checkingDir = deepDir,
+            resultCheckingDirPath = deepDirAbsolutePath
+        ) {
+            localCloudWriter2.createDeepDirIfNotExists(deepDirAbsolutePath, false)
         }
-        step("Проверяю, что глубокий каталог создан") {
-            Assert.assertTrue(deepDir.exists())
+
+        step("Повторное создание каталога '$deepDirAbsolutePath'") {
+            localCloudWriter2.createDeepDirIfNotExists(deepDirAbsolutePath, false)
         }
+    }
+
+
+    @Test
+    fun checking_file_exists() = run {
+        checkFileOrDirExists(
+            checkedObjectCreatingBlock = { dir.createNewFile() },
+            checkedObjectPreCheckingBlock = { dir.isFile },
+            fileOrDirForPreCheck =  dir,
+            pathToCheck = dirAbsolutePath,
+            isRelative = false
+        )
+    }
+
+
+    @Test
+    fun checking_dir_exists() = run {
+        checkFileOrDirExists(
+            checkedObjectCreatingBlock = { dir.mkdir() },
+            checkedObjectPreCheckingBlock = { dir.isDirectory },
+            fileOrDirForPreCheck =  dir,
+            pathToCheck = dirAbsolutePath,
+            isRelative = false
+        )
     }
 }
