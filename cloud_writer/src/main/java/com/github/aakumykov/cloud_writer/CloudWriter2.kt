@@ -14,7 +14,7 @@ interface CloudWriter2 {
      * наличия каталога, используйте метод [createDirIfNotExist].
      */
     @Throws(IOException::class, CloudWriterException::class)
-    fun createDir(path: String, isRelative: Boolean): String
+    suspend fun createDir(path: String, isRelative: Boolean): String
 
     @Throws(IOException::class, CloudWriterException::class)
     fun createDirIfNotExist(path: String, isRelative: Boolean): String
@@ -30,6 +30,16 @@ interface CloudWriter2 {
 
     @Throws(IOException::class, CloudWriterException::class)
     fun fileExists(path: String, isRelative: Boolean): Boolean
+
+
+    val virtualRootPath: String
+
+    fun virtualRootPlus(vararg pathParts: String): String {
+        return mutableListOf(virtualRootPath).apply {
+            if (!addAll(pathParts.toList()))
+                throw RuntimeException("Cannot add path parts to virtual root path.")
+        }.joinToString(CloudWriter2.DS)
+    }
 
 
     companion object {

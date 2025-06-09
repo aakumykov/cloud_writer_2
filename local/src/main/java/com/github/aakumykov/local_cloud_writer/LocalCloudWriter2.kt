@@ -5,11 +5,11 @@ import com.github.aakumykov.cloud_writer.CloudWriterException
 import java.io.File
 
 class LocalCloudWriter2(
-    private val virtualRootPath: String,
+    override val virtualRootPath: String,
 )
     : CloudWriter2
 {
-    override fun createDir(path: String, isRelative: Boolean): String {
+    override suspend fun createDir(path: String, isRelative: Boolean): String {
         return if (isRelative) createRelativeDir(path)
         else createAbsoluteDir(path)
     }
@@ -107,13 +107,5 @@ class LocalCloudWriter2(
 
     private fun fileExistsAbsolute(path: String): Boolean {
         return File(path).exists()
-    }
-
-
-    private fun virtualRootPlus(vararg pathParts: String): String {
-        return mutableListOf(virtualRootPath).apply {
-            if (!addAll(pathParts.toList()))
-                throw RuntimeException("Cannot add path parts to virtual root path.")
-        }.joinToString(CloudWriter2.DS)
     }
 }

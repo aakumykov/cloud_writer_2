@@ -1,6 +1,7 @@
 package com.github.aakumykov.cloud_writer_2
 
 import com.github.aakumykov.cloud_writer.CloudWriterException
+import kotlinx.coroutines.runBlocking
 import org.junit.Assert
 import org.junit.Test
 import java.io.File
@@ -22,7 +23,9 @@ class LocalCloudWriter2AbsolutePathTests : LocalCloudWriter2TestBase() {
     @Test
     fun creates_dir() = run {
         step("Создаю каталог") {
-            localCloudWriter2.createDir(dirAbsolutePath, false)
+            runBlocking {
+                localCloudWriter2.createDir(dirAbsolutePath, false)
+            }
         }
         step("Проверяю, что он существует") {
             Assert.assertTrue(dir.exists())
@@ -33,10 +36,12 @@ class LocalCloudWriter2AbsolutePathTests : LocalCloudWriter2TestBase() {
     @Test
     fun returns_path_to_created_dir() = run {
         step("Возвращает путь к созданному каталогу") {
-            Assert.assertEquals(
-                dirAbsolutePath,
-                localCloudWriter2.createDir(dirAbsolutePath, isRelative = false)
-            )
+            runBlocking {
+                Assert.assertEquals(
+                    dirAbsolutePath,
+                    localCloudWriter2.createDir(dirAbsolutePath, isRelative = false)
+                )
+            }
         }
     }
 
@@ -46,7 +51,9 @@ class LocalCloudWriter2AbsolutePathTests : LocalCloudWriter2TestBase() {
         creates_dir()
         step("Пробую создать каталог '$dirAbsolutePath' ещё раз"){
             Assert.assertThrows(CloudWriterException::class.java) {
-                localCloudWriter2.createDir(dirAbsolutePath, false)
+                runBlocking {
+                    localCloudWriter2.createDir(dirAbsolutePath, false)
+                }
             }
         }
     }
@@ -63,7 +70,9 @@ class LocalCloudWriter2AbsolutePathTests : LocalCloudWriter2TestBase() {
         }
         step("Проверяю, что бросается исключение при попытке его создать") {
             Assert.assertThrows(CloudWriterException::class.java) {
-                localCloudWriter2.createDir(path, false)
+                runBlocking {
+                    localCloudWriter2.createDir(path, false)
+                }
             }
         }
     }
@@ -93,7 +102,9 @@ class LocalCloudWriter2AbsolutePathTests : LocalCloudWriter2TestBase() {
         }
         step("Проверяю, что бросает исключение при попытке создать"){
             Assert.assertThrows(CloudWriterException::class.java) {
-                localCloudWriter2.createDir(deepDirPath, false)
+                runBlocking {
+                    localCloudWriter2.createDir(deepDirPath, false)
+                }
             }
         }
     }
