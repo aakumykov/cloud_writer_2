@@ -45,7 +45,7 @@ class YandexDiskCloudWriter2(
             call.execute().use { response: Response ->
                 when(response.code) {
                     201 -> cc.resume(path)
-                    else -> cc.resumeWithException(response.toCloudWriterException)
+                    else -> throw response.toCloudWriterException
                 }
             }
         } catch (e: CancellationException) {

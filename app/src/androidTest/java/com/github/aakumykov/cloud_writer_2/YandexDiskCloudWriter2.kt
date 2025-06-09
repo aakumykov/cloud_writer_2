@@ -32,7 +32,7 @@ class YandexDiskCloudWriter2 : TestCase() {
         }
     }
 
-    /*@Test
+    @Test
     fun create_dir_in_async_coroutine() {
         CoroutineScope(Dispatchers.IO).launch {
             val dirName = randomName
@@ -52,5 +52,5 @@ class YandexDiskCloudWriter2 : TestCase() {
                 it.cancel(CancellationException("Прервано после $cancellationTimeoutMs мс"))
             }
         }
-    }*/
+    }
 }
