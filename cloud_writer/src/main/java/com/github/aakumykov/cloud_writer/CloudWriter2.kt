@@ -35,10 +35,13 @@ interface CloudWriter2 {
     val virtualRootPath: String
 
     fun virtualRootPlus(vararg pathParts: String): String {
-        return mutableListOf(virtualRootPath).apply {
-            if (!addAll(pathParts.toList()))
-                throw RuntimeException("Cannot add path parts to virtual root path.")
-        }.joinToString(CloudWriter2.DS)
+        return mutableListOf(virtualRootPath)
+            .apply {
+                if (!addAll(pathParts.toList()))
+                    throw RuntimeException("Cannot add path parts to virtual root path.")
+            }
+            .joinToString(DS)
+            .replace(Regex("/+"),"/")
     }
 
 
