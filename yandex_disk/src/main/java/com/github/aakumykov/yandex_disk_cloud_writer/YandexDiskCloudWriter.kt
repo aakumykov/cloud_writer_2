@@ -210,6 +210,7 @@ class YandexDiskCloudWriter(
     }
 
 
+    @Deprecated("Избавиться")
     @Throws(
         IOException::class,
         OperationUnsuccessfulException::class,
@@ -258,6 +259,7 @@ class YandexDiskCloudWriter(
     }
 
 
+    @Deprecated("Избавиться")
     override fun deleteDirRecursively(basePath: String, dirName: String) {
         Log.d(TAG, "deleteDirRecursively(basePath = $basePath, dirName = $dirName)")
         var timeElapsed = 0L

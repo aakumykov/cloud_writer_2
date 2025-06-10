@@ -3,6 +3,7 @@ package com.github.aakumykov.cloud_writer_2
 import android.os.Environment
 import com.github.aakumykov.local_cloud_writer.LocalCloudWriter2
 import com.kaspersky.kaspresso.testcases.api.testcase.TestCase
+import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert
 import org.junit.Before
@@ -84,14 +85,18 @@ abstract class LocalCloudWriter2TestBase : TestCase() {
                 Assert.assertTrue(checkedObjectPreCheckingBlock.invoke())
             }
             step("Проверка, что файл существует силами библиотеки") {
-                Assert.assertTrue(localCloudWriter2.fileExists(pathToCheck, isRelative))
+                runBlocking {
+                    Assert.assertTrue(localCloudWriter2.fileExists(pathToCheck, isRelative))
+                }
             }
             step("Удаление файла и проверка, что удалился, силами объекта File") {
                 Assert.assertTrue(fileOrDirForPreCheck.delete())
                 Assert.assertFalse(fileOrDirForPreCheck.exists())
             }
             step("Проверка, что файла не существует, силами библиотеки") {
-                Assert.assertFalse(localCloudWriter2.fileExists(pathToCheck, isRelative))
+                runBlocking {
+                    Assert.assertFalse(localCloudWriter2.fileExists(pathToCheck, isRelative))
+                }
             }
         }
     }

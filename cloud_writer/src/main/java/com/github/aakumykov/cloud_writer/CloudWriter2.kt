@@ -29,7 +29,7 @@ interface CloudWriter2 {
 
 
     @Throws(IOException::class, CloudWriterException::class)
-    fun fileExists(path: String, isRelative: Boolean): Boolean
+    suspend fun fileExists(path: String, isRelative: Boolean): Boolean
 
 
     val virtualRootPath: String

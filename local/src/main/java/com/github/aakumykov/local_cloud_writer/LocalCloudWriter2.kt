@@ -96,7 +96,7 @@ class LocalCloudWriter2(
         }
     }
 
-    override fun fileExists(path: String, isRelative: Boolean): Boolean {
+    override suspend fun fileExists(path: String, isRelative: Boolean): Boolean {
         return if (isRelative) fileExistsRelative(path)
         else fileExistsAbsolute(path)
     }

@@ -4,6 +4,7 @@ import com.github.aakumykov.cloud_writer.CloudWriter2
 import com.github.aakumykov.cloud_writer.CloudWriterException
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.suspendCancellableCoroutine
+import okhttp3.Call
 import okhttp3.HttpUrl
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.Interceptor
@@ -25,27 +26,46 @@ class YandexDiskCloudWriter2(
         else createAbsoluteDir(path)
     }
 
+
     private suspend fun createRelativeDir(path: String): String
         = createAbsoluteDir(virtualRootPlus(path))
 
+
+    private fun apiURL(vararg queryPairs: Pair<String, String>): HttpUrl {
+        return YANDEX_API_BASE.toHttpUrl().newBuilder().apply {
+            for ((key,value) in queryPairs) {
+                addQueryParameter(key, value)
+            }
+        }.build()
+    }
+
+    private inline fun apiRequest(url: HttpUrl, requestMethodBlock: Request.Builder.() -> Unit): Request {
+        return Request.Builder()
+            .url(url)
+            .apply {
+                requestMethodBlock.invoke(this)
+            }.build()
+    }
+
     private suspend fun createAbsoluteDir(path: String): String = suspendCancellableCoroutine { cc ->
 
-        val url = urlBuilder
-            .addQueryParameter(PARAM_PATH, path)
-            .build()
+        val url = apiURL(PARAM_PATH to path)
 
-        val request = Request.Builder()
-            .url(url)
-            .put("".toRequestBody(null))
-            .build()
+        val request = apiRequest(url) {
+            put("".toRequestBody(null))
+        }
 
         val call = yandexDiskClient.newCall(request)
 
         try {
             call.execute().use { response: Response ->
                 when(response.code) {
-                    201 -> cc.resume(path)
-                    else -> throw response.toCloudWriterException
+                    201 -> {
+                        cc.resume(path)
+                    }
+                    else -> {
+                        throw response.toCloudWriterException
+                    }
                 }
             }
         } catch (e: CancellationException) {
@@ -68,9 +88,55 @@ class YandexDiskCloudWriter2(
         TODO("Not yet implemented")
     }
 
-    override fun fileExists(path: String, isRelative: Boolean): Boolean {
-        TODO("Not yet implemented")
+    override suspend fun fileExists(path: String, isRelative: Boolean): Boolean {
+        return if (isRelative) fileExistsRelative(path)
+        else fileExistsAbsolute(path)
     }
+
+    private suspend fun fileExistsRelative(path: String): Boolean {
+        return fileExistsAbsolute(virtualRootPlus(path))
+    }
+
+    private suspend fun fileExistsAbsolute(path: String): Boolean = suspendCancellableCoroutine { cc ->
+
+        val url = pathApiURL(path)
+
+        val request = apiRequest(url) { put("".toRequestBody(null)) }
+
+        val call = yandexDiskClient.newCall(request)
+
+        try {
+            call.execute().use { response: Response ->
+                when(response.code) {
+                    200 -> cc.resume(true)
+                    404 -> cc.resume(false)
+                    else -> throw response.toCloudWriterException
+                }
+            }
+        } catch (e: CancellationException) {
+            call.cancel()
+        } catch (e: Exception) {
+            cc.resumeWithException(e)
+        }
+    }
+
+    /*@Throws(Exception::class, CloudWriterException::class)
+    private suspend fun <T> tryExecuteCall(call: Call): T = suspendCancellableCoroutine { cc ->
+        try {
+            call.execute().use { response: Response ->
+                when(response.code) {
+                    200 -> cc.resume(true)
+                    else -> throw response.toCloudWriterException
+                }
+            }
+        } catch (e: CancellationException) {
+            call.cancel()
+        } catch (e: Exception) {
+            cc.resumeWithException(e)
+        }
+    }*/
+
+    private fun pathApiURL(path: String): HttpUrl = apiURL(PARAM_PATH to path)
 
     private val yandexDiskClient: OkHttpClient by lazy {
         OkHttpClient
@@ -86,10 +152,6 @@ class YandexDiskCloudWriter2(
     /*private fun urlBuilder(map: Map<String, String>): HttpUrl.Builder {
 
     }*/
-
-    private val urlBuilder by lazy {
-        YANDEX_API_BASE.toHttpUrl().newBuilder()
-    }
 
     companion object {
         private const val YANDEX_API_BASE = "https://cloud-api.yandex.net/v1/disk/resources"

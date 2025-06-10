@@ -1,10 +1,7 @@
 package com.github.aakumykov
 
 import android.content.Intent
-import android.content.SharedPreferences
 import android.os.Bundle
-import android.preference.PreferenceManager
-import android.view.View
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -44,7 +41,7 @@ class MainActivity : AppCompatActivity(), YandexAuthHelper.Callbacks {
             insets
         }
 
-        yandexAuthHelper = YandexAuthHelper(this, MainActivity.AUTH_REQUEST_CODE, this)
+        yandexAuthHelper = YandexAuthHelper(this, AUTH_REQUEST_CODE, this)
 
         supportFragmentManager
             .beginTransaction()
@@ -58,6 +55,7 @@ class MainActivity : AppCompatActivity(), YandexAuthHelper.Callbacks {
         else hideAuthToken()
     }
 
+    @Deprecated("Deprecated in Java")
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == AUTH_REQUEST_CODE) yandexAuthHelper.processAuthResult(
@@ -68,7 +66,6 @@ class MainActivity : AppCompatActivity(), YandexAuthHelper.Callbacks {
     }
 
     companion object {
-        val TAG: String = MainActivity::class.java.simpleName
         const val AUTH_REQUEST_CODE = 10
         const val YANDEX_AUTH_TOKEN = "YANDEX_AUTH_TOKEN"
     }
