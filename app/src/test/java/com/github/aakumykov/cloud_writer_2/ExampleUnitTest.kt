@@ -1,5 +1,8 @@
 package com.github.aakumykov.cloud_writer_2
 
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.test.runTest
+import org.junit.Assert
 import org.junit.Test
 
 import org.junit.Assert.*
@@ -10,8 +13,20 @@ import org.junit.Assert.*
  * See [testing documentation](http://d.android.com/tools/testing).
  */
 class ExampleUnitTest {
+
     @Test
     fun addition_isCorrect() {
         assertEquals(4, 2 + 2)
+    }
+
+    suspend fun fetchData(): String {
+        delay(1000L)
+        return "Hello world"
+    }
+
+    @Test
+    fun dataShouldBeHelloWorld() = runTest {
+        val data = fetchData()
+        Assert.assertEquals("Hello world", data)
     }
 }
