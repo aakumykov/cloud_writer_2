@@ -1,39 +1,37 @@
 package com.github.aakumykov.cloud_writer_2
 
-import androidx.test.platform.app.InstrumentationRegistry
-import com.github.aakumykov.extensions.errorMsg
+import com.github.aakumykov.cloud_writer.CloudWriterException
 import com.github.aakumykov.yandex_disk_cloud_writer.YandexDiskCloudWriter2
 import com.kaspersky.kaspresso.testcases.api.testcase.TestCase
-import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert
 import org.junit.Test
 
-class YandexDiskCloudWriter2 : TestCase() {
+class YandexDiskCloudWriter2Tests : TestCase() {
 
     private val yandexCloudWriter by lazy {
-        YandexDiskCloudWriter2(
-            authToken = "y0__xDZlpzOBxjblgMgz_iYuxMNkWZCkFERHniMPYHOW2lqIGD79A",
-        )
+        YandexDiskCloudWriter2(authToken = yandexAuthToken)
     }
+
+
+    private val yandexAuthToken: String
+        get() = device.targetContext.getString(R.string.yandex_disk_auth_token_for_tests)
+
 
     @Test
     fun yandex_auth_token_for_tests_is_not_empty() {
-        InstrumentationRegistry.getInstrumentation().targetContext.resources.apply {
-            getString(R.string.yandex_disk_auth_token_for_tests).apply {
+        device.targetContext.resources.apply {
+            yandexAuthToken.apply {
                 Assert.assertTrue(this.isNotEmpty())
                 Assert.assertEquals(61, this.length)
             }
         }
     }
 
+
     @Test
     fun creates_dir() = run {
-        val dirName = "randomName225"
+        val dirName = randomName
         runBlocking {
             yandexCloudWriter
                 .createDir(dirName, false)
@@ -43,7 +41,35 @@ class YandexDiskCloudWriter2 : TestCase() {
         }
     }
 
+
     @Test
+    fun throws_exception_on_second_dir_creation_with_same_name() = run {
+
+        val dirName = randomName
+
+        suspend fun create_dir_with_name(name: String) {
+            yandexCloudWriter
+                .createDir(name, false)
+                .also {
+                    Assert.assertEquals(name, it)
+                }
+        }
+
+        runBlocking {
+            create_dir_with_name(dirName)
+            Assert.assertThrows(CloudWriterException::class.java) {
+                runBlocking {
+                    create_dir_with_name(dirName)
+                }
+            }
+        }
+    }
+
+
+    // TODO: тестировать отмену создания каталога
+
+
+    /*@Test
     fun create_dir_in_async_coroutine() {
         CoroutineScope(Dispatchers.IO).launch {
             val dirName = randomName
@@ -63,5 +89,7 @@ class YandexDiskCloudWriter2 : TestCase() {
                 it.cancel(CancellationException("Прервано после $cancellationTimeoutMs мс"))
             }
         }
-    }
+    }*/
+
+
 }
