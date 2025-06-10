@@ -1,5 +1,6 @@
 package com.github.aakumykov.cloud_writer_2
 
+import androidx.test.platform.app.InstrumentationRegistry
 import com.github.aakumykov.extensions.errorMsg
 import com.github.aakumykov.yandex_disk_cloud_writer.YandexDiskCloudWriter2
 import com.kaspersky.kaspresso.testcases.api.testcase.TestCase
@@ -18,6 +19,16 @@ class YandexDiskCloudWriter2 : TestCase() {
         YandexDiskCloudWriter2(
             authToken = "y0__xDZlpzOBxjblgMgz_iYuxMNkWZCkFERHniMPYHOW2lqIGD79A",
         )
+    }
+
+    @Test
+    fun yandex_auth_token_for_tests_is_not_empty() {
+        InstrumentationRegistry.getInstrumentation().targetContext.resources.apply {
+            getString(R.string.yandex_disk_auth_token_for_tests).apply {
+                Assert.assertTrue(this.isNotEmpty())
+                Assert.assertEquals(61, this.length)
+            }
+        }
     }
 
     @Test
