@@ -101,7 +101,7 @@ class YandexDiskCloudWriter2(
 
         val url = pathApiURL(path)
 
-        val request = apiRequest(url) { put("".toRequestBody(null)) }
+        val request = apiRequest(url) {}
 
         val call = yandexDiskClient.newCall(request)
 
