@@ -63,4 +63,7 @@ dependencies {
 
     androidTestImplementation(libs.kaspresso)
     androidTestUtil libs.androidx.orchestrator
+
+    testImplementation libs.kotlinx.coroutines.test
+    androidTestImplementation libs.kotlinx.coroutines.test
 }
