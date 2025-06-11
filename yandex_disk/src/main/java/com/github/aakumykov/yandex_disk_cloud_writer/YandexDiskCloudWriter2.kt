@@ -76,9 +76,20 @@ class YandexDiskCloudWriter2(
     }
 
 
-    override fun createDirIfNotExist(path: String, isRelative: Boolean): String {
-        TODO("Not yet implemented")
+    override suspend fun createDirIfNotExist(path: String, isRelative: Boolean): String {
+        return if (isRelative) createDirIfNotExistRelative(path)
+        else createDirIfNotExistAbsolute(path)
     }
+
+    private suspend fun createDirIfNotExistRelative(path: String): String {
+        return createDirIfNotExistAbsolute(virtualRootPlus(path))
+    }
+
+    private suspend fun createDirIfNotExistAbsolute(path: String): String {
+        return if (!fileExistsAbsolute(path)) createAbsoluteDir(path)
+        else path
+    }
+
 
     override fun createDeepDir(path: String, isRelative: Boolean): String {
         TODO("Not yet implemented")

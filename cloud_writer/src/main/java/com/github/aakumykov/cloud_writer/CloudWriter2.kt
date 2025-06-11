@@ -17,7 +17,7 @@ interface CloudWriter2 {
     suspend fun createDir(path: String, isRelative: Boolean): String
 
     @Throws(IOException::class, CloudWriterException::class)
-    fun createDirIfNotExist(path: String, isRelative: Boolean): String
+    suspend fun createDirIfNotExist(path: String, isRelative: Boolean): String
 
 
     @Throws(IOException::class, CloudWriterException::class)

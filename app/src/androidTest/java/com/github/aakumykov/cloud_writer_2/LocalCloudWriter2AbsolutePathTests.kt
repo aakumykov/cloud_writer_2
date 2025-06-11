@@ -82,10 +82,12 @@ class LocalCloudWriter2AbsolutePathTests : LocalCloudWriter2TestBase() {
     fun creates_dir_if_not_exists() = run {
         creates_dir()
         step("Не бросает исключения при повторном создании каталога условным методом") {
-            Assert.assertEquals(
-                dirAbsolutePath,
-                localCloudWriter2.createDirIfNotExist(dirAbsolutePath, false)
-            )
+            runBlocking {
+                Assert.assertEquals(
+                    dirAbsolutePath,
+                    localCloudWriter2.createDirIfNotExist(dirAbsolutePath, false)
+                )
+            }
         }
     }
 

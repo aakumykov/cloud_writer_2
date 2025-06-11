@@ -3,17 +3,20 @@ package com.github.aakumykov.cloud_writer_2
 import com.github.aakumykov.cloud_writer.CloudWriterException
 import com.github.aakumykov.yandex_disk_cloud_writer.YandexDiskCloudWriter2
 import com.kaspersky.kaspresso.testcases.api.testcase.TestCase
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 import org.junit.Assert
 import org.junit.Test
 
 class YandexDiskCloudWriter2RelativeTests : TestCase() {
 
+    // TODO: проверка ошибки при некорректном имени
+    // TODO: как насчёт сложного имени вроде 'dir/name/1'?
+
     private val yandexCloudWriter by lazy {
         YandexDiskCloudWriter2(
             authToken = yandexAuthToken,
-            virtualRootPath = ""
+            virtualRootPath = "/"
         )
     }
 
@@ -62,8 +65,8 @@ class YandexDiskCloudWriter2RelativeTests : TestCase() {
         val dirName = randomName
         runBlocking {
             Assert.assertEquals(
-                dirName,
-                create_dir_with_name(dirName)
+                yandexCloudWriter.virtualRootPlus(dirName),
+                create_relative_dir_with_name(dirName)
             )
         }
     }
@@ -76,11 +79,11 @@ class YandexDiskCloudWriter2RelativeTests : TestCase() {
 
         runBlocking {
 
-            create_dir_with_name(dirName)
+            create_relative_dir_with_name(dirName)
 
             Assert.assertThrows(CloudWriterException::class.java) {
                 runBlocking {
-                    create_dir_with_name(dirName)
+                    create_relative_dir_with_name(dirName)
                 }
             }
         }
@@ -104,7 +107,7 @@ class YandexDiskCloudWriter2RelativeTests : TestCase() {
                 yandexCloudWriter.fileExists(dirName, true)
             )
 
-            create_dir_with_name(dirName)
+            create_relative_dir_with_name(dirName)
 
             Assert.assertTrue(
                 yandexCloudWriter.fileExists(dirName, true)
@@ -113,18 +116,85 @@ class YandexDiskCloudWriter2RelativeTests : TestCase() {
     }
 
 
+    /**
+     * Безопасное создание каталога:
+     * 10) доселе несуществующий каталог создаётся безопасным методом:
+     * - при этом возвращает полный путь к каталогу;
+     * [creates_non_existent_dir_with_safe_method]
+     * 20) безопасный метод не бросает исключений при повторном создании каталога:
+     * - и возвращает полный путь к нему.
+     * [not_throws_exception_if_dir_exists]
+     */
+
+
+    @Test
+    fun creates_non_existent_dir_with_safe_method() = run {
+        yandexCloudWriter.apply {
+            var dirName = randomName
+            step("Генерирую уникальное имя каталога") {
+                val maxTryCount = 5
+                var tryCount = 0
+                runBlocking { while (tryCount++ < maxTryCount && fileExists(dirName, true)) { dirName = randomName } }
+            }
+            step("Создаю каталог '$dirName' безопасным методом") {
+                runBlocking {
+                    yandexCloudWriter.createDirIfNotExist(dirName, true).also { createdDirPath ->
+                        step("Проверяю, что возвращается путь к нему") {
+                            Assert.assertEquals(
+                                yandexCloudWriter.virtualRootPlus(dirName),
+                                createdDirPath
+                            )
+                        }
+                    }
+                }
+            }
+            step("Проверяю, что каталог '$dirName' создался") {
+                runBlocking {
+                    Assert.assertTrue(fileExists(dirName, true))
+                }
+            }
+        }
+    }
+
+
+    @Test
+    fun not_throws_exception_if_dir_exists() = run {
+        runTest {
+            yandexCloudWriter.apply {
+                val dirName = randomName
+                step("Создаю каталог '$dirName'") {
+                    runBlocking { createDir(dirName, true) }
+                }
+                step("Проверяю, что каталог '$dirName' создался") {
+                    runBlocking { Assert.assertTrue(fileExists(dirName, true)) }
+                }
+                step("Вызываю безопасное создание каталога '$dirName'") {
+                    runBlocking {
+                        createDirIfNotExist(dirName, true).also { absoluteDirPath ->
+                            step("Проверяю, что возвращён путь к нему") {
+                                Assert.assertEquals(
+                                    yandexCloudWriter.virtualRootPlus(dirName),
+                                    absoluteDirPath
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+
 
     /**
+     * Создаёт каталог с именем [name] как относительный путь.
      * @return Имя созданного каталога.
      */
-    private suspend fun create_dir_with_name(name: String): String {
+    private suspend fun create_relative_dir_with_name(name: String): String {
         return yandexCloudWriter
-            .createDir(name, false)
-            .also {
-                Assert.assertEquals(name, it)
-            }.let {
-                name
-            }
+            .createDir(name, true)
+            .also { Assert.assertEquals(name, it) }
+            .let { name }
     }
 
 

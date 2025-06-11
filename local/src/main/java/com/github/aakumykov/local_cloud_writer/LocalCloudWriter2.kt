@@ -14,7 +14,7 @@ class LocalCloudWriter2(
         else createAbsoluteDir(path)
     }
 
-    override fun createDirIfNotExist(path: String, isRelative: Boolean): String {
+    override suspend fun createDirIfNotExist(path: String, isRelative: Boolean): String {
         val fullPath = if (isRelative) virtualRootPlus(path) else path
         return if (!fileExistsAbsolute(fullPath)) createAbsoluteDir(fullPath)
         else fullPath
