@@ -1,13 +1,13 @@
 package com.github.aakumykov.local_cloud_writer
 
-import com.github.aakumykov.cloud_writer.CloudWriter2
+import com.github.aakumykov.cloud_writer.BasicCloudWriter2
 import com.github.aakumykov.cloud_writer.CloudWriterException
 import java.io.File
 
 class LocalCloudWriter2(
     override val virtualRootPath: String,
 )
-    : CloudWriter2
+    : BasicCloudWriter2()
 {
     override suspend fun createDir(path: String, isRelative: Boolean): String {
         return if (isRelative) createRelativeDir(path)
@@ -41,30 +41,7 @@ class LocalCloudWriter2(
     }
 
 
-    /**
-     * Проходит путь [path] от корня в грубину, вызывая действие
-     * [action] на каждой итерации.
-     * @return Первоначальное значение [path].
-     *
-     * Пример:
-     *
-     * Если [path] = /dir1/dir2/dir3, то блок [action] будет вызван три раза с параметрами:
-     * 1) "dir1"
-     * 2) "dir1/dir2"
-     * 3) "dir1/dir2/dir3"
-     */
-    private fun iterateOverDirsInPathFromRoot(path: String, action: (String) -> Unit): String {
-        return path
-            .split(CloudWriter2.DS)
-            .filterNot { "" == it }
-            .reduce { acc, s ->
-                action(acc)
-                acc + CloudWriter2.DS + s
-            }.let { tailDir: String ->
-                action(tailDir)
-                path
-            }
-    }
+
 
     override fun createDeepDirIfNotExists(path: String, isRelative: Boolean): String {
         return if (isRelative) createRelativeDeepDirIfNotExists(path)

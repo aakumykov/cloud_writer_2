@@ -1,6 +1,6 @@
 package com.github.aakumykov.yandex_disk_cloud_writer
 
-import com.github.aakumykov.cloud_writer.CloudWriter2
+import com.github.aakumykov.cloud_writer.BasicCloudWriter2
 import com.github.aakumykov.yandex_disk_cloud_writer.ext.toCloudWriterException
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.suspendCancellableCoroutine
@@ -18,7 +18,7 @@ class YandexDiskCloudWriter2(
     private val authToken: String,
     override val virtualRootPath: String = "/",
 )
-    : CloudWriter2
+    : BasicCloudWriter2()
 {
     override suspend fun createDir(path: String, isRelative: Boolean): String {
         return if (isRelative) createAbsoluteDir(virtualRootPlus(path))
