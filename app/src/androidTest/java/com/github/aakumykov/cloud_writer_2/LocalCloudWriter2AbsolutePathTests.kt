@@ -20,6 +20,8 @@ createDeepDirIfNotExists()
  */
 class LocalCloudWriter2AbsolutePathTests : LocalCloudWriter2TestBase() {
 
+    // TODO: корректная проверка возвращаемого пути
+
     @Test
     fun creates_dir() = run {
         step("Создаю каталог") {
