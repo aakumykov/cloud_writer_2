@@ -1,8 +1,10 @@
 package com.github.aakumykov.cloud_writer_2
 
+import com.github.aakumykov.cloud_writer.CloudWriter2
 import com.github.aakumykov.local_cloud_writer.LocalCloudWriter2
 import org.junit.Assert
 import org.junit.Test
+import java.io.File
 
 class CloudWriter2UnitTest {
 
@@ -50,7 +52,17 @@ class CloudWriter2UnitTest {
         test_paths_with_virtual_root("/path/to/custom/root/")
     }
 
-    fun test_paths_with_virtual_root(virtualRoot: String) {
+
+    @Test
+    fun companion_object_contains_DS_constant() {
+        Assert.assertEquals(
+            "/",
+            CloudWriter2.DS
+        )
+    }
+
+
+    private fun test_paths_with_virtual_root(virtualRoot: String) {
         println()
         println("=============== START: test_paths_with_virtual_root (virtualRoot=\"$virtualRoot\") ================")
 
