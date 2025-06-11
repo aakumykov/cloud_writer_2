@@ -65,23 +65,36 @@ class YandexDiskCloudWriter2(
     }
 
 
-    override fun createDeepDir(path: String, isRelative: Boolean): String {
+    override suspend fun createDeepDir(path: String, isRelative: Boolean): String {
         return if (isRelative) createDeepDirAbsolute(virtualRootPlus(path))
         else createDeepDirAbsolute(path)
     }
 
-    private fun createDeepDirAbsolute(path: String): String {
-        TODO("Not yet implemented")
+    private suspend fun createDeepDirAbsolute(path: String): String {
+
+        // Так как идёт пошаговое создание
+        // каталогов из пути вглубь,
+        // то нужно отрезать от него "системную"
+        // незаписываемую часть.
+
+        val pathToOperate = path.replace(Regex("^${virtualRootPath}/+"),"")
+
+        return iterateOverDirsInPathFromRoot(pathToOperate) { partialPath ->
+            createDirIfNotExist(partialPath, true)
+        }.let {
+            path
+        }
     }
 
 
-    override fun createDeepDirIfNotExists(path: String, isRelative: Boolean): String {
+    override suspend fun createDeepDirIfNotExists(path: String, isRelative: Boolean): String {
         return if (isRelative) createDeepDirIfNotExistAbsolute(virtualRootPlus(path))
         else createDeepDirIfNotExistAbsolute(path)
     }
 
-    private fun createDeepDirIfNotExistAbsolute(path: String): String {
-        TODO("Not yet implemented")
+    private suspend fun createDeepDirIfNotExistAbsolute(path: String): String {
+        return if (fileExists(path, false)) path
+        else createDeepDirAbsolute(path)
     }
 
 

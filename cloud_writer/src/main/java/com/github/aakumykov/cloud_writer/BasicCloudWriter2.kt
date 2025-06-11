@@ -26,7 +26,7 @@ abstract class BasicCloudWriter2 : CloudWriter2 {
      * 2) "dir1/dir2"
      * 3) "dir1/dir2/dir3"
      */
-    protected fun iterateOverDirsInPathFromRoot(path: String, action: (String) -> Unit): String {
+    protected suspend fun iterateOverDirsInPathFromRoot(path: String, action: suspend (String) -> Unit): String {
         return path
             .split(CloudWriter2.DS)
             .filterNot { "" == it }

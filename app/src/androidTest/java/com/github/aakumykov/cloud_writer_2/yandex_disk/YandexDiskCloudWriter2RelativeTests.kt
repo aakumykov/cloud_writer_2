@@ -244,5 +244,5 @@ class YandexDiskCloudWriter2RelativeTests : TestCase() {
     }*/
 
 
-
+    // TODO: создание глубокого каталога с частично существующим путём
 }

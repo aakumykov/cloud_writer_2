@@ -21,11 +21,11 @@ interface CloudWriter2 {
 
 
     @Throws(IOException::class, CloudWriterException::class)
-    fun createDeepDir(path: String, isRelative: Boolean): String
+    suspend fun createDeepDir(path: String, isRelative: Boolean): String
 
 
     @Throws(IOException::class, CloudWriterException::class)
-    fun createDeepDirIfNotExists(path: String, isRelative: Boolean): String
+    suspend fun createDeepDirIfNotExists(path: String, isRelative: Boolean): String
 
 
     @Throws(IOException::class, CloudWriterException::class)

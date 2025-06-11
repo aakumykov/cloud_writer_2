@@ -108,6 +108,7 @@ class LocalCloudWriter2RelativePathTests : LocalCloudWriter2TestBase() {
         }
     }
 
+    // TODO: создание глубокого каталога с частично существующим путём
 
     @Test
     fun creates_deep_dir() = run {
@@ -115,7 +116,9 @@ class LocalCloudWriter2RelativePathTests : LocalCloudWriter2TestBase() {
             checkingDir = deepDir,
             resultCheckingDirPath = deepDirRelativePath,
         ) {
-            localCloudWriter2.createDeepDir(deepDirRelativePath, true)
+            runBlocking {
+                localCloudWriter2.createDeepDir(deepDirRelativePath, true)
+            }
         }
     }
 
@@ -124,7 +127,9 @@ class LocalCloudWriter2RelativePathTests : LocalCloudWriter2TestBase() {
     fun creates_deep_dir_if_not_exists() = run {
         creates_deep_dir()
         step("Повторное создание глубокого каталога '$deepDirRelativePath'") {
-            localCloudWriter2.createDeepDirIfNotExists(deepDirRelativePath, true)
+            runBlocking {
+                localCloudWriter2.createDeepDirIfNotExists(deepDirRelativePath, true)
+            }
         }
     }
 

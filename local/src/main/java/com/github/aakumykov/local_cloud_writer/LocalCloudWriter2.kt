@@ -24,7 +24,7 @@ class LocalCloudWriter2(
      * @return Путь к созданному каталогу: абсолютный или относительный,
      * в зависимости от режима запуска.
      */
-    override fun createDeepDir(path: String, isRelative: Boolean): String {
+    override suspend fun createDeepDir(path: String, isRelative: Boolean): String {
 
         // Так как идёт пошаговое создание
         // каталогов из пути вглубь,
@@ -43,17 +43,18 @@ class LocalCloudWriter2(
 
 
 
-    override fun createDeepDirIfNotExists(path: String, isRelative: Boolean): String {
+    override suspend fun createDeepDirIfNotExists(path: String, isRelative: Boolean): String {
         return if (isRelative) createRelativeDeepDirIfNotExists(path)
         else createAbsoluteDeepDirIfNotExists(path)
     }
 
-    private fun createRelativeDeepDirIfNotExists(path: String): String {
+    private suspend fun createRelativeDeepDirIfNotExists(path: String): String {
         return createAbsoluteDeepDirIfNotExists(virtualRootPlus(path))
     }
 
-    private fun createAbsoluteDeepDirIfNotExists(path: String): String {
-        return iterateOverDirsInPathFromRoot(path) { partialDeepPath ->
+    private suspend fun createAbsoluteDeepDirIfNotExists(path: String): String {
+        return if (fileExistsAbsolute(path)) path
+        else iterateOverDirsInPathFromRoot(path) { partialDeepPath ->
             if (!fileExistsAbsolute(partialDeepPath))
                 createAbsoluteDir(partialDeepPath)
         }
