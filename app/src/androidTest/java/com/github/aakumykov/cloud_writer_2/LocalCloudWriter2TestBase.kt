@@ -2,7 +2,6 @@ package com.github.aakumykov.cloud_writer_2
 
 import android.os.Environment
 import com.github.aakumykov.local_cloud_writer.LocalCloudWriter2
-import com.kaspersky.kaspresso.testcases.api.testcase.TestCase
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert
@@ -10,7 +9,7 @@ import org.junit.Before
 import org.junit.Test
 import java.io.File
 
-abstract class LocalCloudWriter2TestBase : TestCase() {
+abstract class LocalCloudWriter2TestBase : StorageAccessTestCase() {
 
     protected val basePath: String
         get() = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).absolutePath
