@@ -1,6 +1,7 @@
-package com.github.aakumykov.cloud_writer_2
+package com.github.aakumykov.cloud_writer_2.local
 
 import com.github.aakumykov.cloud_writer.CloudWriterException
+import com.github.aakumykov.cloud_writer_2.randomName
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert
 import org.junit.Test

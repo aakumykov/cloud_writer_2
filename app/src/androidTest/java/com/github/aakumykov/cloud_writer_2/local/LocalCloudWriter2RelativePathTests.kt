@@ -1,4 +1,4 @@
-package com.github.aakumykov.cloud_writer_2
+package com.github.aakumykov.cloud_writer_2.local
 
 import com.github.aakumykov.cloud_writer.CloudWriterException
 import com.github.aakumykov.local_cloud_writer.LocalCloudWriter2
