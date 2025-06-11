@@ -13,33 +13,30 @@ class LocalCloudWriter2RelativePathTests : LocalCloudWriter2TestBase() {
     private val deepDirRelativePath = subtractBasePath(deepDir.absolutePath)
 
 
+    // TODO: тестировать
     private fun subtractBasePath(fromPath: String): String {
         return fromPath
-            .replace(basePath,"")
+            .replace(Regex("^$basePath"),"")
             .replace(Regex("^/"),"")
     }
+
+
+    private suspend fun createRelativeDir(dirNameOrRelativePath: String): String
+        = localCloudWriter2.createDir(dirNameOrRelativePath, true)
+
 
     @Test
     fun creates_dir() = run {
         step("Создаю относительный каталог '$dirRelativePath'") {
             runBlocking {
-                localCloudWriter2.createDir(dirRelativePath, true)
-            }
-        }
-        step("Проверяю, что каталог '${dirRelativePath}' создан как '$dirAbsolutePath'") {
-            Assert.assertTrue(dir.exists())
-        }
-    }
-
-
-    @Test
-    fun returns_absolute_path_to_created_dir() = run {
-        step("Возвращает путь к созданному каталогу") {
-            runBlocking {
-                Assert.assertEquals(
-                    dirAbsolutePath,
-                    localCloudWriter2.createDir(dirRelativePath, isRelative = true)
-                )
+                createRelativeDir(dirRelativePath).also { createdDirPath ->
+                    step("Проверяю, что он существует") {
+                        Assert.assertTrue(dir.exists())
+                    }
+                    step("Проверяю, что метод вернул абсолютный путь к каталогу") {
+                        Assert.assertEquals(dirAbsolutePath, createdDirPath)
+                    }
+                }
             }
         }
     }
@@ -47,11 +44,13 @@ class LocalCloudWriter2RelativePathTests : LocalCloudWriter2TestBase() {
 
     @Test
     fun throws_exception_if_dir_exists() = run {
-        creates_dir()
-        step("Пробую создать каталог '$dirAbsolutePath' ещё раз"){
+        step("Создаю каталог '$dirRelativePath'") {
+            runBlocking { createRelativeDir(dirRelativePath) }
+        }
+        step("Пробую создать каталог '$dirRelativePath' ещё раз"){
             Assert.assertThrows(CloudWriterException::class.java) {
                 runBlocking {
-                    localCloudWriter2.createDir(dirRelativePath, true)
+                    createRelativeDir(dirRelativePath)
                 }
             }
         }
@@ -71,11 +70,10 @@ class LocalCloudWriter2RelativePathTests : LocalCloudWriter2TestBase() {
         step("Проверяю, что каталога '$testDirAbsolutePath', ВНЕЗАПНО, нет") {
             Assert.assertFalse(dir.exists())
         }
+
         step("Проверяю, что бросается исключение при попытке его создать") {
             Assert.assertThrows(CloudWriterException::class.java) {
-                runBlocking {
-                    specialLocalCloudWriter.createDir(relativePath, true)
-                }
+                runBlocking { specialLocalCloudWriter.createDir(relativePath, true) }
             }
         }
     }
@@ -83,13 +81,14 @@ class LocalCloudWriter2RelativePathTests : LocalCloudWriter2TestBase() {
 
     @Test
     fun creates_dir_if_not_exists() = run {
-        creates_dir()
-        step("Не бросает исключения при повторном создании каталога условным методом") {
+        step("Создаёт ранее отсутствующий каталог '$dirRelativePath' условным методом") {
             runBlocking {
-                Assert.assertEquals(
-                    dirAbsolutePath,
-                    localCloudWriter2.createDirIfNotExist(dirRelativePath, true)
-                )
+                localCloudWriter2.createDirIfNotExist(dirRelativePath, true).also { createdDirPath ->
+                    Assert.assertTrue(dir.exists())
+                    step("Возвращает абсолютный путь к созданному каталогу") {
+                        Assert.assertEquals(dirAbsolutePath, createdDirPath)
+                    }
+                }
             }
         }
     }
@@ -97,13 +96,13 @@ class LocalCloudWriter2RelativePathTests : LocalCloudWriter2TestBase() {
 
     @Test
     fun throws_exception_on_creating_deep_dir_with_not_deep_method() = run {
-        step("Проверяю, что каталога '$deepDirAbsolutePath' ещё нет") {
+        step("Проверяю, что каталога '$deepDirRelativePath' ещё нет") {
             Assert.assertFalse(deepDir.exists())
         }
-        step("Проверяю, что бросает исключение при попытке создать"){
+        step("Проверяю, что бросает исключение при попытке создать обычным методом '$deepDirRelativePath'"){
             Assert.assertThrows(CloudWriterException::class.java) {
                 runBlocking {
-                    localCloudWriter2.createDir(deepDirRelativePath, false)
+                    createRelativeDir(deepDirRelativePath)
                 }
             }
         }
