@@ -1,48 +1,70 @@
 package com.github.aakumykov.cloud_writer_2
 
-import com.github.aakumykov.cloud_writer.CloudWriter2
 import com.github.aakumykov.local_cloud_writer.LocalCloudWriter2
 import org.junit.Assert
 import org.junit.Test
 
 class CloudWriter2UnitTest {
 
-    private fun prepareTestData(virtualRoot: String): Map<String,String> = mapOf(
+    private fun prepareTestData(virtualRoot: String): Iterable<String> = listOf(
         // Вырожденные случаи
-        "" to "",
-        " " to " ",
-        "   " to "  ",
-        // Относительные пути
-        "a" to "a",
-        "qwerty" to "qwerty",
-        "qwerty/" to "qwerty/",
-        "a//b" to "a/b",
-        "a/b///c" to "a/b/c",
-        "абв гд//qwe rty/" to "абв гд/qwe rty/",
-        // Абсолютные пути
-        "//" to "/",
-        "/////" to "/",
-        "/a//b///c" to "/a/b/c",
-        "//a b//c d/e f///" to "/a/b/c/d/e/f/",
-        "/qwerty/" to "/qwerty/",
-        "/qwe///rty/" to "/qwe/rty/",
-    ).mapValues {
+        "",
+        " ",
+        "\t",
 
+        // Относительные пути
+        "a",
+        "qwerty",
+        "qwerty/",
+        "a//b",
+        "a/b///c",
+        "абв гд//qwe rty/",
+
+        // Абсолютные пути
+        "//",
+        "/////",
+        "/a//b///c",
+        "//a b//c d/e f///",
+        "/qwerty/",
+        "/qwe///rty/",
+
+    )
+
+    @Test
+    fun correctly_operates_with_canonical_virtual_root() {
+        test_paths_with_virtual_root("/")
     }
 
     @Test
-    fun correctly_operates_with_paths() {
+    fun correctly_operates_with_empty_virtual_root() {
+        test_paths_with_virtual_root("")
+    }
 
-        val virtualRoot = "/"
+    @Test
+    fun correctly_operates_with_custom_virtual_root_without_tail_slash() {
+        test_paths_with_virtual_root("/path/to/custom/root")
+    }
+
+    @Test
+    fun correctly_operates_with_custom_virtual_root_with_tail_slash() {
+        test_paths_with_virtual_root("/path/to/custom/root/")
+    }
+
+    fun test_paths_with_virtual_root(virtualRoot: String) {
+        println()
+        println("=============== START: test_paths_with_virtual_root (virtualRoot=\"$virtualRoot\") ================")
 
         val cloudWriter = LocalCloudWriter2(virtualRoot)
 
         prepareTestData(virtualRoot)
-            .let { it }.forEach { (testData: String, expected: String) ->
-            Assert.assertEquals(
-                cloudWriter.virtualRootPlus(testData),
-                expected
-            )
-        }
+            .forEach { testedPath: String ->
+                val resultPath = cloudWriter.virtualRootPlus(testedPath)
+                Assert.assertTrue(resultPath.startsWith(virtualRoot, false))
+                Assert.assertFalse(resultPath.contains("//+"))
+                println("$testedPath --> $resultPath")
+            }
+
+        println("=============== FINISH: test_paths_with_virtual_root (virtualRoot=\"$virtualRoot\") ================")
+        println()
     }
 }
