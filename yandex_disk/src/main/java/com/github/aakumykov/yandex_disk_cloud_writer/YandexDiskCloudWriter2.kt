@@ -70,6 +70,8 @@ class YandexDiskCloudWriter2(
         else createDeepDirAbsolute(path)
     }
 
+
+    // TODO: унифицировать с [LocalCloudWriter2.createDeepDir]
     private suspend fun createDeepDirAbsolute(path: String): String {
 
         // Так как идёт пошаговое создание

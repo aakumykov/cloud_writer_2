@@ -121,7 +121,9 @@ class LocalCloudWriter2AbsolutePathTests : LocalCloudWriter2TestBase() {
             checkingDir = deepDir,
             resultCheckingDirPath = deepDirAbsolutePath
         ) {
-            localCloudWriter2.createDeepDir(deepDirAbsolutePath, false)
+            runBlocking {
+                localCloudWriter2.createDeepDir(deepDirAbsolutePath, false)
+            }
         }
     }
 
@@ -131,11 +133,15 @@ class LocalCloudWriter2AbsolutePathTests : LocalCloudWriter2TestBase() {
             checkingDir = deepDir,
             resultCheckingDirPath = deepDirAbsolutePath
         ) {
-            localCloudWriter2.createDeepDirIfNotExists(deepDirAbsolutePath, false)
+            runBlocking {
+                localCloudWriter2.createDeepDirIfNotExists(deepDirAbsolutePath, false)
+            }
         }
 
         step("Повторное создание каталога '$deepDirAbsolutePath'") {
-            localCloudWriter2.createDeepDirIfNotExists(deepDirAbsolutePath, false)
+            runBlocking {
+                localCloudWriter2.createDeepDirIfNotExists(deepDirAbsolutePath, false)
+            }
         }
     }
 
