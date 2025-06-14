@@ -4,7 +4,8 @@ abstract class BasicCloudWriter2 : CloudWriter2 {
 
     protected abstract val virtualRootPath: String
 
-    fun virtualRootPlus(vararg pathParts: String): String {
+    @Deprecated("Переименовать в absolutePathFor()")
+    override fun virtualRootPlus(vararg pathParts: String): String {
         return mutableListOf(virtualRootPath)
             .apply {
                 if (!addAll(pathParts.toList()))

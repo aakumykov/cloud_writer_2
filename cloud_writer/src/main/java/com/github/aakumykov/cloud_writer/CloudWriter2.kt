@@ -32,6 +32,9 @@ interface CloudWriter2 {
     suspend fun fileExists(path: String, isRelative: Boolean): Boolean
 
 
+    @Deprecated("Переименовать в absolutePathFor()")
+    fun virtualRootPlus(vararg pathParts: String): String
+
     companion object {
         /**
          * Directory separator.
