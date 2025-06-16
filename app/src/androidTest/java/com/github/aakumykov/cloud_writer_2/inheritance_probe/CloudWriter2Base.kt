@@ -2,6 +2,7 @@ package com.github.aakumykov.cloud_writer_2.inheritance_probe
 
 import com.github.aakumykov.cloud_writer.CloudWriter2
 import com.github.aakumykov.cloud_writer_2.common.randomName
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert
 import org.junit.Test
@@ -20,7 +21,20 @@ abstract class CloudWriter2Base : Base() {
 
     @Test
     fun file_exists() = run {
-        step()
+        val dirName = randomName
+        step("Проверяю, что каталог '$dirName' отсутствует") {
+            runBlocking {
+                Assert.assertFalse(cloudWriter2.fileExists(dirName, isRelative))
+            }
+        }
+        step("Создаю каталог '$dirName") {
+            runBlocking { cloudWriter2.createDir(dirName, isRelative) }
+        }
+        step("Проверяю, что каталог '$dirName' существует") {
+            runBlocking {
+                Assert.assertTrue(cloudWriter2.fileExists(dirName, isRelative))
+            }
+        }
     }
 
     @Test
