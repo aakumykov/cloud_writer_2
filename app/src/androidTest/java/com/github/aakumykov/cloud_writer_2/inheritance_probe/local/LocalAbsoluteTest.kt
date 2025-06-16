@@ -11,7 +11,7 @@ import java.io.File
 
 
 @RunWith(AndroidJUnit4::class)
-class LocalAbsoluteTest : LocalBase() {
+class LocalAbsoluteTest : CloudWriter2Base() {
 
     override val isRelative: Boolean = false
 
