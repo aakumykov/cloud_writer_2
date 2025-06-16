@@ -10,7 +10,7 @@ class LocalCloudWriter2(
     : BasicCloudWriter2()
 {
     override suspend fun createDir(path: String, isRelative: Boolean): String {
-        return if (isRelative) createRelativeDir(path)
+        return if (isRelative) createAbsoluteDir(virtualRootPlus(path))
         else createAbsoluteDir(path)
     }
 
@@ -52,10 +52,6 @@ class LocalCloudWriter2(
         }
     }
 
-
-    private fun createRelativeDir(path: String): String {
-        return createAbsoluteDir(virtualRootPlus(path))
-    }
 
 
     private fun createAbsoluteDir(path: String): String {
