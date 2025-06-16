@@ -2,9 +2,7 @@ package com.github.aakumykov.cloud_writer_2.inheritance_probe.yandex_disk
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.github.aakumykov.cloud_writer.CloudWriter2
-import com.github.aakumykov.cloud_writer_2.R
 import com.github.aakumykov.cloud_writer_2.common.randomName
-import com.github.aakumykov.cloud_writer_2.inheritance_probe.BaseTest
 import com.github.aakumykov.yandex_disk_cloud_writer.YandexDiskCloudWriter2
 import org.junit.runner.RunWith
 import java.io.File
