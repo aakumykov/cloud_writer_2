@@ -19,6 +19,8 @@ class YandexDiskTest : BaseTest() {
     private val yandexAuthToken: String
         get() = device.targetContext.getString(R.string.yandex_disk_auth_token_for_tests)
 
+    override val relativeDirPath: String
+        get() = dirName
 
     override val cloudWriter2: CloudWriter2
         get() = YandexDiskCloudWriter2(

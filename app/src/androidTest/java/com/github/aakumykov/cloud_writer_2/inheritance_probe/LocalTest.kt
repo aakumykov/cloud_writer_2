@@ -20,4 +20,6 @@ class LocalTest : BaseTest() {
     override val absoluteDirPath: String
         get() = File(virtualRootPath, dirName).absolutePath
 
+    override val relativeDirPath: String
+        get() = dirName
 }
