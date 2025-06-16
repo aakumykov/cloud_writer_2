@@ -8,7 +8,7 @@ import org.junit.runner.RunWith
 import java.io.File
 
 @RunWith(AndroidJUnit4::class)
-class YandexDiskRelativeTest : YandexDiskTest() {
+class YandexDiskRelativeTest : YandexDiskBase() {
 
     override val isRelative: Boolean = true
 
