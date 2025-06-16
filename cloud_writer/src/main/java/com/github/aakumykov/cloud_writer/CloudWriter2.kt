@@ -4,6 +4,10 @@ import java.io.IOException
 
 interface CloudWriter2 {
 
+    @Throws(IOException::class, CloudWriterException::class)
+    suspend fun fileExists(path: String, isRelative: Boolean): Boolean
+
+
     /**
      * Создаёт каталог по указанному пути.
      * @param path Путь к создаваемому каталогу.
@@ -15,6 +19,7 @@ interface CloudWriter2 {
      */
     @Throws(IOException::class, CloudWriterException::class)
     suspend fun createDir(path: String, isRelative: Boolean): String
+
 
     @Throws(IOException::class, CloudWriterException::class)
     suspend fun createDirIfNotExist(path: String, isRelative: Boolean): String
@@ -28,12 +33,9 @@ interface CloudWriter2 {
     suspend fun createDeepDirIfNotExists(path: String, isRelative: Boolean): String
 
 
-    @Throws(IOException::class, CloudWriterException::class)
-    suspend fun fileExists(path: String, isRelative: Boolean): Boolean
-
-
     @Deprecated("Переименовать в absolutePathFor()")
     fun virtualRootPlus(vararg pathParts: String): String
+
 
     companion object {
         /**

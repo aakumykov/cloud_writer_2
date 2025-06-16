@@ -18,6 +18,10 @@ abstract class CloudWriter2Base : Base() {
     protected abstract val creatingSimpleDirName: String
     protected abstract val creatingDeepDirName: String
 
+    @Test
+    fun file_exists() = run {
+        step()
+    }
 
     @Test
     fun creates_dir() = run {
@@ -31,5 +35,4 @@ abstract class CloudWriter2Base : Base() {
             }
         }
     }
-
 }
