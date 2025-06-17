@@ -94,6 +94,43 @@ class YandexDiskCloudWriter2(
         else createDeepDirIfNotExistAbsolute(path)
     }
 
+    override suspend fun deleteEmptyDir(path: String, isRelative: Boolean): String {
+        return if (isRelative) deleteEmptyDirAbsolute(virtualRootPlus(path))
+        else deleteEmptyDirAbsolute(path)
+    }
+
+    private suspend fun deleteEmptyDirAbsolute(absolutePath: String): String = suspendCancellableCoroutine{ cc ->
+
+        val url = apiURL(
+            PARAM_PATH to absolutePath,
+            PARAM_PERMANENTLY to "true"
+        )
+
+        val request = apiRequest(url) {
+            delete()
+        }
+
+        val call = yandexDiskClient.newCall(request)
+
+        try {
+            call.execute().use { response: Response ->
+                when(response.code) {
+                    204 -> {
+                        cc.resume(absolutePath)
+                    }
+                    else -> {
+                        throw response.toCloudWriterException
+                    }
+                }
+            }
+        } catch (e: CancellationException) {
+            call.cancel()
+        } catch (e: Exception) {
+            cc.resumeWithException(e)
+        }
+    }
+
+
     private suspend fun createDeepDirIfNotExistAbsolute(path: String): String {
         return if (fileExists(path, false)) path
         else createDeepDirAbsolute(path)
@@ -166,5 +203,6 @@ class YandexDiskCloudWriter2(
     companion object {
         private const val YANDEX_API_BASE = "https://cloud-api.yandex.net/v1/disk/resources"
         private const val PARAM_PATH = "path"
+        private const val PARAM_PERMANENTLY = "permanently"
     }
 }

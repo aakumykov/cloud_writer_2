@@ -37,6 +37,17 @@ interface CloudWriter2 {
     fun virtualRootPlus(vararg pathParts: String): String
 
 
+    /**
+     * Удаляет пустой каталог.
+     * В случае, если производится попытка удаления непустого каталога,
+     * поведение зависит от реализации:
+     * * локальная файловая система - будет выброшено исключение, каталог не будет удалён.
+     * * облако - каталог будет отправлен на удаление в асинхронном режиме, без сигнала о завершении.
+     * @return Абсолютный путь к удалённому каталогу.
+     */
+    suspend fun deleteEmptyDir(path: String, isRelative: Boolean): String
+
+
     companion object {
         /**
          * Directory separator.

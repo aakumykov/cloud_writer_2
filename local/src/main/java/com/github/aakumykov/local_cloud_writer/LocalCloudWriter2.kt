@@ -45,6 +45,20 @@ class LocalCloudWriter2(
         else createAbsoluteDeepDirIfNotExists(path)
     }
 
+
+    override suspend fun deleteEmptyDir(path: String, isRelative: Boolean): String {
+        return if (isRelative) deleteEmptyDirAbsolute(path)
+        else deleteEmptyDirAbsolute(virtualRootPlus(path))
+    }
+
+    private fun deleteEmptyDirAbsolute(absolutePath: String): String {
+        return File(absolutePath).delete().let { isDeleted ->
+            if (isDeleted) absolutePath
+            else throw CloudWriterException("Dir '$absolutePath' was not deleted.")
+        }
+    }
+
+
     private suspend fun createAbsoluteDeepDirIfNotExists(path: String): String {
         return if (fileExistsAbsolute(path)) path
         else iterateOverDirsInPathFromRoot(path) { partialDeepPath ->
