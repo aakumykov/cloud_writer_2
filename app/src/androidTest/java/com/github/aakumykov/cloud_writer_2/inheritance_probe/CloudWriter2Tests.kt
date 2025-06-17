@@ -3,6 +3,7 @@ package com.github.aakumykov.cloud_writer_2.inheritance_probe
 import com.github.aakumykov.cloud_writer.CloudWriter2
 import com.github.aakumykov.cloud_writer_2.common.randomName
 import com.github.aakumykov.cloud_writer_2.inheritance_probe.common.BaseOfTests
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Assert
@@ -28,6 +29,7 @@ abstract class CloudWriter2Tests : BaseOfTests() {
     protected val dirRelativePath: String = absolutePathMinusVirtualRoot(absoluteDirPath)
     protected val deepDirRelativePath = absolutePathMinusVirtualRoot(deepDirAbsolutePath)
 
+
     @Before
     fun check_dirs_are_not_exists() {
         runTest {
@@ -35,6 +37,7 @@ abstract class CloudWriter2Tests : BaseOfTests() {
             Assert.assertFalse(cloudWriter2.fileExists(deepDirPath, isRelative))
         }
     }
+
 
     @After
     fun delete_dir() {
@@ -64,23 +67,22 @@ abstract class CloudWriter2Tests : BaseOfTests() {
     }
 
 
-    /*@Test
-fun file_exists() = run {
-    val dirName = randomName
-    step("Проверяю, что каталог '$dirName' отсутствует") {
-        runBlocking {
-            Assert.assertFalse(cloudWriter2.fileExists(dirName, isRelative))
+    @Test
+    fun file_exists() = run {
+        step("Проверяю, что каталог '$dirPath' отсутствует") {
+            runBlocking {
+                Assert.assertFalse(cloudWriter2.fileExists(dirPath, isRelative))
+            }
+        }
+        step("Создаю каталог '$dirPath") {
+            runBlocking { cloudWriter2.createDir(dirPath, isRelative) }
+        }
+        step("Проверяю, что каталог '$dirPath' существует") {
+            runBlocking {
+                Assert.assertTrue(cloudWriter2.fileExists(dirPath, isRelative))
+            }
         }
     }
-    step("Создаю каталог '$dirName") {
-        runBlocking { cloudWriter2.createDir(dirName, isRelative) }
-    }
-    step("Проверяю, что каталог '$dirName' существует") {
-        runBlocking {
-            Assert.assertTrue(cloudWriter2.fileExists(dirName, isRelative))
-        }
-    }
-}*/
 
 
     private fun absolutePathMinusVirtualRoot(absolutePath: String): String
