@@ -4,7 +4,9 @@ import com.github.aakumykov.cloud_writer.CloudWriter2
 import com.github.aakumykov.cloud_writer_2.common.randomName
 import com.github.aakumykov.cloud_writer_2.inheritance_probe.common.BaseOfTests
 import kotlinx.coroutines.test.runTest
+import org.junit.After
 import org.junit.Assert
+import org.junit.Before
 import org.junit.Test
 
 abstract class CloudWriter2Tests : BaseOfTests() {
@@ -26,21 +28,26 @@ abstract class CloudWriter2Tests : BaseOfTests() {
     protected val dirRelativePath: String = absolutePathMinusVirtualRoot(absoluteDirPath)
     protected val deepDirRelativePath = absolutePathMinusVirtualRoot(deepDirAbsolutePath)
 
-    /*@Before
+    @Before
     fun check_dirs_are_not_exists() {
         runTest {
-            Assert.assertFalse(cloudWriter2.fileExists(dirAbsolutePath, false))
-            Assert.assertFalse(cloudWriter2.fileExists(deepDirAbsolutePath, false))
+            Assert.assertFalse(cloudWriter2.fileExists(dirPath, isRelative))
+            Assert.assertFalse(cloudWriter2.fileExists(deepDirPath, isRelative))
         }
-    }*/
+    }
 
-    /*@After
+    @After
     fun delete_dir() {
         runTest {
-            cloudWriter2.deleteEmptyDir(dirAbsolutePath, false)
-            cloudWriter2.deleteEmptyDir(deepDirAbsolutePath, false)
+            cloudWriter2.apply {
+                if (fileExists(dirPath, isRelative))
+                    deleteEmptyDir(dirPath, isRelative)
+
+                if (fileExists(deepDirPath, isRelative))
+                    deleteEmptyDir(deepDirPath, isRelative)
+            }
         }
-    }*/
+    }
 
 
     @Test
