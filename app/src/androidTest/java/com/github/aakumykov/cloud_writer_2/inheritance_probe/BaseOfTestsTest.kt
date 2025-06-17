@@ -2,10 +2,11 @@ package com.github.aakumykov.cloud_writer_2.inheritance_probe
 
 import com.github.aakumykov.cloud_writer.CloudWriter2
 import com.github.aakumykov.cloud_writer_2.common.randomName
+import com.github.aakumykov.cloud_writer_2.inheritance_probe.common.BaseOfTests
 import org.junit.Assert
 import org.junit.Test
 
-class BaseTests : Base() {
+class BaseOfTestsTest : BaseOfTests() {
 
     @Test
     fun names_to_path_aggregation_test() = run {

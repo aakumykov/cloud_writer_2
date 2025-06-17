@@ -11,7 +11,7 @@ import org.junit.Before
 import org.junit.Test
 import java.io.File
 
-abstract class LocalCloudWriter2TestBase : StorageAccessTestCase() {
+abstract class LocalCloudWriter2TestBaseOfTests : StorageAccessTestCase() {
 
     protected val basePath: String
         get() = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).absolutePath

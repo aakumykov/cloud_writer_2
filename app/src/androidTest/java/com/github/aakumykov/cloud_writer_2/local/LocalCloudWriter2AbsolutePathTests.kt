@@ -19,7 +19,7 @@ createDirIfNotExists()
 createDeepDir()
 createDeepDirIfNotExists()
  */
-class LocalCloudWriter2AbsolutePathTests : LocalCloudWriter2TestBase() {
+class LocalCloudWriter2AbsolutePathTests : LocalCloudWriter2TestBaseOfTests() {
 
     // TODO: корректная проверка возвращаемого пути
 

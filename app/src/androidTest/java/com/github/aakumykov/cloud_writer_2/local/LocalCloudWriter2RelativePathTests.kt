@@ -7,7 +7,7 @@ import org.junit.Assert
 import org.junit.Test
 import java.io.File
 
-class LocalCloudWriter2RelativePathTests : LocalCloudWriter2TestBase() {
+class LocalCloudWriter2RelativePathTests : LocalCloudWriter2TestBaseOfTests() {
 
     private val dirRelativePath: String = subtractBasePath(dirAbsolutePath)
     private val deepDirRelativePath = subtractBasePath(deepDir.absolutePath)

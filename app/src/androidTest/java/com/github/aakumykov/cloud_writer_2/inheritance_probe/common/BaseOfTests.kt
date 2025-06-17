@@ -1,9 +1,9 @@
-package com.github.aakumykov.cloud_writer_2.inheritance_probe
+package com.github.aakumykov.cloud_writer_2.inheritance_probe.common
 
 import com.github.aakumykov.cloud_writer.CloudWriter2
 import com.github.aakumykov.cloud_writer_2.common.StorageAccessTestCase
 
-abstract class Base : StorageAccessTestCase() {
+abstract class BaseOfTests : StorageAccessTestCase() {
 
     protected fun aggregateNamesToPath(vararg dirName: String): String
             = dirName
