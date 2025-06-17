@@ -33,8 +33,7 @@ interface CloudWriter2 {
     suspend fun createDeepDirIfNotExists(path: String, isRelative: Boolean): String
 
 
-    @Deprecated("Переименовать в absolutePathFor()")
-    fun virtualRootPlus(vararg pathParts: String): String
+    fun absolutePathFor(vararg pathParts: String): String
 
 
     /**

@@ -21,7 +21,7 @@ class YandexDiskCloudWriter2(
     : BasicCloudWriter2()
 {
     override suspend fun createDir(path: String, isRelative: Boolean): String {
-        return if (isRelative) createAbsoluteDir(virtualRootPlus(path))
+        return if (isRelative) createAbsoluteDir(absolutePathFor(path))
         else createAbsoluteDir(path)
     }
 
@@ -55,7 +55,7 @@ class YandexDiskCloudWriter2(
 
 
     override suspend fun createDirIfNotExist(path: String, isRelative: Boolean): String {
-        return if (isRelative) createDirIfNotExistAbsolute(virtualRootPlus(path))
+        return if (isRelative) createDirIfNotExistAbsolute(absolutePathFor(path))
         else createDirIfNotExistAbsolute(path)
     }
 
@@ -66,7 +66,7 @@ class YandexDiskCloudWriter2(
 
 
     override suspend fun createDeepDir(path: String, isRelative: Boolean): String {
-        return if (isRelative) createDeepDirAbsolute(virtualRootPlus(path))
+        return if (isRelative) createDeepDirAbsolute(absolutePathFor(path))
         else createDeepDirAbsolute(path)
     }
 
@@ -90,12 +90,12 @@ class YandexDiskCloudWriter2(
 
 
     override suspend fun createDeepDirIfNotExists(path: String, isRelative: Boolean): String {
-        return if (isRelative) createDeepDirIfNotExistAbsolute(virtualRootPlus(path))
+        return if (isRelative) createDeepDirIfNotExistAbsolute(absolutePathFor(path))
         else createDeepDirIfNotExistAbsolute(path)
     }
 
     override suspend fun deleteEmptyDir(path: String, isRelative: Boolean): String {
-        return if (isRelative) deleteEmptyDirAbsolute(virtualRootPlus(path))
+        return if (isRelative) deleteEmptyDirAbsolute(absolutePathFor(path))
         else deleteEmptyDirAbsolute(path)
     }
 
@@ -138,7 +138,7 @@ class YandexDiskCloudWriter2(
 
 
     override suspend fun fileExists(path: String, isRelative: Boolean): Boolean {
-        return if (isRelative) fileExistsAbsolute(virtualRootPlus(path))
+        return if (isRelative) fileExistsAbsolute(absolutePathFor(path))
         else fileExistsAbsolute(path)
     }
 

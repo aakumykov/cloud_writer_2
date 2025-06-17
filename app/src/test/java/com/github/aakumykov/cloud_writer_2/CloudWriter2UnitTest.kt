@@ -4,7 +4,6 @@ import com.github.aakumykov.cloud_writer.CloudWriter2
 import com.github.aakumykov.local_cloud_writer.LocalCloudWriter2
 import org.junit.Assert
 import org.junit.Test
-import java.io.File
 
 class CloudWriter2UnitTest {
 
@@ -70,7 +69,7 @@ class CloudWriter2UnitTest {
 
         prepareTestData(virtualRoot)
             .forEach { testedPath: String ->
-                val resultPath = cloudWriter.virtualRootPlus(testedPath)
+                val resultPath = cloudWriter.absolutePathFor(testedPath)
                 Assert.assertTrue(resultPath.startsWith(virtualRoot, false))
                 Assert.assertFalse(resultPath.contains("//+"))
                 println("$testedPath --> $resultPath")

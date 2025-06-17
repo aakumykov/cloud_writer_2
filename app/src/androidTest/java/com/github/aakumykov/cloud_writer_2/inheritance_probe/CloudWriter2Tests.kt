@@ -20,7 +20,7 @@ abstract class CloudWriter2Tests : BaseOfTests() {
     protected abstract val dirPath: String
     protected abstract val deepDirPath: String
 
-    protected val absoluteDirPath: String get() = cloudWriter2.virtualRootPlus(dirName)
+    protected val absoluteDirPath: String get() = cloudWriter2.absolutePathFor(dirName)
     protected val deepDirAbsolutePath get() = aggregateNamesToPath(virtualRootPath, deepDirName)
 
     protected val dirRelativePath: String = absolutePathMinusVirtualRoot(absoluteDirPath)
