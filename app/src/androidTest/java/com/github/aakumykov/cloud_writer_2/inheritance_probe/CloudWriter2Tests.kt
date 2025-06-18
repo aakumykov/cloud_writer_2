@@ -56,9 +56,28 @@ abstract class CloudWriter2Tests : BaseOfTests() {
         }
     }
 
+
     //
     // -------------------------------------------------------------------------------------------
     //
+
+    @Test
+    fun file_exists() = run {
+        step("Проверяю, что каталог '$dirPath' отсутствует") {
+            runBlocking {
+                Assert.assertFalse(cloudWriter2.fileExists(dirPath, isRelative))
+            }
+        }
+        step("Создаю каталог '$dirPath") {
+            runBlocking { cloudWriter2.createDir(dirPath, isRelative) }
+        }
+        step("Проверяю, что каталог '$dirPath' существует") {
+            runBlocking {
+                Assert.assertTrue(cloudWriter2.fileExists(dirPath, isRelative))
+            }
+        }
+    }
+
 
     @Test
     fun creates_dir() = run {
@@ -75,18 +94,23 @@ abstract class CloudWriter2Tests : BaseOfTests() {
 
 
     @Test
-    fun file_exists() = run {
-        step("Проверяю, что каталог '$dirPath' отсутствует") {
+    fun create_dir_if_not_exists() = run {
+
+        step("Создаю каталог '$dirPath', если не существует") {
             runBlocking {
-                Assert.assertFalse(cloudWriter2.fileExists(dirPath, isRelative))
+                Assert.assertEquals(
+                    absoluteDirPath,
+                    cloudWriter2.createDirIfNotExist(dirPath, isRelative)
+                )
             }
         }
-        step("Создаю каталог '$dirPath") {
-            runBlocking { cloudWriter2.createDir(dirPath, isRelative) }
-        }
-        step("Проверяю, что каталог '$dirPath' существует") {
+
+        step("Создаю каталог '$dirPath', если не существует ещё раз") {
             runBlocking {
-                Assert.assertTrue(cloudWriter2.fileExists(dirPath, isRelative))
+                Assert.assertEquals(
+                    absoluteDirPath,
+                    cloudWriter2.createDirIfNotExist(dirPath, isRelative)
+                )
             }
         }
     }
@@ -111,4 +135,7 @@ abstract class CloudWriter2Tests : BaseOfTests() {
             }
         }
     }
+
+
+
 }
