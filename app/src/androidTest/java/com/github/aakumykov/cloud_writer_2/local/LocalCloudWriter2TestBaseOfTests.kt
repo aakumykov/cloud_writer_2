@@ -1,8 +1,8 @@
 package com.github.aakumykov.cloud_writer_2.local
 
 import android.os.Environment
-import com.github.aakumykov.cloud_writer_2.common.StorageAccessTestCase
-import com.github.aakumykov.cloud_writer_2.common.randomName
+import com.github.aakumykov.cloud_writer_2.inheritance_probe.common.StorageAccessTestCase
+import com.github.aakumykov.cloud_writer_2.inheritance_probe.common.randomName
 import com.github.aakumykov.local_cloud_writer.LocalCloudWriter2
 import kotlinx.coroutines.runBlocking
 import org.junit.After

@@ -1,4 +1,4 @@
-package com.github.aakumykov.cloud_writer_2.common
+package com.github.aakumykov.cloud_writer_2.inheritance_probe.common
 
 import java.util.UUID
 

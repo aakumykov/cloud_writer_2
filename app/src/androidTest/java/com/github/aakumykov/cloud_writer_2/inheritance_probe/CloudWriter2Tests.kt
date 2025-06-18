@@ -1,7 +1,7 @@
 package com.github.aakumykov.cloud_writer_2.inheritance_probe
 
 import com.github.aakumykov.cloud_writer.CloudWriter2
-import com.github.aakumykov.cloud_writer_2.common.randomName
+import com.github.aakumykov.cloud_writer_2.inheritance_probe.common.randomName
 import com.github.aakumykov.cloud_writer_2.inheritance_probe.common.BaseOfTests
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
@@ -18,7 +18,7 @@ abstract class CloudWriter2Tests : BaseOfTests() {
     protected abstract val virtualRootPath: String
 
     protected val dirName: String = randomName
-    protected val deepDirName: String = aggregateNamesToPath(randomName,randomName,randomName)
+    protected val deepDirName: String = aggregateNamesToPath(randomName, randomName, randomName)
 
     protected abstract val dirPath: String
     protected abstract val deepDirPath: String
