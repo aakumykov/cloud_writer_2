@@ -34,6 +34,13 @@ abstract class CloudWriter2Tests : BaseOfTests() {
             = absolutePath.replace(Regex("^$virtualRootPath"),"")
 
 
+    private suspend fun createDir(dirPath: String, isRelative: Boolean, action: (suspend (String) -> Unit)? = null) {
+        cloudWriter2.createDir(dirPath, isRelative).also { createdDirPath ->
+            action?.invoke(createdDirPath)
+        }
+    }
+
+
     @Before
     fun check_dirs_are_not_exists_before_test() {
         runTest {
@@ -61,8 +68,8 @@ abstract class CloudWriter2Tests : BaseOfTests() {
     // -------------------------------------------------------------------------------------------
     //
 
-    @Test
-    fun file_exists() = run {
+    // TODO: file exists, dir exists
+    @Test fun checks_file_exists() = run {
         step("Проверяю, что каталог '$dirPath' отсутствует") {
             runBlocking {
                 Assert.assertFalse(cloudWriter2.fileExists(dirPath, isRelative))
@@ -79,11 +86,10 @@ abstract class CloudWriter2Tests : BaseOfTests() {
     }
 
 
-    @Test
-    fun creates_dir() = run {
+    @Test fun creates_dir() = run {
         step("Создаю каталог '${dirPath}'") {
             runTest {
-                cloudWriter2.createDir(dirPath, isRelative).also { createdDirPath ->
+                createDir(dirPath, isRelative) { createdDirPath ->
                     step("Проверяю, что путь к нему соответствует '$absoluteDirPath'") {
                         Assert.assertEquals(absoluteDirPath, createdDirPath)
                     }
@@ -93,8 +99,19 @@ abstract class CloudWriter2Tests : BaseOfTests() {
     }
 
 
-    @Test
-    fun create_dir_if_not_exists() = run {
+    @Test fun creates_deep_dir() = run {
+        step("Создаю глубокий каталог '$deepDirPath'") {
+            runBlocking {
+                Assert.assertEquals(
+                    deepDirAbsolutePath,
+                    cloudWriter2.createDeepDir(deepDirPath, isRelative)
+                )
+            }
+        }
+    }
+
+
+    @Test fun creates_dir_if_not_exists() = run {
 
         step("Создаю каталог '$dirPath', если не существует") {
             runBlocking {
@@ -105,7 +122,7 @@ abstract class CloudWriter2Tests : BaseOfTests() {
             }
         }
 
-        step("Создаю каталог '$dirPath', если не существует ещё раз") {
+        step("Создаю каталог (если не существует) '$dirPath' ещё раз") {
             runBlocking {
                 Assert.assertEquals(
                     absoluteDirPath,
@@ -116,10 +133,29 @@ abstract class CloudWriter2Tests : BaseOfTests() {
     }
 
 
-    @Test
-    fun delete_empty_dir() = run {
+    @Test fun creates_deep_dir_if_not_exists() = run {
+        step("Создаю глубокий каталог '$deepDirPath', если его нет") {
+            runBlocking {
+                Assert.assertEquals(
+                    deepDirAbsolutePath,
+                    cloudWriter2.createDeepDirIfNotExists(deepDirPath, isRelative)
+                )
+            }
+        }
+        step("Создаю глубокий каталог '$deepDirPath' (если его нет) ещё раз") {
+            runBlocking {
+                Assert.assertEquals(
+                    deepDirAbsolutePath,
+                    cloudWriter2.createDeepDirIfNotExists(deepDirPath, isRelative)
+                )
+            }
+        }
+    }
+
+
+    @Test fun deletes_empty_dir() = run {
         step("Создаю каталог '$dirPath'") {
-            creates_dir()
+            runBlocking { createDir(dirPath, isRelative) }
         }
         step("Удаляю созданный каталог '$dirPath'") {
             runBlocking {
@@ -135,7 +171,5 @@ abstract class CloudWriter2Tests : BaseOfTests() {
             }
         }
     }
-
-
 
 }
