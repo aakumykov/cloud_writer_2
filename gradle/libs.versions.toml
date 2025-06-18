@@ -1,8 +1,9 @@
 [versions]
 agp = "8.6.1"
+copy_between_streams_with_counting = "0.0.6-alpha"
 diskRestapiSdk = "1.03"
 gson = "2.11.0"
-kaspresso = "1.5.3"
+kaspresso = "1.6.0"
 kotlin = "2.1.21"
 coreKtx = "1.16.0"
 junit = "4.13.2"
@@ -21,6 +22,7 @@ kotlinxCoroutinesTest = "1.10.2"
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-orchestrator = { module = "androidx.test:orchestrator", version.ref = "orchestrator" }
+copy_between_streams_with_counting = { module = "com.github.aakumykov:copy_between_streams_with_counting", version.ref = "copy_between_streams_with_counting" }
 disk-restapi-sdk = { module = "com.yandex.android:disk-restapi-sdk", version.ref = "diskRestapiSdk" }
 gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
