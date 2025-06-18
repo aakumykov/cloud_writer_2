@@ -30,8 +30,12 @@ abstract class CloudWriter2Tests : BaseOfTests() {
     protected val deepDirRelativePath = absolutePathMinusVirtualRoot(deepDirAbsolutePath)
 
 
+    private fun absolutePathMinusVirtualRoot(absolutePath: String): String
+            = absolutePath.replace(Regex("^$virtualRootPath"),"")
+
+
     @Before
-    fun check_dirs_are_not_exists() {
+    fun check_dirs_are_not_exists_before_test() {
         runTest {
             Assert.assertFalse(cloudWriter2.fileExists(dirPath, isRelative))
             Assert.assertFalse(cloudWriter2.fileExists(deepDirPath, isRelative))
@@ -40,7 +44,7 @@ abstract class CloudWriter2Tests : BaseOfTests() {
 
 
     @After
-    fun delete_dir() {
+    fun delete_dir_after_test() {
         runTest {
             cloudWriter2.apply {
                 if (fileExists(dirPath, isRelative))
@@ -52,6 +56,9 @@ abstract class CloudWriter2Tests : BaseOfTests() {
         }
     }
 
+    //
+    // -------------------------------------------------------------------------------------------
+    //
 
     @Test
     fun creates_dir() = run {
@@ -85,6 +92,23 @@ abstract class CloudWriter2Tests : BaseOfTests() {
     }
 
 
-    private fun absolutePathMinusVirtualRoot(absolutePath: String): String
-        = absolutePath.replace(Regex("^$virtualRootPath"),"")
+    @Test
+    fun delete_empty_dir() = run {
+        step("Создаю каталог '$dirPath'") {
+            creates_dir()
+        }
+        step("Удаляю созданный каталог '$dirPath'") {
+            runBlocking {
+                Assert.assertEquals(
+                    absoluteDirPath,
+                    cloudWriter2.deleteEmptyDir(dirPath, isRelative)
+                )
+            }
+        }
+        step("Проверяю, что каталог '$dirPath' действительно удалён") {
+            runBlocking {
+                Assert.assertFalse(cloudWriter2.fileExists(dirPath, isRelative))
+            }
+        }
+    }
 }
