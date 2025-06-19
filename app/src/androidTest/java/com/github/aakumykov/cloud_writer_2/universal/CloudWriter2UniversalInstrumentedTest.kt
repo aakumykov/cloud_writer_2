@@ -30,7 +30,7 @@ open class LocalCloudWriter2InstrumentedTest() : CloudWriter2UniversalInstrument
         val dirName = randomName
         runTest {
             Assert.assertEquals(
-                cloudWriter2.absolutePathFor(dirName),
+                cloudWriter2.virtualRootPlus(dirName),
                 cloudWriter2.createDir(dirName, true)
             )
         }

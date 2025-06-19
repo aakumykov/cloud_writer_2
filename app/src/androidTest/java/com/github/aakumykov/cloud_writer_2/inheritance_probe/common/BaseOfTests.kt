@@ -1,6 +1,7 @@
 package com.github.aakumykov.cloud_writer_2.inheritance_probe.common
 
 import com.github.aakumykov.cloud_writer.CloudWriter2
+import com.github.aakumykov.cloud_writer.extensions.stripMultiSlashes
 
 abstract class BaseOfTests : StorageAccessTestCase() {
 
@@ -8,4 +9,5 @@ abstract class BaseOfTests : StorageAccessTestCase() {
             = dirName
         .filterNot { it.isEmpty() }
         .joinToString(CloudWriter2.DS)
+        .stripMultiSlashes()
 }

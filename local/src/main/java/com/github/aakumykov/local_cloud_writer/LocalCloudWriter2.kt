@@ -9,14 +9,14 @@ class LocalCloudWriter2(
 )
     : BasicCloudWriter2()
 {
-    override suspend fun createDir(path: String, isRelative: Boolean): String {
-        return if (isRelative) createAbsoluteDir(absolutePathFor(path))
-        else createAbsoluteDir(path)
+    override suspend fun createDir(dirPath: String, isRelative: Boolean): String {
+        return if (isRelative) createAbsoluteDir(virtualRootPlus(dirPath))
+        else createAbsoluteDir(dirPath)
     }
 
-    override suspend fun createDirIfNotExist(path: String, isRelative: Boolean): String {
-        return if (isRelative) createAbsoluteDirIfNotExists(absolutePathFor(path))
-        else createAbsoluteDirIfNotExists(path)
+    override suspend fun createDirIfNotExist(dirPath: String, isRelative: Boolean): String {
+        return if (isRelative) createAbsoluteDirIfNotExists(virtualRootPlus(dirPath))
+        else createAbsoluteDirIfNotExists(dirPath)
     }
 
     private fun createAbsoluteDirIfNotExists(path: String): String {
@@ -25,30 +25,31 @@ class LocalCloudWriter2(
     }
 
     /**
-     * @return Путь к созданному каталогу: абсолютный или относительный,
-     * в зависимости от режима запуска.
+     * @return Абсолютный путь к созданному каталогу.
      */
-    override suspend fun createDeepDir(path: String, isRelative: Boolean): String {
+    override suspend fun createDeepDir(dirPath: String, isRelative: Boolean): String {
 
-        val pathToOperate = path.replace(Regex("^${virtualRootPath}/+"),"")
+        val absolutePath = if (isRelative) virtualRootPlus(dirPath) else dirPath
 
-        return iterateOverDirsInPathFromRoot(pathToOperate) { partialPath ->
+        val relativePathToOperate = dirPath.replace(Regex("^${virtualRootPath}/+"),"")
+
+        return iterateOverDirsInPathFromRoot(relativePathToOperate) { partialPath ->
             createDirIfNotExist(partialPath, true)
         }.let {
-            path
+            absolutePath
         }
     }
 
 
-    override suspend fun createDeepDirIfNotExists(path: String, isRelative: Boolean): String {
-        return if (isRelative) createAbsoluteDeepDirIfNotExists(absolutePathFor(path))
-        else createAbsoluteDeepDirIfNotExists(path)
+    override suspend fun createDeepDirIfNotExists(dirPath: String, isRelative: Boolean): String {
+        return if (isRelative) createAbsoluteDeepDirIfNotExists(virtualRootPlus(dirPath))
+        else createAbsoluteDeepDirIfNotExists(dirPath)
     }
 
 
-    override suspend fun deleteEmptyDir(path: String, isRelative: Boolean): String {
-        return if (isRelative) deleteEmptyDirAbsolute(absolutePathFor(path))
-        else deleteEmptyDirAbsolute(path)
+    override suspend fun deleteEmptyDir(dirPath: String, isRelative: Boolean): String {
+        return if (isRelative) deleteEmptyDirAbsolute(virtualRootPlus(dirPath))
+        else deleteEmptyDirAbsolute(dirPath)
     }
 
     private fun deleteEmptyDirAbsolute(absolutePath: String): String {
@@ -76,9 +77,9 @@ class LocalCloudWriter2(
         }
     }
 
-    override suspend fun fileExists(path: String, isRelative: Boolean): Boolean {
-        return if (isRelative) fileExistsAbsolute(absolutePathFor(path))
-        else fileExistsAbsolute(path)
+    override suspend fun fileExists(dirPath: String, isRelative: Boolean): Boolean {
+        return if (isRelative) fileExistsAbsolute(virtualRootPlus(dirPath))
+        else fileExistsAbsolute(dirPath)
     }
 
     private fun fileExistsAbsolute(path: String): Boolean {

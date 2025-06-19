@@ -67,7 +67,7 @@ class YandexDiskCloudWriter2RelativeTests : TestCase() {
         val dirName = randomName
         runBlocking {
             Assert.assertEquals(
-                yandexCloudWriter.absolutePathFor(dirName),
+                yandexCloudWriter.virtualRootPlus(dirName),
                 create_relative_dir_with_name(dirName)
             )
         }
@@ -143,7 +143,7 @@ class YandexDiskCloudWriter2RelativeTests : TestCase() {
                     yandexCloudWriter.createDirIfNotExist(dirName, true).also { createdDirPath ->
                         step("Проверяю, что возвращается путь к нему") {
                             Assert.assertEquals(
-                                yandexCloudWriter.absolutePathFor(dirName),
+                                yandexCloudWriter.virtualRootPlus(dirName),
                                 createdDirPath
                             )
                         }
@@ -175,7 +175,7 @@ class YandexDiskCloudWriter2RelativeTests : TestCase() {
                         createDirIfNotExist(dirName, true).also { absoluteDirPath ->
                             step("Проверяю, что возвращён путь к нему") {
                                 Assert.assertEquals(
-                                    yandexCloudWriter.absolutePathFor(dirName),
+                                    yandexCloudWriter.virtualRootPlus(dirName),
                                     absoluteDirPath
                                 )
                             }

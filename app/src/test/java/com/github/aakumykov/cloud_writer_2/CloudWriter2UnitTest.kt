@@ -69,7 +69,7 @@ class CloudWriter2UnitTest {
 
         prepareTestData(virtualRoot)
             .forEach { testedPath: String ->
-                val resultPath = cloudWriter.absolutePathFor(testedPath)
+                val resultPath = cloudWriter.virtualRootPlus(testedPath)
                 Assert.assertTrue(resultPath.startsWith(virtualRoot, false))
                 Assert.assertFalse(resultPath.contains("//+"))
                 println("$testedPath --> $resultPath")

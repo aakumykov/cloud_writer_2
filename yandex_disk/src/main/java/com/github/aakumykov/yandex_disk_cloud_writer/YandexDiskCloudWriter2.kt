@@ -20,9 +20,9 @@ class YandexDiskCloudWriter2(
 )
     : BasicCloudWriter2()
 {
-    override suspend fun createDir(path: String, isRelative: Boolean): String {
-        return if (isRelative) createAbsoluteDir(absolutePathFor(path))
-        else createAbsoluteDir(path)
+    override suspend fun createDir(dirPath: String, isRelative: Boolean): String {
+        return if (isRelative) createAbsoluteDir(virtualRootPlus(dirPath))
+        else createAbsoluteDir(dirPath)
     }
 
     private suspend fun createAbsoluteDir(path: String): String = suspendCancellableCoroutine { cc ->
@@ -54,9 +54,9 @@ class YandexDiskCloudWriter2(
     }
 
 
-    override suspend fun createDirIfNotExist(path: String, isRelative: Boolean): String {
-        return if (isRelative) createDirIfNotExistAbsolute(absolutePathFor(path))
-        else createDirIfNotExistAbsolute(path)
+    override suspend fun createDirIfNotExist(dirPath: String, isRelative: Boolean): String {
+        return if (isRelative) createDirIfNotExistAbsolute(virtualRootPlus(dirPath))
+        else createDirIfNotExistAbsolute(dirPath)
     }
 
     private suspend fun createDirIfNotExistAbsolute(path: String): String {
@@ -65,9 +65,9 @@ class YandexDiskCloudWriter2(
     }
 
 
-    override suspend fun createDeepDir(path: String, isRelative: Boolean): String {
-        return if (isRelative) createDeepDirAbsolute(absolutePathFor(path))
-        else createDeepDirAbsolute(path)
+    override suspend fun createDeepDir(dirPath: String, isRelative: Boolean): String {
+        return if (isRelative) createDeepDirAbsolute(virtualRootPlus(dirPath))
+        else createDeepDirAbsolute(dirPath)
     }
 
 
@@ -89,14 +89,14 @@ class YandexDiskCloudWriter2(
     }
 
 
-    override suspend fun createDeepDirIfNotExists(path: String, isRelative: Boolean): String {
-        return if (isRelative) createDeepDirIfNotExistAbsolute(absolutePathFor(path))
-        else createDeepDirIfNotExistAbsolute(path)
+    override suspend fun createDeepDirIfNotExists(dirPath: String, isRelative: Boolean): String {
+        return if (isRelative) createDeepDirIfNotExistAbsolute(virtualRootPlus(dirPath))
+        else createDeepDirIfNotExistAbsolute(dirPath)
     }
 
-    override suspend fun deleteEmptyDir(path: String, isRelative: Boolean): String {
-        return if (isRelative) deleteEmptyDirAbsolute(absolutePathFor(path))
-        else deleteEmptyDirAbsolute(path)
+    override suspend fun deleteEmptyDir(dirPath: String, isRelative: Boolean): String {
+        return if (isRelative) deleteEmptyDirAbsolute(virtualRootPlus(dirPath))
+        else deleteEmptyDirAbsolute(dirPath)
     }
 
     private suspend fun deleteEmptyDirAbsolute(absolutePath: String): String = suspendCancellableCoroutine{ cc ->
@@ -137,9 +137,9 @@ class YandexDiskCloudWriter2(
     }
 
 
-    override suspend fun fileExists(path: String, isRelative: Boolean): Boolean {
-        return if (isRelative) fileExistsAbsolute(absolutePathFor(path))
-        else fileExistsAbsolute(path)
+    override suspend fun fileExists(dirPath: String, isRelative: Boolean): Boolean {
+        return if (isRelative) fileExistsAbsolute(virtualRootPlus(dirPath))
+        else fileExistsAbsolute(dirPath)
     }
 
     private suspend fun fileExistsAbsolute(path: String): Boolean = suspendCancellableCoroutine { cc ->
