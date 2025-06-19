@@ -1,22 +1,37 @@
 package com.github.aakumykov.yandex_disk_cloud_writer
 
+import android.util.Log
 import com.github.aakumykov.cloud_writer.BasicCloudWriter2
+import com.github.aakumykov.cloud_writer.CloudWriter.OperationUnsuccessfulException
+import com.github.aakumykov.cloud_writer.CloudWriterException
+import com.github.aakumykov.copy_between_streams_with_counting.copyBetweenStreamsWithCounting
+import com.github.aakumykov.yandex_disk_cloud_writer.YandexDiskCloudWriter.Companion
+import com.github.aakumykov.yandex_disk_cloud_writer.YandexDiskCloudWriter.Companion.TAG
 import com.github.aakumykov.yandex_disk_cloud_writer.ext.toCloudWriterException
+import com.google.gson.Gson
+import com.yandex.disk.rest.json.Link
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.suspendCancellableCoroutine
 import okhttp3.HttpUrl
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.Interceptor
+import okhttp3.MediaType
+import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.Response
+import okio.BufferedSink
+import java.io.IOException
+import java.io.InputStream
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
 class YandexDiskCloudWriter2(
     private val authToken: String,
     override val virtualRootPath: String = "/",
+    private val gson: Gson = Gson()
 )
     : BasicCloudWriter2()
 {
@@ -27,7 +42,9 @@ class YandexDiskCloudWriter2(
 
     private suspend fun createAbsoluteDir(path: String): String = suspendCancellableCoroutine { cc ->
 
-        val url = apiURL(PARAM_PATH to path)
+        val url = apiURL(queryPairs = arrayOf(
+            PARAM_PATH to path
+        ))
 
         val request = apiRequest(url) {
             put("".toRequestBody(null))
@@ -168,7 +185,15 @@ class YandexDiskCloudWriter2(
 
 
     private fun apiURL(vararg queryPairs: Pair<String, String>): HttpUrl {
-        return YANDEX_API_BASE.toHttpUrl().newBuilder().apply {
+        return apiURL(baseUrl = YANDEX_API_BASE, queryPairs = queryPairs)
+    }
+
+
+    private fun apiURL(
+        baseUrl: String = YANDEX_API_BASE,
+        vararg queryPairs: Pair<String, String>
+    ): HttpUrl {
+        return baseUrl.toHttpUrl().newBuilder().apply {
             for ((key,value) in queryPairs) {
                 addQueryParameter(key, value)
             }
@@ -200,9 +225,102 @@ class YandexDiskCloudWriter2(
     }
 
 
+    @Throws(IOException::class, CloudWriterException::class)
+    private suspend fun getURLForUpload(targetFilePath: String, overwriteIfExists: Boolean): String = suspendCancellableCoroutine{ cc ->
+
+        val url = apiURL(
+            PARAM_PATH to targetFilePath,
+            PARAM_OVERWRITE to overwriteIfExists.toString()
+        )
+
+        val request = apiRequest(url) {}
+
+        val call = yandexDiskClient.newCall(request)
+
+        try {
+            call.execute().use { response: Response ->
+                when(response.code) {
+                    200 -> cc.resume(linkFromResponse(response))
+                    else -> throw response.toCloudWriterException
+                }
+            }
+        } catch (e: CancellationException) {
+            call.cancel()
+        } catch (e: Exception) {
+            cc.resumeWithException(e)
+        }
+    }
+
+
+    override suspend fun putStream(
+        inputStream: InputStream,
+        targetPath: String,
+        isRelative: Boolean,
+        overwriteIfExists: Boolean,
+        writingCallback: ((Long) -> Unit)?,
+        finishCallback: ((Long, Long) -> Unit)?
+    ) {
+        val uploadURL = getURLForUpload(targetPath, overwriteIfExists)
+        putStreamReal(inputStream, uploadURL, writingCallback, finishCallback)
+    }
+
+
+
+    @Throws(IOException::class, CloudWriterException::class)
+    private fun putStreamReal(
+        inputStream: InputStream,
+        uploadURL: String,
+        writingCallback: ((Long) -> Unit)? = null,
+        finishCallback: ((Long, Long) -> Unit)? = null,
+    ) {
+        val requestBody: RequestBody = object: RequestBody() {
+
+            override fun contentType(): MediaType = DEFAULT_MEDIA_TYPE
+
+            override fun writeTo(sink: BufferedSink) {
+                copyBetweenStreamsWithCounting(
+                    inputStream = inputStream,
+                    outputStream = sink.outputStream(),
+                    writingCallback = writingCallback,
+                    finishCallback = finishCallback,
+                )
+            }
+        }
+
+        val request = apiRequest(uploadURL) {
+            put(requestBody)
+        }
+
+        performUploadRequest(requestBody, uploadURL)
+    }
+
+
+    private fun performUploadRequest(requestBody: RequestBody, uploadURL: String) {
+
+        Log.d(TAG, "performUploadRequest(requestBody = $requestBody, uploadURL = $uploadURL)")
+
+        val fileUploadRequest = Request.Builder()
+            .put(requestBody)
+            .url(uploadURL)
+            .build()
+
+        okHttpClient.newCall(fileUploadRequest).execute().use { response ->
+            if (!response.isSuccessful) throw unsuccessfulResponseException(response, "Perform upload request failed.")
+        }
+    }
+
+
+    private fun linkFromResponse(response: Response): String {
+        return gson.fromJson(response.body?.string(), Link::class.java).href
+    }
+
+
     companion object {
         private const val YANDEX_API_BASE = "https://cloud-api.yandex.net/v1/disk/resources"
+        private const val UPLOAD_BASE_URL = "${YANDEX_API_BASE}/upload"
         private const val PARAM_PATH = "path"
+        private const val PARAM_OVERWRITE = "overwrite"
         private const val PARAM_PERMANENTLY = "permanently"
+        private val DEFAULT_MEDIA_TYPE: MediaType = "application/octet-stream".toMediaType()
     }
 }

@@ -2,7 +2,10 @@ package com.github.aakumykov.local_cloud_writer
 
 import com.github.aakumykov.cloud_writer.BasicCloudWriter2
 import com.github.aakumykov.cloud_writer.CloudWriterException
+import com.github.aakumykov.copy_between_streams_with_counting.copyBetweenStreamsWithCounting
 import java.io.File
+import java.io.IOException
+import java.io.InputStream
 
 class LocalCloudWriter2(
     override val virtualRootPath: String,
@@ -84,5 +87,30 @@ class LocalCloudWriter2(
 
     private fun fileExistsAbsolute(path: String): Boolean {
         return File(path).exists()
+    }
+
+
+    @Throws(IOException::class, CloudWriterException::class)
+    override fun putStream(
+        inputStream: InputStream,
+        targetPath: String,
+        isRelative: Boolean,
+        overwriteIfExists: Boolean,
+        writingCallback: ((Long) -> Unit)?,
+        finishCallback: ((Long,Long) -> Unit)?,
+    ) {
+        val realPath = if (isRelative) virtualRootPlus(targetPath) else targetPath
+
+        val targetFile = File(realPath)
+
+        if (targetFile.exists() && !overwriteIfExists)
+            return
+
+        copyBetweenStreamsWithCounting(
+            inputStream = inputStream,
+            outputStream = targetFile.outputStream(),
+            writingCallback = writingCallback,
+            finishCallback = finishCallback,
+        )
     }
 }

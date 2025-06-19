@@ -1,6 +1,7 @@
 package com.github.aakumykov.cloud_writer
 
 import java.io.IOException
+import java.io.InputStream
 
 interface CloudWriter2 {
 
@@ -53,17 +54,19 @@ interface CloudWriter2 {
     suspend fun deleteFileOrEmptyDir(dirPath: String, isRelative: Boolean): String
 
 
-
-    /*
-    // TODO
-    @Throws(IOException::class, OperationUnsuccessfulException::class)
-    fun putStream(
+    /**
+     * @param writingCallback Колбек, возвращающий количество записанных байт.
+     * @param finishCallback Колбек, возвращающий количество прочитанных и записанных байт.
+     */
+    @Throws(IOException::class, CloudWriterException::class)
+    suspend fun putStream(
         inputStream: InputStream,
         targetPath: String,
+        isRelative: Boolean,
         overwriteIfExists: Boolean = false,
         writingCallback: ((Long) -> Unit)? = null,
         finishCallback: ((Long,Long) -> Unit)? = null,
-    )*/
+    )
 
 
     /*
