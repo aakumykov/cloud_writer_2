@@ -47,7 +47,7 @@ class LocalCloudWriter2(
     }
 
 
-    override suspend fun deleteEmptyDir(dirPath: String, isRelative: Boolean): String {
+    override suspend fun deleteFileOrEmptyDir(dirPath: String, isRelative: Boolean): String {
         return if (isRelative) deleteEmptyDirAbsolute(virtualRootPlus(dirPath))
         else deleteEmptyDirAbsolute(dirPath)
     }

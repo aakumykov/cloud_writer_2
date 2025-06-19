@@ -56,10 +56,10 @@ abstract class CloudWriter2Tests : BaseOfTests() {
         runTest {
             cloudWriter2.apply {
                 if (fileExists(dirPath, isRelative))
-                    deleteEmptyDir(dirPath, isRelative)
+                    deleteFileOrEmptyDir(dirPath, isRelative)
 
                 if (fileExists(deepDirPath, isRelative))
-                    deleteEmptyDir(deepDirPath, isRelative)
+                    deleteFileOrEmptyDir(deepDirPath, isRelative)
             }
         }
     }
@@ -172,7 +172,7 @@ abstract class CloudWriter2Tests : BaseOfTests() {
             runBlocking {
                 Assert.assertEquals(
                     absoluteDirPath,
-                    cloudWriter2.deleteEmptyDir(dirPath, isRelative)
+                    cloudWriter2.deleteFileOrEmptyDir(dirPath, isRelative)
                 )
             }
         }

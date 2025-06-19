@@ -50,7 +50,55 @@ interface CloudWriter2 {
      * * облако - каталог будет отправлен на удаление в асинхронном режиме, без сигнала о завершении.
      * @return Абсолютный путь к удалённому каталогу.
      */
-    suspend fun deleteEmptyDir(dirPath: String, isRelative: Boolean): String
+    suspend fun deleteFileOrEmptyDir(dirPath: String, isRelative: Boolean): String
+
+
+
+    /*
+    // TODO
+    @Throws(IOException::class, OperationUnsuccessfulException::class)
+    fun putStream(
+        inputStream: InputStream,
+        targetPath: String,
+        overwriteIfExists: Boolean = false,
+        writingCallback: ((Long) -> Unit)? = null,
+        finishCallback: ((Long,Long) -> Unit)? = null,
+    )*/
+
+
+    /*
+    // TODO
+     */
+    /**
+     * Переименовывает файл или пустой каталог.
+     * Не работает с локальным хранилищем, если целевой
+     * файл находится на физическом разделе, отличном
+     * от исходного.
+     *//*
+    @Throws(
+        IOException::class,
+        OperationUnsuccessfulException::class,
+        OperationTimeoutException::class
+    )
+    fun renameFileOrEmptyDir(
+        fromAbsolutePath: String,
+        toAbsolutePath: String,
+        overwriteIfExists: Boolean = true
+    ): Boolean*/
+
+
+    /*
+    // TODO
+    @Throws(
+        IOException::class,
+        OperationUnsuccessfulException::class
+    )
+    fun moveFileOrEmptyDir(
+        fromAbsolutePath: String,
+        toAbsolutePath: String,
+        overwriteIfExists: Boolean
+    ): Boolean*/
+
 
 
     companion object {
