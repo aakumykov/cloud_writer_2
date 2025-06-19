@@ -14,6 +14,20 @@ abstract class BasicCloudWriter2 : CloudWriter2 {
             .replace(Regex("/+"),"/")
     }
 
+
+    override suspend fun deleteDeepEmptyDir(dirPath: String, isRelative: Boolean): String {
+        return if (isRelative) deleteDeepEmptyDirReal(virtualRootPlus(dirPath), true)
+        else deleteDeepEmptyDirReal(dirPath, false)
+    }
+
+
+    private suspend fun deleteDeepEmptyDirReal(dirPath: String, isRelative: Boolean): String {
+        return iterateOverDirsInPathFromRoot(dirPath, true) { pathPart: String ->
+            deleteEmptyDir(pathPart, isRelative)
+        }
+    }
+
+
     /**
      * Проходит путь [path] от корня в грубину, вызывая действие
      * [action] на каждой итерации.
@@ -26,10 +40,18 @@ abstract class BasicCloudWriter2 : CloudWriter2 {
      * 2) "dir1/dir2"
      * 3) "dir1/dir2/dir3"
      */
-    protected suspend fun iterateOverDirsInPathFromRoot(path: String, action: suspend (String) -> Unit): String {
+    protected suspend fun iterateOverDirsInPathFromRoot(
+        path: String,
+        reverseDirection: Boolean = false,
+        action: suspend (String) -> Unit
+    ): String {
         return path
             .split(CloudWriter2.DS)
             .filterNot { "" == it }
+            .apply {
+                if (reverseDirection)
+                    reversed()
+            }
             .reduce { acc, s ->
                 action(acc)
                 acc + CloudWriter2.DS + s

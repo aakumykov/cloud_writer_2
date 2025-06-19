@@ -47,6 +47,12 @@ interface CloudWriter2 {
     suspend fun deleteEmptyDir(dirPath: String, isRelative: Boolean): String
 
 
+    /**
+     * Удаляет дерево ПУСТЫХ каталогов, предполагая, что они все существуют.
+     */
+    suspend fun deleteDeepEmptyDir(dirPath: String, isRelative: Boolean): String
+
+
     companion object {
         /**
          * Directory separator.
