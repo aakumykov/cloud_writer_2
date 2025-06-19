@@ -87,6 +87,9 @@ abstract class CloudWriter2Tests : BaseOfTests() {
     }
 
 
+    //
+    // Создание
+    //
     @Test fun creates_dir() = run {
         step("Создаю каталог '${dirPath}'") {
             runTest {
@@ -113,6 +116,9 @@ abstract class CloudWriter2Tests : BaseOfTests() {
     }
 
 
+    //
+    // Условное создание
+    //
     @Test fun creates_dir_if_not_exists() = run {
 
         step("Создаю каталог '$dirPath', если не существует") {
@@ -155,6 +161,9 @@ abstract class CloudWriter2Tests : BaseOfTests() {
     }
 
 
+    //
+    // Удаление
+    //
     @Test fun deletes_empty_dir() = run {
         step("Создаю каталог '$dirPath'") {
             runBlocking { createDir(dirPath, isRelative) }
@@ -173,5 +182,7 @@ abstract class CloudWriter2Tests : BaseOfTests() {
             }
         }
     }
+
+
 
 }

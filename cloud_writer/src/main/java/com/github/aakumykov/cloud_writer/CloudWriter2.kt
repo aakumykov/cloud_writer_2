@@ -4,6 +4,13 @@ import java.io.IOException
 
 interface CloudWriter2 {
 
+    /**
+     * Служебный метод, для внутреннего использования другими методами.
+     */
+    fun virtualRootPlus(vararg pathParts: String): String
+
+
+
     @Throws(IOException::class, CloudWriterException::class)
     suspend fun fileExists(dirPath: String, isRelative: Boolean): Boolean
 
@@ -25,6 +32,7 @@ interface CloudWriter2 {
     suspend fun createDirIfNotExist(dirPath: String, isRelative: Boolean): String
 
 
+
     @Throws(IOException::class, CloudWriterException::class)
     suspend fun createDeepDir(dirPath: String, isRelative: Boolean): String
 
@@ -32,8 +40,6 @@ interface CloudWriter2 {
     @Throws(IOException::class, CloudWriterException::class)
     suspend fun createDeepDirIfNotExists(dirPath: String, isRelative: Boolean): String
 
-
-    fun virtualRootPlus(vararg pathParts: String): String
 
 
     /**
