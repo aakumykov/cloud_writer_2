@@ -18,7 +18,7 @@ abstract class LocalBase : CloudWriter2Tests() {
         get() = LocalCloudWriter2(virtualRootPath)
 
 
-    /*@Test
+    @Test
     fun storage_writeability_check() = run {
         val dir = File(absoluteDirPath)
         step("Создаю каталог '$absoluteDirPath' не библиотечным методом") {
@@ -27,5 +27,5 @@ abstract class LocalBase : CloudWriter2Tests() {
         step("Проверяю, что он создался") {
             Assert.assertTrue(dir.exists())
         }
-    }*/
+    }
 }

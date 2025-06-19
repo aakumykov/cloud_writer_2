@@ -42,13 +42,13 @@ abstract class CloudWriter2Tests : BaseOfTests() {
     }
 
 
-    /*@Before
+    @Before
     fun check_dirs_are_not_exists_before_test() {
         runTest {
             Assert.assertFalse(cloudWriter2.fileExists(dirPath, isRelative))
             Assert.assertFalse(cloudWriter2.fileExists(deepDirPath, isRelative))
         }
-    }*/
+    }
 
 
     @After
@@ -59,7 +59,7 @@ abstract class CloudWriter2Tests : BaseOfTests() {
                     deleteEmptyDir(dirPath, isRelative)
 
                 if (fileExists(deepDirPath, isRelative))
-                    deleteDeepEmptyDir(deepDirPath, isRelative)
+                    deleteEmptyDir(deepDirPath, isRelative)
             }
         }
     }
@@ -70,7 +70,7 @@ abstract class CloudWriter2Tests : BaseOfTests() {
     //
 
     // TODO: file exists, dir exists
-    /*@Test fun checks_file_exists() = run {
+    @Test fun checks_file_exists() = run {
         step("Проверяю, что каталог '$dirPath' отсутствует") {
             runBlocking {
                 Assert.assertFalse(cloudWriter2.fileExists(dirPath, isRelative))
@@ -98,7 +98,7 @@ abstract class CloudWriter2Tests : BaseOfTests() {
             }
         }
     }
-*/
+
 
     @Test
     open fun creates_deep_dir() = run {
@@ -113,7 +113,7 @@ abstract class CloudWriter2Tests : BaseOfTests() {
     }
 
 
-    /*@Test fun creates_dir_if_not_exists() = run {
+    @Test fun creates_dir_if_not_exists() = run {
 
         step("Создаю каталог '$dirPath', если не существует") {
             runBlocking {
@@ -173,5 +173,5 @@ abstract class CloudWriter2Tests : BaseOfTests() {
             }
         }
     }
-*/
+
 }

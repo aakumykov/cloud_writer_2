@@ -66,13 +66,13 @@ class YandexDiskCloudWriter2(
 
 
     override suspend fun createDeepDir(dirPath: String, isRelative: Boolean): String {
-        return if (isRelative) createDeepDirReal(virtualRootPlus(dirPath), true)
-        else createDeepDirReal(dirPath, false)
+        return if (isRelative) createDeepDirAbsolute(virtualRootPlus(dirPath))
+        else createDeepDirAbsolute(dirPath)
     }
 
 
     // TODO: унифицировать с [LocalCloudWriter2.createDeepDir]
-    private suspend fun createDeepDirReal(path: String, isRelative: Boolean): String {
+    private suspend fun createDeepDirAbsolute(path: String): String {
 
         // Так как идёт пошаговое создание
         // каталогов из пути вглубь,
@@ -82,7 +82,7 @@ class YandexDiskCloudWriter2(
         val pathToOperate = path.replace(Regex("^${virtualRootPath}/+"),"")
 
         return iterateOverDirsInPathFromRoot(pathToOperate) { partialPath ->
-            createDirIfNotExist(partialPath, isRelative)
+            createDirIfNotExist(partialPath, true)
         }.let {
             path
         }
@@ -131,10 +131,9 @@ class YandexDiskCloudWriter2(
     }
 
 
-
     private suspend fun createDeepDirIfNotExistAbsolute(path: String): String {
         return if (fileExists(path, false)) path
-        else createDeepDirReal(path, false)
+        else createDeepDirAbsolute(path)
     }
 
 
