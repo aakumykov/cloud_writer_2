@@ -2,7 +2,7 @@ package com.github.aakumykov.cloud_writer_2.yandex_disk
 
 import com.github.aakumykov.cloud_writer.CloudWriterException
 import com.github.aakumykov.cloud_writer_2.R
-import com.github.aakumykov.cloud_writer_2.inheritance_probe.common.randomName
+import com.github.aakumykov.cloud_writer_2.inheritance_probe.utils.randomName
 import com.github.aakumykov.yandex_disk_cloud_writer.YandexDiskCloudWriter2
 import com.kaspersky.kaspresso.testcases.api.testcase.TestCase
 import kotlinx.coroutines.runBlocking

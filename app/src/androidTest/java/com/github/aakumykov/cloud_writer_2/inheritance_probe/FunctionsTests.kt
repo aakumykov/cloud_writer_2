@@ -1,12 +1,13 @@
 package com.github.aakumykov.cloud_writer_2.inheritance_probe
 
 import com.github.aakumykov.cloud_writer.CloudWriter2
-import com.github.aakumykov.cloud_writer_2.inheritance_probe.common.randomName
+import com.github.aakumykov.cloud_writer_2.inheritance_probe.utils.randomName
 import com.github.aakumykov.cloud_writer_2.inheritance_probe.common.BaseOfTests
+import com.github.aakumykov.cloud_writer_2.inheritance_probe.utils.aggregateNamesToPath
 import org.junit.Assert
 import org.junit.Test
 
-class BaseOfTestsTest : BaseOfTests() {
+class FunctionsTests : BaseOfTests() {
 
     @Test
     fun names_to_path_aggregation_test() = run {
@@ -41,5 +42,17 @@ class BaseOfTestsTest : BaseOfTests() {
                 }
             }
         }
+    }
+
+
+    @Test
+    fun random_name_test() = run {
+        val list = buildList<String> {
+            repeat(10000) { add(randomName) }
+        }
+        Assert.assertEquals(
+            list,
+            list.distinct()
+        )
     }
 }

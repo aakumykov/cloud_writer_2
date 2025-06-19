@@ -1,8 +1,9 @@
 package com.github.aakumykov.cloud_writer_2.inheritance_probe
 
 import com.github.aakumykov.cloud_writer.CloudWriter2
-import com.github.aakumykov.cloud_writer_2.inheritance_probe.common.randomName
+import com.github.aakumykov.cloud_writer_2.inheritance_probe.utils.randomName
 import com.github.aakumykov.cloud_writer_2.inheritance_probe.common.BaseOfTests
+import com.github.aakumykov.cloud_writer_2.inheritance_probe.utils.aggregateNamesToPath
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.junit.After
