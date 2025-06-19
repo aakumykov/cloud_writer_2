@@ -13,4 +13,7 @@ class YandexDiskRelativeTest : YandexDiskBase() {
 
     override val deepDirPath: String
         get() = deepDirName
+
+    override val filePath: String
+        get() = fileName
 }

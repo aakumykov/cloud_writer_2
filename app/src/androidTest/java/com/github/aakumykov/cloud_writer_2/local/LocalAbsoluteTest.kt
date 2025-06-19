@@ -14,4 +14,7 @@ class LocalAbsoluteTest : LocalBase() {
 
     override val deepDirPath: String
         get() = deepDirAbsolutePath
+
+    override val filePath: String
+        get() = absoluteFilePath
 }

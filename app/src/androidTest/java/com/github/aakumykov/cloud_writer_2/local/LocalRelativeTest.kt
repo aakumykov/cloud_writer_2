@@ -15,8 +15,10 @@ class LocalRelativeTest : LocalBase() {
     override val deepDirPath: String
         get() = deepDirName
 
+    override val filePath: String
+        get() = fileName
 
-   /* override fun creates_deep_dir() = run {
+    /* override fun creates_deep_dir() = run {
         step("Создаю глубокий каталог '$deepDirPath'") {
             runBlocking {
                 Assert.assertEquals(
