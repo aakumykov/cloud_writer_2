@@ -1,12 +1,10 @@
-package com.github.aakumykov.cloud_writer_2.inheritance_probe.yandex_disk
+package com.github.aakumykov.cloud_writer_2.yandex_disk
 
 import com.github.aakumykov.cloud_writer.CloudWriter2
 import com.github.aakumykov.cloud_writer_2.R
-import com.github.aakumykov.cloud_writer_2.inheritance_probe.CloudWriter2Tests
+import com.github.aakumykov.cloud_writer_2.CloudWriter2Tests
 import com.github.aakumykov.yandex_disk_cloud_writer.YandexDiskCloudWriter2
 import org.junit.Assert
-import org.junit.Before
-import org.junit.BeforeClass
 import org.junit.Test
 
 abstract class YandexDiskBase : CloudWriter2Tests()  {

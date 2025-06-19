@@ -1,8 +1,6 @@
-package com.github.aakumykov.cloud_writer_2.inheritance_probe.local
+package com.github.aakumykov.cloud_writer_2.local
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import kotlinx.coroutines.runBlocking
-import org.junit.Assert
 import org.junit.runner.RunWith
 
 

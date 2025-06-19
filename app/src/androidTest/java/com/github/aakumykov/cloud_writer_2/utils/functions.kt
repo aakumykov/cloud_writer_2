@@ -1,4 +1,4 @@
-package com.github.aakumykov.cloud_writer_2.inheritance_probe.utils
+package com.github.aakumykov.cloud_writer_2.utils
 
 import com.github.aakumykov.cloud_writer.CloudWriter2
 import com.github.aakumykov.cloud_writer.extensions.stripMultiSlashes

@@ -1,8 +1,8 @@
-package com.github.aakumykov.cloud_writer_2.inheritance_probe.local
+package com.github.aakumykov.cloud_writer_2.local
 
 import android.os.Environment
 import com.github.aakumykov.cloud_writer.CloudWriter2
-import com.github.aakumykov.cloud_writer_2.inheritance_probe.CloudWriter2Tests
+import com.github.aakumykov.cloud_writer_2.CloudWriter2Tests
 import com.github.aakumykov.local_cloud_writer.LocalCloudWriter2
 import org.junit.Assert
 import org.junit.Test

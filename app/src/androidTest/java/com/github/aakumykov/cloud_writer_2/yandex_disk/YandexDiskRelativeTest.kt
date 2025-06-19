@@ -1,4 +1,4 @@
-package com.github.aakumykov.cloud_writer_2.inheritance_probe.yandex_disk
+package com.github.aakumykov.cloud_writer_2.yandex_disk
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.junit.runner.RunWith
