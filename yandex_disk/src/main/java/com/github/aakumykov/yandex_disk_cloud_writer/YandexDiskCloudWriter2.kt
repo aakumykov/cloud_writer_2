@@ -2,10 +2,8 @@ package com.github.aakumykov.yandex_disk_cloud_writer
 
 import android.util.Log
 import com.github.aakumykov.cloud_writer.BasicCloudWriter2
-import com.github.aakumykov.cloud_writer.CloudWriter.OperationUnsuccessfulException
 import com.github.aakumykov.cloud_writer.CloudWriterException
 import com.github.aakumykov.copy_between_streams_with_counting.copyBetweenStreamsWithCounting
-import com.github.aakumykov.yandex_disk_cloud_writer.YandexDiskCloudWriter.Companion
 import com.github.aakumykov.yandex_disk_cloud_writer.YandexDiskCloudWriter.Companion.TAG
 import com.github.aakumykov.yandex_disk_cloud_writer.ext.toCloudWriterException
 import com.google.gson.Gson
@@ -52,22 +50,7 @@ class YandexDiskCloudWriter2(
 
         val call = yandexDiskClient.newCall(request)
 
-        try {
-            call.execute().use { response: Response ->
-                when(response.code) {
-                    201 -> {
-                        cc.resume(path)
-                    }
-                    else -> {
-                        throw response.toCloudWriterException
-                    }
-                }
-            }
-        } catch (e: CancellationException) {
-            call.cancel()
-        } catch (e: Exception) {
-            cc.resumeWithException(e)
-        }
+
     }
 
 
@@ -185,15 +168,15 @@ class YandexDiskCloudWriter2(
 
 
     private fun apiURL(vararg queryPairs: Pair<String, String>): HttpUrl {
-        return apiURL(baseUrl = YANDEX_API_BASE, queryPairs = queryPairs)
+        return apiURL(url = YANDEX_API_BASE, queryPairs = queryPairs)
     }
 
 
     private fun apiURL(
-        baseUrl: String = YANDEX_API_BASE,
+        url: String,
         vararg queryPairs: Pair<String, String>
     ): HttpUrl {
-        return baseUrl.toHttpUrl().newBuilder().apply {
+        return url.toHttpUrl().newBuilder().apply {
             for ((key,value) in queryPairs) {
                 addQueryParameter(key, value)
             }
@@ -204,7 +187,10 @@ class YandexDiskCloudWriter2(
     private fun pathApiURL(path: String): HttpUrl = apiURL(PARAM_PATH to path)
 
 
-    private inline fun apiRequest(url: HttpUrl, requestMethodBlock: Request.Builder.() -> Unit): Request {
+    private inline fun apiRequest(
+        url: HttpUrl,
+        requestMethodBlock: Request.Builder.() -> Unit
+    ): Request {
         return Request.Builder()
             .url(url)
             .apply {
@@ -252,6 +238,7 @@ class YandexDiskCloudWriter2(
     }
 
 
+    @Throws(IOException::class, CloudWriterException::class)
     override suspend fun putStream(
         inputStream: InputStream,
         targetPath: String,
@@ -260,54 +247,47 @@ class YandexDiskCloudWriter2(
         writingCallback: ((Long) -> Unit)?,
         finishCallback: ((Long, Long) -> Unit)?
     ) {
-        val uploadURL = getURLForUpload(targetPath, overwriteIfExists)
-        putStreamReal(inputStream, uploadURL, writingCallback, finishCallback)
-    }
+        val path = if (isRelative) virtualRootPlus(targetPath) else targetPath
 
+        val uploadURL = getURLForUpload(path, overwriteIfExists)
 
+        return suspendCancellableCoroutine { cc ->
 
-    @Throws(IOException::class, CloudWriterException::class)
-    private fun putStreamReal(
-        inputStream: InputStream,
-        uploadURL: String,
-        writingCallback: ((Long) -> Unit)? = null,
-        finishCallback: ((Long, Long) -> Unit)? = null,
-    ) {
-        val requestBody: RequestBody = object: RequestBody() {
+            val requestBody: RequestBody = object: RequestBody() {
 
-            override fun contentType(): MediaType = DEFAULT_MEDIA_TYPE
+                override fun contentType(): MediaType = DEFAULT_MEDIA_TYPE
 
-            override fun writeTo(sink: BufferedSink) {
-                copyBetweenStreamsWithCounting(
-                    inputStream = inputStream,
-                    outputStream = sink.outputStream(),
-                    writingCallback = writingCallback,
-                    finishCallback = finishCallback,
-                )
+                override fun writeTo(sink: BufferedSink) {
+                    copyBetweenStreamsWithCounting(
+                        inputStream = inputStream,
+                        outputStream = sink.outputStream(),
+                        writingCallback = writingCallback,
+                        finishCallback = finishCallback,
+                    )
+                }
+            }
+
+            val url = apiURL(uploadURL)
+
+            val request = apiRequest(url) { put(requestBody) }
+
+            val call = yandexDiskClient.newCall(request)
+
+            try {
+                call.execute().use { response: Response ->
+                    when(response.code) {
+                        204 -> cc.resume(Unit)
+                        else -> throw response.toCloudWriterException
+                    }
+                }
+            } catch (e: CancellationException) {
+                call.cancel()
+            } catch (e: Exception) {
+                cc.resumeWithException(e)
             }
         }
-
-        val request = apiRequest(uploadURL) {
-            put(requestBody)
-        }
-
-        performUploadRequest(requestBody, uploadURL)
     }
 
-
-    private fun performUploadRequest(requestBody: RequestBody, uploadURL: String) {
-
-        Log.d(TAG, "performUploadRequest(requestBody = $requestBody, uploadURL = $uploadURL)")
-
-        val fileUploadRequest = Request.Builder()
-            .put(requestBody)
-            .url(uploadURL)
-            .build()
-
-        okHttpClient.newCall(fileUploadRequest).execute().use { response ->
-            if (!response.isSuccessful) throw unsuccessfulResponseException(response, "Perform upload request failed.")
-        }
-    }
 
 
     private fun linkFromResponse(response: Response): String {

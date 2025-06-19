@@ -3,9 +3,11 @@ package com.github.aakumykov.local_cloud_writer
 import com.github.aakumykov.cloud_writer.BasicCloudWriter2
 import com.github.aakumykov.cloud_writer.CloudWriterException
 import com.github.aakumykov.copy_between_streams_with_counting.copyBetweenStreamsWithCounting
+import kotlinx.coroutines.suspendCancellableCoroutine
 import java.io.File
 import java.io.IOException
 import java.io.InputStream
+import kotlin.coroutines.resume
 
 class LocalCloudWriter2(
     override val virtualRootPath: String,
@@ -91,7 +93,7 @@ class LocalCloudWriter2(
 
 
     @Throws(IOException::class, CloudWriterException::class)
-    override fun putStream(
+    override suspend fun putStream(
         inputStream: InputStream,
         targetPath: String,
         isRelative: Boolean,
@@ -99,18 +101,23 @@ class LocalCloudWriter2(
         writingCallback: ((Long) -> Unit)?,
         finishCallback: ((Long,Long) -> Unit)?,
     ) {
-        val realPath = if (isRelative) virtualRootPlus(targetPath) else targetPath
+        return suspendCancellableCoroutine { cc ->
 
-        val targetFile = File(realPath)
+            val path = if (isRelative) virtualRootPlus(targetPath) else targetPath
 
-        if (targetFile.exists() && !overwriteIfExists)
-            return
+            val targetFile = File(path)
 
-        copyBetweenStreamsWithCounting(
-            inputStream = inputStream,
-            outputStream = targetFile.outputStream(),
-            writingCallback = writingCallback,
-            finishCallback = finishCallback,
-        )
+            if (targetFile.exists() && !overwriteIfExists)
+                cc.resume(Unit)
+
+            copyBetweenStreamsWithCounting(
+                inputStream = inputStream,
+                outputStream = targetFile.outputStream(),
+                writingCallback = writingCallback,
+                finishCallback = finishCallback,
+            ).also {
+                cc.resume(Unit)
+            }
+        }
     }
 }
