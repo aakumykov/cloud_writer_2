@@ -69,25 +69,20 @@ interface CloudWriter2 {
     )
 
 
-    /*
-    // TODO
-     */
+
     /**
      * Переименовывает файл или пустой каталог.
      * Не работает с локальным хранилищем, если целевой
      * файл находится на физическом разделе, отличном
      * от исходного.
-     *//*
-    @Throws(
-        IOException::class,
-        OperationUnsuccessfulException::class,
-        OperationTimeoutException::class
-    )
-    fun renameFileOrEmptyDir(
-        fromAbsolutePath: String,
-        toAbsolutePath: String,
+     */
+    @Throws(IOException::class, CloudWriterException::class)
+    suspend fun renameFileOrEmptyDir(
+        fromPath: String,
+        toPath: String,
+        isRelative: Boolean,
         overwriteIfExists: Boolean = true
-    ): Boolean*/
+    ): Boolean
 
 
     /*

@@ -8,6 +8,7 @@ import java.io.File
 import java.io.IOException
 import java.io.InputStream
 import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
 
 class LocalCloudWriter2(
     override val virtualRootPath: String,
@@ -119,5 +120,24 @@ class LocalCloudWriter2(
                 cc.resume(Unit)
             }
         }
+    }
+
+
+    override suspend fun renameFileOrEmptyDir(
+        fromPath: String,
+        toPath: String,
+        isRelative: Boolean,
+        overwriteIfExists: Boolean
+    ): Boolean = suspendCoroutine { continuation ->
+
+        val realFromPath = if (isRelative) virtualRootPlus(fromPath) else fromPath
+        val realToPath = if (isRelative) virtualRootPlus(toPath) else toPath
+
+        val targetFile = File(realToPath)
+
+        continuation.resume(
+            if (!overwriteIfExists && targetFile.exists()) false
+            else File(realFromPath).renameTo(targetFile)
+        )
     }
 }

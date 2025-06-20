@@ -45,7 +45,7 @@ class YandexDiskCloudWriter2(
         ))
 
         val request = apiRequest(url) {
-            put("".toRequestBody(null))
+            put(EMPTY_REQUEST_BODY)
         }
 
         val call = yandexDiskClient.newCall(request)
@@ -103,7 +103,7 @@ class YandexDiskCloudWriter2(
 
         val url = apiURL(
             PARAM_PATH to absolutePath,
-            PARAM_PERMANENTLY to "true"
+            PARAM_PERMANENTLY to VALUE_TRUE
         )
 
         val request = apiRequest(url) {
@@ -297,18 +297,65 @@ class YandexDiskCloudWriter2(
     }
 
 
+    override suspend fun renameFileOrEmptyDir(
+        fromPath: String,
+        toPath: String,
+        isRelative: Boolean,
+        overwriteIfExists: Boolean
+    ): Boolean = suspendCancellableCoroutine { cc ->
+
+        val realFromPath = if (isRelative) virtualRootPlus(fromPath) else fromPath
+        val realToPath = if (isRelative) virtualRootPlus(toPath) else toPath
+
+        val url = apiURL(MOVE_BASE_URL,
+            PARAM_FROM to realFromPath,
+            PARAM_PATH to realToPath,
+            PARAM_OVERWRITE to overwriteIfExists.toString(),
+            PARAM_FORCE_ASYNC to VALUE_FALSE
+        )
+
+        val request = apiRequest(url) {
+            post(EMPTY_REQUEST_BODY)
+        }
+
+        val call = yandexDiskClient.newCall(request)
+
+        try {
+            call.execute().use { response: Response ->
+                when(response.code) {
+                    201 -> cc.resume(true)
+                    else -> throw response.toCloudWriterException
+                }
+            }
+        } catch (e: CancellationException) {
+            //FIXME: здесь нужно возвращать false?
+            call.cancel()
+        } catch (e: Exception) {
+            cc.resumeWithException(e)
+        }
+    }
 
     private fun linkFromResponse(response: Response): String {
         return gson.fromJson(response.body?.string(), Link::class.java).href
     }
 
 
+
     companion object {
         private const val YANDEX_API_BASE = "https://cloud-api.yandex.net/v1/disk/resources"
         private const val UPLOAD_BASE_URL = "${YANDEX_API_BASE}/upload"
+        private const val MOVE_BASE_URL = "${YANDEX_API_BASE}/move"
+
         private const val PARAM_PATH = "path"
+        private const val PARAM_FROM = "from"
+        private const val PARAM_FORCE_ASYNC = "force_async"
         private const val PARAM_OVERWRITE = "overwrite"
         private const val PARAM_PERMANENTLY = "permanently"
+
+        private const val VALUE_TRUE = "true"
+        private const val VALUE_FALSE = "false"
+
         private val DEFAULT_MEDIA_TYPE: MediaType = "application/octet-stream".toMediaType()
+        private val EMPTY_REQUEST_BODY by lazy { "".toRequestBody(null) }
     }
 }
