@@ -14,47 +14,7 @@ import org.junit.Test
 import java.io.File
 import java.io.FileInputStream
 
-abstract class CloudWriter2Tests : BaseOfTests() {
-
-    protected abstract val cloudWriter2: CloudWriter2
-    protected abstract val isRelative: Boolean
-
-    protected abstract val virtualRootPath: String
-
-    protected val dirName: String = randomName
-    protected val fileName: String = "${randomName}.bin"
-    protected val deepDirName: String = aggregateNamesToPath(randomName, randomName, randomName)
-
-    protected abstract val dirPath: String
-    protected abstract val deepDirPath: String
-
-    protected abstract val filePath: String
-
-    private val dataBytes: ByteArray by lazy { random.nextBytes(100) }
-
-    private val fileWithData: File by lazy {
-        File.createTempFile("file_","_upload.txt").apply {
-            writeBytes(dataBytes)
-        } }
-
-    protected val absoluteFilePath: String get() = cloudWriter2.virtualRootPlus(fileName)
-
-    protected val absoluteDirPath: String get() = cloudWriter2.virtualRootPlus(dirName)
-    protected val deepDirAbsolutePath get() = aggregateNamesToPath(virtualRootPath, deepDirName)
-
-    protected val dirRelativePath: String = absolutePathMinusVirtualRoot(absoluteDirPath)
-    protected val deepDirRelativePath = absolutePathMinusVirtualRoot(deepDirAbsolutePath)
-
-
-    private fun absolutePathMinusVirtualRoot(absolutePath: String): String
-            = absolutePath.replace(Regex("^$virtualRootPath"),"")
-
-
-    private suspend fun createDir(dirPath: String, isRelative: Boolean, action: (suspend (String) -> Unit)? = null) {
-        cloudWriter2.createDir(dirPath, isRelative).also { createdDirPath ->
-            action?.invoke(createdDirPath)
-        }
-    }
+abstract class CloudWriter2Tests : CloudWriter2TestsCommon() {
 
 
     @Before
@@ -102,78 +62,6 @@ abstract class CloudWriter2Tests : BaseOfTests() {
     }
 
 
-    //
-    // Создание
-    //
-    @Test fun creates_dir() = run {
-        step("Создаю каталог '${dirPath}'") {
-            runTest {
-                createDir(dirPath, isRelative) { createdDirPath ->
-                    step("Проверяю, что путь к нему соответствует '$absoluteDirPath'") {
-                        Assert.assertEquals(absoluteDirPath, createdDirPath)
-                    }
-                }
-            }
-        }
-    }
-
-
-    @Test
-    open fun creates_deep_dir() = run {
-        step("Создаю глубокий каталог '$deepDirPath'") {
-            runBlocking {
-                Assert.assertEquals(
-                    deepDirAbsolutePath,
-                    cloudWriter2.createDeepDir(deepDirPath, isRelative)
-                )
-            }
-        }
-    }
-
-
-    //
-    // Условное создание
-    //
-    @Test fun creates_dir_if_not_exists() = run {
-
-        step("Создаю каталог '$dirPath', если не существует") {
-            runBlocking {
-                Assert.assertEquals(
-                    absoluteDirPath,
-                    cloudWriter2.createDirIfNotExist(dirPath, isRelative)
-                )
-            }
-        }
-
-        step("Создаю каталог (если не существует) '$dirPath' ещё раз") {
-            runBlocking {
-                Assert.assertEquals(
-                    absoluteDirPath,
-                    cloudWriter2.createDirIfNotExist(dirPath, isRelative)
-                )
-            }
-        }
-    }
-
-
-    @Test fun creates_deep_dir_if_not_exists() = run {
-        step("Создаю глубокий каталог '$deepDirPath', если его нет") {
-            runBlocking {
-                Assert.assertEquals(
-                    deepDirAbsolutePath,
-                    cloudWriter2.createDeepDirIfNotExists(deepDirPath, isRelative)
-                )
-            }
-        }
-        step("Создаю глубокий каталог '$deepDirPath' (если его нет) ещё раз") {
-            runBlocking {
-                Assert.assertEquals(
-                    deepDirAbsolutePath,
-                    cloudWriter2.createDeepDirIfNotExists(deepDirPath, isRelative)
-                )
-            }
-        }
-    }
 
 
     //
