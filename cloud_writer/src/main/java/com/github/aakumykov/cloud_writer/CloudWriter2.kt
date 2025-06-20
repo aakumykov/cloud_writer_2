@@ -85,19 +85,6 @@ interface CloudWriter2 {
     ): Boolean
 
 
-    /*
-    // TODO
-    @Throws(
-        IOException::class,
-        OperationUnsuccessfulException::class
-    )
-    fun moveFileOrEmptyDir(
-        fromAbsolutePath: String,
-        toAbsolutePath: String,
-        overwriteIfExists: Boolean
-    ): Boolean*/
-
-
 
     companion object {
         /**
