@@ -253,6 +253,10 @@ class YandexDiskCloudWriter2(
 
         return suspendCancellableCoroutine { cc ->
 
+            cc.invokeOnCancellation { cause ->
+                println(cause?.message ?: "cc.invokeOnCancellation")
+            }
+
             val requestBody: RequestBody = object: RequestBody() {
 
                 override fun contentType(): MediaType = DEFAULT_MEDIA_TYPE
@@ -276,8 +280,12 @@ class YandexDiskCloudWriter2(
             try {
                 call.execute().use { response: Response ->
                     when(response.code) {
-                        201 -> cc.resume(Unit)
-                        else -> throw response.toCloudWriterException
+                        201 -> {
+                            cc.resume(Unit)
+                        }
+                        else -> {
+                            throw response.toCloudWriterException
+                        }
                     }
                 }
             } catch (e: CancellationException) {

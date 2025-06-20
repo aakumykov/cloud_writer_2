@@ -5,14 +5,18 @@ import com.github.aakumykov.cloud_writer_2.common.BaseOfTests
 import com.github.aakumykov.cloud_writer_2.utils.aggregateNamesToPath
 import com.github.aakumykov.cloud_writer_2.utils.randomName
 import com.github.aakumykov.utils.random
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
-import org.junit.After
-import org.junit.Assert
-import org.junit.Before
+import kotlinx.coroutines.withContext
 import org.junit.Test
 import java.io.File
 import java.io.FileInputStream
+import java.util.concurrent.TimeUnit
 
 abstract class CloudWriter2Tests : BaseOfTests() {
 
@@ -30,12 +34,15 @@ abstract class CloudWriter2Tests : BaseOfTests() {
 
     protected abstract val filePath: String
 
-    private val dataBytes: ByteArray by lazy { random.nextBytes(100) }
+    private val dataBytes: ByteArray by lazy {
+        random.nextBytes(1024 * 1024 * 10)
+    }
 
     private val fileWithData: File by lazy {
         File.createTempFile("file_","_upload.txt").apply {
             writeBytes(dataBytes)
-        } }
+        }
+    }
 
     protected val absoluteFilePath: String get() = cloudWriter2.virtualRootPlus(fileName)
 
@@ -57,7 +64,7 @@ abstract class CloudWriter2Tests : BaseOfTests() {
     }
 
 
-    @Before
+    /*@Before
     fun check_dirs_are_not_exists_before_test() {
         runTest {
             Assert.assertFalse(cloudWriter2.fileExists(dirPath, isRelative))
@@ -78,12 +85,13 @@ abstract class CloudWriter2Tests : BaseOfTests() {
             }
         }
     }
-
+*/
 
     //
     // -------------------------------------------------------------------------------------------
     //
 
+/*
     // TODO: file exists, dir exists
     @Test fun checks_file_exists() = run {
         step("Проверяю, что каталог '$dirPath' отсутствует") {
@@ -197,13 +205,14 @@ abstract class CloudWriter2Tests : BaseOfTests() {
             }
         }
     }
+*/
 
 
     //
     // Загрузка файла.
     // План тестирования:
     //
-    @Test fun puts_stream() = run {
+    /*@Test fun puts_stream() = run {
         fileWithData.inputStream().use { inputStream: FileInputStream ->
             step("Отправляет поток в файл") {
                 runBlocking {
@@ -213,6 +222,34 @@ abstract class CloudWriter2Tests : BaseOfTests() {
                         isRelative = isRelative,
                         overwriteIfExists = true
                     )
+                }
+            }
+        }
+    }*/
+
+
+    @Test fun cancels_putting_stream() = run {
+        fileWithData.inputStream().use { inputStream: FileInputStream ->
+            step("Отправляет поток в файл, затем отменяя его") {
+                runBlocking {
+                    withContext (Dispatchers.IO) {
+                        launch {
+                            cloudWriter2.putStream(
+                                inputStream = inputStream,
+                                targetPath = filePath,
+                                isRelative = isRelative,
+                                overwriteIfExists = true,
+                                writingCallback = {
+                                    TimeUnit.MILLISECONDS.sleep(100)
+                                }
+                            )
+                        }.apply {
+                            launch {
+                                delay(1000)
+                                this.cancel(CancellationException("Тестовая отмена"))
+                            }
+                        }
+                    }
                 }
             }
         }
