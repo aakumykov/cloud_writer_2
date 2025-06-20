@@ -1,10 +1,8 @@
 package com.github.aakumykov.yandex_disk_cloud_writer
 
-import android.util.Log
 import com.github.aakumykov.cloud_writer.BasicCloudWriter2
 import com.github.aakumykov.cloud_writer.CloudWriterException
 import com.github.aakumykov.copy_between_streams_with_counting.copyBetweenStreamsWithCounting
-import com.github.aakumykov.yandex_disk_cloud_writer.YandexDiskCloudWriter.Companion.TAG
 import com.github.aakumykov.yandex_disk_cloud_writer.ext.toCloudWriterException
 import com.google.gson.Gson
 import com.yandex.disk.rest.json.Link
@@ -199,6 +197,7 @@ class YandexDiskCloudWriter2(
     }
 
 
+    // FIXME: Внедрять
     private val yandexDiskClient: OkHttpClient by lazy {
         OkHttpClient
             .Builder()
