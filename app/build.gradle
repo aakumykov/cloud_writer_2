@@ -66,4 +66,6 @@ dependencies {
 
     testImplementation libs.kotlinx.coroutines.test
     androidTestImplementation libs.kotlinx.coroutines.test
+
+    implementation libs.file.lister.navigator.selector.x
 }

@@ -15,4 +15,10 @@
     <string name="there_is_no_auth_token">Нет токена авторизации!</string>
     <string name="yandex_disk_storage">Яндекс.Диск</string>
     <string name="local_storage">Локальное хранилище</string>
+    <string name="fragment_name_uploading_file">Загрузка файлов</string>
+    <string name="select_file_button">Выбрать файл</string>
+    <string name="tools_selected_file_view_stub">Выбранный файл</string>
+    <string name="uploading_file_button">Загрузка файла на сервер</string>
+    <string name="selection_result">Выбрано: %1$s</string>
+    <string name="there_is_no_reading_access">Запрещено читать хранилище</string>
 </resources>

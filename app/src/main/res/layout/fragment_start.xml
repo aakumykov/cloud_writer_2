@@ -12,4 +12,11 @@
         android:layout_height="wrap_content"
         android:text="@string/creating_dir_fragment_button" />
 
+    <Button
+        android:id="@+id/fileUploadingButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:backgroundTint="#42A5F5"
+        android:text="@string/uploading_file_button" />
+
 </LinearLayout>

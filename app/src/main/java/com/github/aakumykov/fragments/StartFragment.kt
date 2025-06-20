@@ -15,10 +15,12 @@ class StartFragment : Fragment(R.layout.fragment_start) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         _binding = FragmentStartBinding.bind(view)
+
         binding.createDirFragmentButton.setOnClickListener { loadFragment(DirCreationFragment.create()) }
+        binding.fileUploadingButton.setOnClickListener { loadFragment(FileUploadingFragment()) }
     }
 
-    private fun loadFragment(fragment: DirCreationFragment) {
+    private fun loadFragment(fragment: Fragment) {
         parentFragmentManager
             .beginTransaction()
             .addToBackStack(null)
