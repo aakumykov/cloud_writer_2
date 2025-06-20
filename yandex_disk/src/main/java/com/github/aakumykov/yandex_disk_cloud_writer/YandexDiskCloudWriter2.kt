@@ -214,7 +214,7 @@ class YandexDiskCloudWriter2(
     @Throws(IOException::class, CloudWriterException::class)
     private suspend fun getURLForUpload(targetFilePath: String, overwriteIfExists: Boolean): String = suspendCancellableCoroutine{ cc ->
 
-        val url = apiURL(
+        val url = apiURL(UPLOAD_BASE_URL,
             PARAM_PATH to targetFilePath,
             PARAM_OVERWRITE to overwriteIfExists.toString()
         )
@@ -276,7 +276,7 @@ class YandexDiskCloudWriter2(
             try {
                 call.execute().use { response: Response ->
                     when(response.code) {
-                        204 -> cc.resume(Unit)
+                        201 -> cc.resume(Unit)
                         else -> throw response.toCloudWriterException
                     }
                 }
