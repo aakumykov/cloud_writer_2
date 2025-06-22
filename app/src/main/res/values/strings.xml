@@ -22,4 +22,8 @@
     <string name="selection_result">Выбрано: %1$s</string>
     <string name="there_is_no_reading_access">Запрещено читать хранилище</string>
     <string name="no_file_selected">Не выбран файл</string>
+    <string name="cancel">Отменить</string>
+    <string name="cancelled_by_user">Отменено пользователем</string>
+    <string name="nothing_to_cancel">Нечего отменять</string>
+    <string name="upload_retardation">Замедление отправки %1$d мс</string>
 </resources>

@@ -22,6 +22,21 @@
         android:padding="8dp"
         tools:text="@string/tools_selected_file_view_stub" />
 
+    <SeekBar
+        android:id="@+id/uploadRetardationSeekBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:max="1000"
+        android:progress="500"
+        android:paddingVertical="8dp"/>
+
+    <TextView
+        android:id="@+id/uploadRetardationView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textAlignment="center"
+        tools:text="0 мс" />
+
     <Button
         android:id="@+id/selectFileButton"
         android:layout_width="match_parent"
@@ -34,5 +49,12 @@
         layout="@layout/control_buttons"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
+
+    <Button
+        android:id="@+id/cancellationButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:backgroundTint="#E91E63"
+        android:text="@string/cancel" />
 
 </LinearLayout>

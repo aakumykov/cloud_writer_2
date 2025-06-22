@@ -1,5 +1,6 @@
 package com.github.aakumykov.yandex_disk_cloud_writer
 
+import android.util.Log
 import com.github.aakumykov.cloud_writer.BasicCloudWriter2
 import com.github.aakumykov.cloud_writer.CloudWriterException
 import com.github.aakumykov.copy_between_streams_with_counting.copyBetweenStreamsWithCounting
@@ -7,7 +8,9 @@ import com.github.aakumykov.yandex_disk_cloud_writer.ext.toCloudWriterException
 import com.google.gson.Gson
 import com.yandex.disk.rest.json.Link
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.suspendCancellableCoroutine
+import okhttp3.Call
 import okhttp3.HttpUrl
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.Interceptor
@@ -21,6 +24,7 @@ import okhttp3.Response
 import okio.BufferedSink
 import java.io.IOException
 import java.io.InputStream
+import java.util.concurrent.TimeUnit
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
@@ -243,6 +247,7 @@ class YandexDiskCloudWriter2(
         targetPath: String,
         isRelative: Boolean,
         overwriteIfExists: Boolean,
+        readingCallback: ((Long) -> Unit)?,
         writingCallback: ((Long) -> Unit)?,
         finishCallback: ((Long, Long) -> Unit)?
     ) {
@@ -252,18 +257,19 @@ class YandexDiskCloudWriter2(
 
         return suspendCancellableCoroutine { cc ->
 
-            cc.invokeOnCancellation { cause ->
-                println(cause?.message ?: "cc.invokeOnCancellation")
-            }
-
             val requestBody: RequestBody = object: RequestBody() {
 
                 override fun contentType(): MediaType = DEFAULT_MEDIA_TYPE
 
                 override fun writeTo(sink: BufferedSink) {
+
+                    // TODO: вызывать здесь или в copyBetweenStreamsWithCounting
+                    //  ошибку и смотреть, что будет.
+
                     copyBetweenStreamsWithCounting(
                         inputStream = inputStream,
                         outputStream = sink.outputStream(),
+                        readingCallback = readingCallback,
                         writingCallback = writingCallback,
                         finishCallback = finishCallback,
                     )
@@ -276,6 +282,11 @@ class YandexDiskCloudWriter2(
 
             val call = yandexDiskClient.newCall(request)
 
+            cc.invokeOnCancellation { cause ->
+                Log.i(TAG, cause?.message ?: "cc.invokeOnCancellation")
+                call.cancel()
+            }
+
             try {
                 call.execute().use { response: Response ->
                     when(response.code) {
@@ -287,8 +298,6 @@ class YandexDiskCloudWriter2(
                         }
                     }
                 }
-            } catch (e: CancellationException) {
-                call.cancel()
             } catch (e: Exception) {
                 cc.resumeWithException(e)
             }
@@ -341,6 +350,8 @@ class YandexDiskCloudWriter2(
 
 
     companion object {
+        val TAG: String = YandexDiskCloudWriter2::class.java.simpleName
+
         private const val YANDEX_API_BASE = "https://cloud-api.yandex.net/v1/disk/resources"
         private const val UPLOAD_BASE_URL = "${YANDEX_API_BASE}/upload"
         private const val MOVE_BASE_URL = "${YANDEX_API_BASE}/move"

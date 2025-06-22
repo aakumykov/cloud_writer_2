@@ -10,6 +10,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.viewbinding.ViewBinding
 import com.github.aakumykov.cloud_writer_2.R
 import com.github.aakumykov.extensions.errorMsg
+import com.github.aakumykov.file_lister_navigator_selector.extensions.hide
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -63,8 +64,8 @@ abstract class BasicFragment<T : ViewBinding>(layoutResId: Int) : Fragment(layou
 
     protected fun showError(t: Throwable) {
         lifecycleScope.launch (Dispatchers.Main) {
-            t.errorMsg.also { errorMsg ->
-                Log.e(DirCreationFragment.TAG, errorMsg, t)
+            t.errorMsg                                  .also { errorMsg ->
+                Log.e(TAG, errorMsg, t)
                 errorView.text = errorMsg
             }
         }
@@ -74,6 +75,10 @@ abstract class BasicFragment<T : ViewBinding>(layoutResId: Int) : Fragment(layou
         lifecycleScope.launch (Dispatchers.Main) {
             errorView.text = ""
         }
+    }
+
+    protected fun hideProgress() = lifecycleScope.launch (Dispatchers.Main) {
+        progressBar.visibility = View.INVISIBLE
     }
 
     private fun showMessage(text: String) {
@@ -98,5 +103,9 @@ abstract class BasicFragment<T : ViewBinding>(layoutResId: Int) : Fragment(layou
         lifecycleScope.launch (Dispatchers.Main) {
             progressBar.visibility = View.INVISIBLE
         }
+    }
+
+    companion object {
+        val TAG: String = BasicFragment::class.java.simpleName
     }
 }

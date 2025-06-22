@@ -99,6 +99,7 @@ class LocalCloudWriter2(
         targetPath: String,
         isRelative: Boolean,
         overwriteIfExists: Boolean,
+        readingCallback: ((Long) -> Unit)?,
         writingCallback: ((Long) -> Unit)?,
         finishCallback: ((Long,Long) -> Unit)?,
     ) {
@@ -114,6 +115,7 @@ class LocalCloudWriter2(
             copyBetweenStreamsWithCounting(
                 inputStream = inputStream,
                 outputStream = targetFile.outputStream(),
+                readingCallback = readingCallback,
                 writingCallback = writingCallback,
                 finishCallback = finishCallback,
             ).also {
