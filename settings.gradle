@@ -21,7 +21,6 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "cloud_writer_2"
-include ':app'
 include ':cloud_writer'
 include ':local'
 include ':yandex_disk'
