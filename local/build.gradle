@@ -51,7 +51,7 @@ android {
 
 dependencies {
 
-    api project(':cloud_writer')
+    implementation project(':cloud_writer')
     implementation libs.androidx.core.ktx
     implementation libs.androidx.appcompat
     implementation libs.material
