@@ -61,9 +61,9 @@ dependencies {
     androidTestImplementation libs.androidx.junit
     androidTestImplementation libs.androidx.espresso.core
 
-    api libs.okhttp
-    api libs.gson
-    api libs.disk.restapi.sdk
+    implementation libs.okhttp
+    implementation libs.gson
+    implementation libs.disk.restapi.sdk
 }
 
 publishing {
