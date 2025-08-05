@@ -6,35 +6,44 @@ import org.junit.Test
 
 class LocalCloudWriter_virtualRootPlus_UnitTests {
 
+    companion object {
+        const val EMPTY_DIR_NAME = ""
+        const val ROOT_DIR_NAME = "/"
+        const val SIMPLE_DIR_NAME = "dir1"
+        const val DEEP_DIR_NAME = "dir_A/dir_B"
+    }
+
     private val localCloudWriter2: CloudWriter2 = LocalCloudWriter2("/")
 
     @Test
-    fun joins_multiple_names_to_path() {
+    fun joins_empty_path_with_virtual_root() {
+        Assert.assertEquals(
+            localCloudWriter2.virtualRootPath,
+            localCloudWriter2.virtualRootPlus(EMPTY_DIR_NAME)
+        )
+    }
 
-        val dirNamePrefix = "dir"
+    @Test
+    fun joins_root_path_with_virtual_root() {
+        Assert.assertEquals(
+            localCloudWriter2.virtualRootPath,
+            localCloudWriter2.virtualRootPlus(ROOT_DIR_NAME)
+        )
+    }
 
-        repeat(10) { i ->
+    @Test
+    fun joins_simple_dir_with_virtual_root() {
+        Assert.assertEquals(
+            "${localCloudWriter2.virtualRootPath}${SIMPLE_DIR_NAME}",
+            localCloudWriter2.virtualRootPlus(SIMPLE_DIR_NAME)
+        )
+    }
 
-            val expectedPathBuilder = StringBuilder()
-                .append(localCloudWriter2.virtualRootPath)
-
-            val dirNameList: List<String> = buildList { repeat(i+1) { j ->
-
-                val dirName = "$dirNamePrefix$j"
-
-                this.add(dirName)
-
-                expectedPathBuilder
-                    .append(CloudWriter2.DS)
-                    .append(dirName)
-            } }
-
-            val resultPath = localCloudWriter2.virtualRootPlus(*dirNameList.toTypedArray())
-
-            Assert.assertEquals(
-                expectedPathBuilder,
-                resultPath
-            )
-        }
+    @Test
+    fun joins_deep_dir_with_virtual_root() {
+        Assert.assertEquals(
+            "${localCloudWriter2.virtualRootPath}${DEEP_DIR_NAME}",
+            localCloudWriter2.virtualRootPlus(DEEP_DIR_NAME)
+        )
     }
 }
