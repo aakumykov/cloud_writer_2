@@ -1,5 +1,7 @@
 package com.github.aakumykov.cloud_writer
 
+import com.github.aakumykov.cloud_writer.extensions.stripMultiSlashes
+
 abstract class BasicCloudWriter2 : CloudWriter2 {
 
     abstract override val virtualRootPath: String
@@ -11,7 +13,7 @@ abstract class BasicCloudWriter2 : CloudWriter2 {
                     throw RuntimeException("Cannot add path parts to virtual root path.")
             }
             .joinToString(CloudWriter2.DS)
-            .replace(Regex("/+"),"/")
+            .stripMultiSlashes()
     }
 
     /**
