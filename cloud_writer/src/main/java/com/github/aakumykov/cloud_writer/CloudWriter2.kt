@@ -3,6 +3,23 @@ package com.github.aakumykov.cloud_writer
 import java.io.IOException
 import java.io.InputStream
 
+/**
+ * Писчик в облако должен:
+ * 00) [проверять наличие каталогов] [fileExists]
+ * 05) [проверять наличие файлов] [fileExists]
+ * 10) создавать каталоги
+ *  [createDir]
+ *  [createDirIfNotExist]
+ *  [createDeepDir]
+ *  [createDeepDirIfNotExists]
+ * 15) загружать файлы (потоки?) [putStream]
+ * 20) удалять пустые каталоги [deleteFileOrEmptyDir]
+ * 30) удалять файлы [deleteFileOrEmptyDir]
+ * 40) переименовывать каталоги [renameFileOrEmptyDir]
+ * 50) переименовывать файлы [renameFileOrEmptyDir]
+ * 60) TODO: перемещать пустые каталоги
+ * 70) TODO: перемещать файлы
+ */
 interface CloudWriter2 {
 
     val virtualRootPath: String
@@ -26,9 +43,11 @@ interface CloudWriter2 {
     fun virtualRootPlus(vararg pathParts: String): String
 
 
-
+    /**
+     * Проверяет наличие файла/каталога.
+     */
     @Throws(IOException::class, CloudWriterException::class)
-    suspend fun fileExists(dirPath: String, isRelative: Boolean): Boolean
+    suspend fun fileExists(path: String, isRelative: Boolean): Boolean
 
 
     /**
@@ -62,8 +81,10 @@ interface CloudWriter2 {
      * Удаляет пустой каталог.
      * В случае, если производится попытка удаления непустого каталога,
      * поведение зависит от реализации:
-     * * локальная файловая система - будет выброшено исключение, каталог не будет удалён.
-     * * облако - каталог будет отправлен на удаление в асинхронном режиме, без сигнала о завершении.
+     * * локальная файловая система - будет выброшено исключение,
+     *   каталог не будет удалён.
+     * * облако - каталог будет отправлен на удаление в асинхронном режиме
+     *   без сигнала о завершении.
      * @return Абсолютный путь к удалённому каталогу.
      */
     suspend fun deleteFileOrEmptyDir(dirPath: String, isRelative: Boolean): String
