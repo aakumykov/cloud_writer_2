@@ -2,7 +2,7 @@ package com.github.aakumykov.cloud_writer
 
 abstract class BasicCloudWriter2 : CloudWriter2 {
 
-    protected abstract val virtualRootPath: String
+    abstract override val virtualRootPath: String
 
     override fun virtualRootPlus(vararg pathParts: String): String {
         return mutableListOf(virtualRootPath)

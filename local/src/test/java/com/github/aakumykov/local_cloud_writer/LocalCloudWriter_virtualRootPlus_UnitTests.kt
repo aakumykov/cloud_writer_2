@@ -8,14 +8,32 @@ class LocalCloudWriter_virtualRootPlus_UnitTests {
 
     private val localCloudWriter2: CloudWriter2 = LocalCloudWriter2("/")
 
-    // `соединяет несколько путей в один`
     @Test
     fun joins_multiple_names_to_path() {
+
+        val dirNamePrefix = "dir"
+
         repeat(10) { i ->
-            val dirNameList: List<String> = buildList { add("dir$i") }
-            val resPath = localCloudWriter2.virtualRootPlus(*dirNameList.toTypedArray())
+
+            val expectedPathBuilder = StringBuilder()
+                .append(localCloudWriter2.virtualRootPath)
+
+            val dirNameList: List<String> = buildList { repeat(i+1) { j ->
+
+                val dirName = "$dirNamePrefix$j"
+
+                this.add(dirName)
+
+                expectedPathBuilder
+                    .append(CloudWriter2.DS)
+                    .append(dirName)
+            } }
+
+            val resultPath = localCloudWriter2.virtualRootPlus(*dirNameList.toTypedArray())
+
             Assert.assertEquals(
-                ,
+                expectedPathBuilder,
+                resultPath
             )
         }
     }

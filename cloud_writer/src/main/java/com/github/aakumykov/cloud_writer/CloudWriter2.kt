@@ -5,6 +5,8 @@ import java.io.InputStream
 
 interface CloudWriter2 {
 
+    val virtualRootPath: String
+
     /**
      * Соединяет виртауальный корень с произвольным количеством
      * дополнительных путей, в результате чего получается путь к более глубокому каталогу.
