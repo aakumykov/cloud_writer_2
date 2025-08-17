@@ -168,12 +168,14 @@ class YandexDiskCloudWriter2(
             when(response.code) {
                 200 -> cc.resume(true)
                 404 -> cc.resume(false)
-                else -> throw response.toCloudWriterException
+                else -> throwCloudWriterException(response)
             }
         }
     }
 
-
+    private fun throwCloudWriterException(response: Response) {
+        throw response.toCloudWriterException
+    }
 
     private fun apiURL(vararg queryPairs: Pair<String, String>): HttpUrl {
         return apiURL(url = YANDEX_API_BASE, queryPairs = queryPairs)
@@ -222,7 +224,7 @@ class YandexDiskCloudWriter2(
         executeCall(call, cc) { response ->
             when(response.code) {
                 200 -> cc.resume(linkFromResponse(response))
-                else -> throw response.toCloudWriterException
+                else -> throwCloudWriterException(response)
             }
         }
     }
@@ -279,7 +281,7 @@ class YandexDiskCloudWriter2(
                     201 -> {
                         cc.resume(Unit)
                     }
-                    else -> throw response.toCloudWriterException
+                    else -> throwCloudWriterException(response)
                 }
             }
         }
@@ -309,18 +311,11 @@ class YandexDiskCloudWriter2(
 
         val call = yandexDiskClient.newCall(request)
 
-        try {
-            call.execute().use { response: Response ->
-                when(response.code) {
-                    201 -> cc.resume(true)
-                    else -> throw response.toCloudWriterException
-                }
+        executeCall(call, cc) { response: Response ->
+            when(response.code) {
+                201 -> cc.resume(true)
+                else -> throwCloudWriterException(response)
             }
-        } catch (e: CancellationException) {
-            //FIXME: здесь нужно возвращать false?
-            call.cancel()
-        } catch (e: Exception) {
-            cc.resumeWithException(e)
         }
     }
 
