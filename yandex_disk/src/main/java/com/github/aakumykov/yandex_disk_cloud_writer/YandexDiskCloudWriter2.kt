@@ -7,13 +7,12 @@ import com.github.aakumykov.copy_between_streams_with_counting.copyBetweenStream
 import com.github.aakumykov.yandex_disk_cloud_writer.ext.toCloudWriterException
 import com.google.gson.Gson
 import com.yandex.disk.rest.json.Link
+import kotlinx.coroutines.CancellableContinuation
 import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.suspendCancellableCoroutine
 import okhttp3.Call
 import okhttp3.HttpUrl
 import okhttp3.HttpUrl.Companion.toHttpUrl
-import okhttp3.Interceptor
 import okhttp3.MediaType
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
@@ -24,17 +23,21 @@ import okhttp3.Response
 import okio.BufferedSink
 import java.io.IOException
 import java.io.InputStream
-import java.util.concurrent.TimeUnit
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
 class YandexDiskCloudWriter2(
     private val authToken: String,
+    private val yandexDiskClientCreator: YandexDiskOkHttpClientCreator,
     override val virtualRootPath: String = "/",
     private val gson: Gson = Gson()
 )
     : BasicCloudWriter2()
 {
+    private val yandexDiskClient: OkHttpClient by lazy {
+        yandexDiskClientCreator.create(authToken)
+    }
+
     override suspend fun createDir(dirPath: String, isRelative: Boolean): String {
         return if (isRelative) createAbsoluteDir(virtualRootPlus(dirPath))
         else createAbsoluteDir(dirPath)
@@ -114,24 +117,33 @@ class YandexDiskCloudWriter2(
 
         val call = yandexDiskClient.newCall(request)
 
+        executeCall(call, cc) { response ->
+            when(response.code) {
+                204 -> {
+                    cc.resume(absolutePath)
+                }
+                else -> {
+                    throw response.toCloudWriterException
+                }
+            }
+        }
+    }
+
+    private fun <T> executeCall(
+        call: Call,
+        cancellableContinuation: CancellableContinuation<T>,
+        responseProcessingBlock: (response: Response) -> Unit
+    ) {
         try {
             call.execute().use { response: Response ->
-                when(response.code) {
-                    204 -> {
-                        cc.resume(absolutePath)
-                    }
-                    else -> {
-                        throw response.toCloudWriterException
-                    }
-                }
+                responseProcessingBlock.invoke(response)
             }
         } catch (e: CancellationException) {
             call.cancel()
         } catch (e: Exception) {
-            cc.resumeWithException(e)
+            cancellableContinuation.resumeWithException(e)
         }
     }
-
 
     private suspend fun createDeepDirIfNotExistAbsolute(path: String): String {
         return if (fileExists(path, false)) path
@@ -152,18 +164,12 @@ class YandexDiskCloudWriter2(
 
         val call = yandexDiskClient.newCall(request)
 
-        try {
-            call.execute().use { response: Response ->
-                when(response.code) {
-                    200 -> cc.resume(true)
-                    404 -> cc.resume(false)
-                    else -> throw response.toCloudWriterException
-                }
+        executeCall(call, cc) { response ->
+            when(response.code) {
+                200 -> cc.resume(true)
+                404 -> cc.resume(false)
+                else -> throw response.toCloudWriterException
             }
-        } catch (e: CancellationException) {
-            call.cancel()
-        } catch (e: Exception) {
-            cc.resumeWithException(e)
         }
     }
 
@@ -201,19 +207,6 @@ class YandexDiskCloudWriter2(
     }
 
 
-    // FIXME: Внедрять
-    private val yandexDiskClient: OkHttpClient by lazy {
-        OkHttpClient
-            .Builder()
-            .addNetworkInterceptor { chain: Interceptor.Chain ->
-                val builder = chain.request().newBuilder()
-                    .header("Authorization", authToken)
-                chain.proceed(builder.build())
-            }
-            .build()
-    }
-
-
     @Throws(IOException::class, CloudWriterException::class)
     private suspend fun getURLForUpload(targetFilePath: String, overwriteIfExists: Boolean): String = suspendCancellableCoroutine{ cc ->
 
@@ -226,17 +219,11 @@ class YandexDiskCloudWriter2(
 
         val call = yandexDiskClient.newCall(request)
 
-        try {
-            call.execute().use { response: Response ->
-                when(response.code) {
-                    200 -> cc.resume(linkFromResponse(response))
-                    else -> throw response.toCloudWriterException
-                }
+        executeCall(call, cc) { response ->
+            when(response.code) {
+                200 -> cc.resume(linkFromResponse(response))
+                else -> throw response.toCloudWriterException
             }
-        } catch (e: CancellationException) {
-            call.cancel()
-        } catch (e: Exception) {
-            cc.resumeWithException(e)
         }
     }
 
@@ -287,19 +274,13 @@ class YandexDiskCloudWriter2(
                 call.cancel()
             }
 
-            try {
-                call.execute().use { response: Response ->
-                    when(response.code) {
-                        201 -> {
-                            cc.resume(Unit)
-                        }
-                        else -> {
-                            throw response.toCloudWriterException
-                        }
+            executeCall(call, cc) { response: Response ->
+                when(response.code) {
+                    201 -> {
+                        cc.resume(Unit)
                     }
+                    else -> throw response.toCloudWriterException
                 }
-            } catch (e: Exception) {
-                cc.resumeWithException(e)
             }
         }
     }
