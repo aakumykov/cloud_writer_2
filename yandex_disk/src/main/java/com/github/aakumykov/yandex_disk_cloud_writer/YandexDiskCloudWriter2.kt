@@ -55,7 +55,12 @@ class YandexDiskCloudWriter2(
 
         val call = yandexDiskClient.newCall(request)
 
-
+        executeCall(call, cc) { response: Response ->
+            when(response.code) {
+                201 -> cc.resume(path)
+                else -> throwCloudWriterException(response)
+            }
+        }
     }
 
 
@@ -151,9 +156,9 @@ class YandexDiskCloudWriter2(
     }
 
 
-    override suspend fun fileExists(dirPath: String, isRelative: Boolean): Boolean {
-        return if (isRelative) fileExistsAbsolute(virtualRootPlus(dirPath))
-        else fileExistsAbsolute(dirPath)
+    override suspend fun fileExists(path: String, isRelative: Boolean): Boolean {
+        return if (isRelative) fileExistsAbsolute(virtualRootPlus(path))
+        else fileExistsAbsolute(path)
     }
 
     private suspend fun fileExistsAbsolute(path: String): Boolean = suspendCancellableCoroutine { cc ->
