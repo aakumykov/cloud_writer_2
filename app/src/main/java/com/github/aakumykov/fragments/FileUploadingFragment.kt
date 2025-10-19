@@ -15,12 +15,14 @@ import com.github.aakumykov.file_lister_navigator_selector.file_selector.FileSel
 import com.github.aakumykov.local_file_lister_navigator_selector.local_file_selector.LocalFileSelector
 import com.github.aakumykov.storage_access_helper.StorageAccessHelper
 import com.github.aakumykov.yandex_disk_cloud_writer.YandexDiskCloudWriter2
+import com.github.aakumykov.yandex_disk_cloud_writer.YandexDiskOkHttpClientCreator
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import okhttp3.OkHttpClient
 import java.io.File
 import java.util.concurrent.TimeUnit
 
@@ -81,7 +83,8 @@ class FileUploadingFragment :
         hideProgress()
 
         val yandexDiskCloudWriter2 = YandexDiskCloudWriter2(
-            authToken = activity?.yandexAuthToken ?: ""
+            authToken = activity?.yandexAuthToken ?: "",
+            yandexDiskClientCreator = YandexDiskOkHttpClientCreator(OkHttpClient.Builder())
         )
 
         val exceptionHandler = CoroutineExceptionHandler { coroutineContext, throwable ->

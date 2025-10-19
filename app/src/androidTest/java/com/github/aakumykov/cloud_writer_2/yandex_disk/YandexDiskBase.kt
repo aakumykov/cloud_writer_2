@@ -1,9 +1,10 @@
 package com.github.aakumykov.cloud_writer_2.yandex_disk
 
 import com.github.aakumykov.cloud_writer.CloudWriter2
-import com.github.aakumykov.cloud_writer_2.R
 import com.github.aakumykov.cloud_writer_2.CloudWriter2Tests
+import com.github.aakumykov.cloud_writer_2.R
 import com.github.aakumykov.yandex_disk_cloud_writer.YandexDiskCloudWriter2
+import com.github.aakumykov.yandex_disk_cloud_writer.YandexDiskOkHttpClientCreator
 import org.junit.Assert
 import org.junit.Test
 
@@ -18,7 +19,8 @@ abstract class YandexDiskBase : CloudWriter2Tests()  {
     override val cloudWriter2: CloudWriter2
         get() = YandexDiskCloudWriter2(
             authToken = yandexAuthToken,
-            virtualRootPath = virtualRootPath
+            virtualRootPath = virtualRootPath,
+            yandexDiskClientCreator = YandexDiskOkHttpClientCreator(okhttp3.OkHttpClient.Builder())
         )
 
 
