@@ -63,12 +63,17 @@ open class LocalCloudWriterInstrumentedTest {
 
 
     fun createSourceFile() {
+        val data = randomBytes
         sourceFile.apply {
             createNewFile()
-            writeBytes(randomBytes)
+            writeBytes(data)
         }
         Assert.assertTrue(sourceFile.exists())
         Assert.assertTrue(sourceFileContents.isNotEmpty())
+        Assert.assertEquals(
+            data.joinToString(),
+            sourceFile.readBytes().joinToString()
+        )
     }
 
     fun createTargetFile() {
