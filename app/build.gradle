@@ -21,7 +21,7 @@ android {
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
-        manifestPlaceholders = [YANDEX_CLIENT_ID:"630df4eaaeb9491bbd2a234050af5f32"]
+        manifestPlaceholders = [YANDEX_CLIENT_ID:"c6ca37661e48432b91842e96f9255994"]
 
 //        resValue "string", "default_account_iccid", properties.getProperty("default.account.iccid", "")
 //        resValue "string", "yandex_disk_auth_token_for_tests", properties.getProperty("yandex_disk_auth_token", "")
