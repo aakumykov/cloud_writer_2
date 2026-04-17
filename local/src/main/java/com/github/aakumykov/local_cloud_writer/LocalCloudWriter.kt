@@ -126,7 +126,10 @@ class LocalCloudWriter(
 
 
     @Throws(IOException::class, OperationUnsuccessfulException::class)
-    override fun putFile(sourceFile: File, targetAbsolutePath: String, overwriteIfExists: Boolean) {
+    override fun putFile(sourceFile: File,
+                         targetAbsolutePath: String,
+                         overwriteIfExists: Boolean,
+                         bufferSize: Int) {
 
         val targetFile = File(targetAbsolutePath)
 
@@ -136,12 +139,12 @@ class LocalCloudWriter(
             throw IOException("File cannot be not moved from '${sourceFile.absolutePath}' to '${targetAbsolutePath}'")
     }
 
-
     @Throws(IOException::class, OperationUnsuccessfulException::class)
     override fun putStream(
         inputStream: InputStream,
         targetAbsolutePath: String,
         overwriteIfExists: Boolean,
+        bufferSize: Int,
         writingCallback: ((Long) -> Unit)?,
         finishCallback: ((Long,Long) -> Unit)?,
     ) {
@@ -155,6 +158,7 @@ class LocalCloudWriter(
             outputStream = targetFile.outputStream(),
             writingCallback = writingCallback,
             finishCallback = finishCallback,
+            bufferSize = bufferSize
         )
     }
 

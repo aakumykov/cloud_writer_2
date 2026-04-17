@@ -158,7 +158,12 @@ class YandexDiskCloudWriter(
 
 
     @Throws(IOException::class, OperationUnsuccessfulException::class)
-    override fun putFile(sourceFile: File, targetAbsolutePath: String, overwriteIfExists: Boolean) {
+    override fun putFile(
+        sourceFile: File,
+        targetAbsolutePath: String,
+        overwriteIfExists: Boolean,
+        bufferSize: Int,
+    ) {
         Log.d(TAG, "putFile(sourceFile = '$sourceFile', targetAbsolutePath = '$targetAbsolutePath', overwriteIfExists = $overwriteIfExists)")
         val uploadURL = getURLForUpload(targetAbsolutePath, overwriteIfExists)
         putFileReal(sourceFile, uploadURL)
@@ -168,14 +173,15 @@ class YandexDiskCloudWriter(
     @Throws(IOException::class, OperationUnsuccessfulException::class)
     override fun putStream(
         inputStream: InputStream,
-        targetPath: String,
+        targetAbsolutePath: String,
         overwriteIfExists: Boolean,
+        bufferSize: Int,
         writingCallback: ((Long) -> Unit)?,
         finishCallback: ((Long,Long) -> Unit)?,
     ) {
-        Log.d(TAG, "putStream(inputStream = $inputStream, targetPath = $targetPath, overwriteIfExists = $overwriteIfExists, writingCallback = $writingCallback, finishCallback = $finishCallback)")
-        val uploadURL = getURLForUpload(targetPath, overwriteIfExists)
-        putStreamReal(inputStream, uploadURL, writingCallback, finishCallback)
+        Log.d(TAG, "putStream(inputStream = $inputStream, targetPath = $targetAbsolutePath, overwriteIfExists = $overwriteIfExists, writingCallback = $writingCallback, finishCallback = $finishCallback)")
+        val uploadURL = getURLForUpload(targetAbsolutePath, overwriteIfExists)
+        putStreamReal(inputStream, uploadURL, bufferSize, writingCallback, finishCallback)
     }
 
 
@@ -426,6 +432,7 @@ class YandexDiskCloudWriter(
     private fun putStreamReal(
         inputStream: InputStream,
         uploadURL: String,
+        bufferSize: Int,
         writingCallback: ((Long) -> Unit)? = null,
         finishCallback: ((Long, Long) -> Unit)? = null,
     ) {
@@ -441,6 +448,7 @@ class YandexDiskCloudWriter(
                     outputStream = sink.outputStream(),
                     writingCallback = writingCallback,
                     finishCallback = finishCallback,
+                    bufferSize = bufferSize
                 )
             }
         }

@@ -85,7 +85,12 @@ interface CloudWriter {
      * которые способны создавать "глубокие" каталоги.
      */
     @Throws(IOException::class, OperationUnsuccessfulException::class)
-    fun putFile(sourceFile: File, targetAbsolutePath: String, overwriteIfExists: Boolean = false)
+    fun putFile(
+        sourceFile: File,
+        targetAbsolutePath: String,
+        overwriteIfExists: Boolean = false,
+        bufferSize: Int = DEFAULT_BUFFER_SIZE
+    )
 
 
     /**
@@ -96,8 +101,9 @@ interface CloudWriter {
     @Throws(IOException::class, OperationUnsuccessfulException::class)
     fun putStream(
         inputStream: InputStream,
-        targetPath: String,
+        targetAbsolutePath: String,
         overwriteIfExists: Boolean = false,
+        bufferSize: Int = DEFAULT_BUFFER_SIZE,
         writingCallback: ((Long) -> Unit)? = null,
         finishCallback: ((Long,Long) -> Unit)? = null,
     )
