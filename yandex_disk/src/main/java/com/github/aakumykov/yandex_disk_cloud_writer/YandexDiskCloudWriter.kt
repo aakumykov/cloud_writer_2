@@ -178,10 +178,18 @@ class YandexDiskCloudWriter(
         bufferSize: Int,
         writingCallback: ((Long) -> Unit)?,
         finishCallback: ((Long,Long) -> Unit)?,
+        requiredSpeedBytesPerSecondSupplier: androidx.core.util.Supplier<Long>
     ) {
         Log.d(TAG, "putStream(inputStream = $inputStream, targetPath = $targetAbsolutePath, overwriteIfExists = $overwriteIfExists, writingCallback = $writingCallback, finishCallback = $finishCallback)")
         val uploadURL = getURLForUpload(targetAbsolutePath, overwriteIfExists)
-        putStreamReal(inputStream, uploadURL, bufferSize, writingCallback, finishCallback)
+        putStreamReal(
+            inputStream,
+            uploadURL,
+            bufferSize,
+            writingCallback,
+            finishCallback,
+            requiredSpeedBytesPerSecondSupplier
+        )
     }
 
 
@@ -435,6 +443,7 @@ class YandexDiskCloudWriter(
         bufferSize: Int,
         writingCallback: ((Long) -> Unit)? = null,
         finishCallback: ((Long, Long) -> Unit)? = null,
+        speedBytesPerSecondSupplier: androidx.core.util.Supplier<Long>
     ) {
         Log.d(TAG, "putStreamReal(inputStream = $inputStream, uploadURL = $uploadURL, writingCallback = $writingCallback, finishCallback = $finishCallback)")
 
@@ -448,7 +457,8 @@ class YandexDiskCloudWriter(
                     outputStream = sink.outputStream(),
                     writingCallback = writingCallback,
                     finishCallback = finishCallback,
-                    bufferSize = bufferSize
+                    bufferSize = bufferSize,
+                    requiredSpeedBytesPerSecond = speedBytesPerSecondSupplier
                 )
             }
         }

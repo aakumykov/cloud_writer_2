@@ -106,6 +106,7 @@ interface CloudWriter {
         bufferSize: Int = DEFAULT_BUFFER_SIZE,
         writingCallback: ((Long) -> Unit)? = null,
         finishCallback: ((Long,Long) -> Unit)? = null,
+        requiredSpeedBytesPerSecondSupplier: androidx.core.util.Supplier<Long> = androidx.core.util.Supplier { -1 },
     )
 
 

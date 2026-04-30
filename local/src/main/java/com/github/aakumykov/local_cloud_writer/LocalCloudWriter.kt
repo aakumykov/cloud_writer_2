@@ -147,6 +147,7 @@ class LocalCloudWriter(
         bufferSize: Int,
         writingCallback: ((Long) -> Unit)?,
         finishCallback: ((Long,Long) -> Unit)?,
+        requiredSpeedBytesPerSecondSupplier: androidx.core.util.Supplier<Long>
     ) {
         val targetFile = File(targetAbsolutePath)
 
@@ -158,7 +159,8 @@ class LocalCloudWriter(
             outputStream = targetFile.outputStream(),
             writingCallback = writingCallback,
             finishCallback = finishCallback,
-            bufferSize = bufferSize
+            bufferSize = bufferSize,
+            requiredSpeedBytesPerSecond = requiredSpeedBytesPerSecondSupplier
         )
     }
 
