@@ -1,7 +1,6 @@
 package com.github.aakumykov.local_cloud_writer
 
 import android.util.Log
-import androidx.core.util.Supplier
 import com.github.aakumykov.cloud_writer.CloudWriter
 import com.github.aakumykov.cloud_writer.CloudWriter.OperationTimeoutException
 import com.github.aakumykov.cloud_writer.CloudWriter.OperationUnsuccessfulException
@@ -145,9 +144,9 @@ class LocalCloudWriter(
         inputStream: InputStream,
         targetAbsolutePath: String,
         overwriteIfExists: Boolean,
-        progressCallback: ((totalBytesTransferred: Long, speed: Int) -> Unit)?,
-        finishCallback: ((Long, Long) -> Unit)?,
-        requiredSpeedBytesPerSecondSupplier: Supplier<Int>,
+        progressCallback: ((totalBytesTransferred:Long, speed:Int) -> Unit)?,
+        finishCallback: ((Long,Long) -> Unit)?,
+        requiredSpeedBytesPerSecondSupplier: androidx.core.util.Supplier<Int>,
     ) {
         val targetFile = File(targetAbsolutePath)
 

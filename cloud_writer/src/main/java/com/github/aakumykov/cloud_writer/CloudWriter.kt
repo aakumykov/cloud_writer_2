@@ -101,7 +101,7 @@ interface CloudWriter {
         inputStream: InputStream,
         targetAbsolutePath: String,
         overwriteIfExists: Boolean = false,
-        progressCallback: ((totalBytesTransferred:Long, speed:Int) -> Unit)?,
+        progressCallback: ((totalBytesTransferred:Long, speed:Int) -> Unit)? = null,
         finishCallback: ((Long,Long) -> Unit)? = null,
         requiredSpeedBytesPerSecondSupplier: androidx.core.util.Supplier<Int> = androidx.core.util.Supplier { -1 },
     )
