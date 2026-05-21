@@ -51,6 +51,7 @@ android {
 
 dependencies {
 
+    api project(':copy_between_streams_with_speed')
     implementation libs.androidx.core.ktx.v1120
     implementation libs.androidx.appcompat.v161
 

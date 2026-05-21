@@ -95,18 +95,15 @@ interface CloudWriter {
 
     /**
      * Записывает поток в файл по указанному пути, читая данные из InputStream.
-     * @param writingCallback
-     * @param finishCallback
      */
     @Throws(IOException::class, OperationUnsuccessfulException::class)
     fun putStream(
         inputStream: InputStream,
         targetAbsolutePath: String,
         overwriteIfExists: Boolean = false,
-        bufferSize: Int = DEFAULT_BUFFER_SIZE,
-        writingCallback: ((Long) -> Unit)? = null,
+        progressCallback: ((totalBytesTransferred:Long, speed:Int) -> Unit)?,
         finishCallback: ((Long,Long) -> Unit)? = null,
-        requiredSpeedBytesPerSecondSupplier: androidx.core.util.Supplier<Long> = androidx.core.util.Supplier { -1 },
+        requiredSpeedBytesPerSecondSupplier: androidx.core.util.Supplier<Int> = androidx.core.util.Supplier { -1 },
     )
 
 

@@ -1,10 +1,11 @@
 package com.github.aakumykov.local_cloud_writer
 
 import android.util.Log
+import androidx.core.util.Supplier
 import com.github.aakumykov.cloud_writer.CloudWriter
 import com.github.aakumykov.cloud_writer.CloudWriter.OperationTimeoutException
 import com.github.aakumykov.cloud_writer.CloudWriter.OperationUnsuccessfulException
-import com.github.aakumykov.copy_between_streams_with_counting.copyBetweenStreamsWithCounting
+import com.github.aakumykov.copy_between_streams_with_speed.copyBetweenStreamsWithSpeed
 import java.io.File
 import java.io.FileNotFoundException
 import java.io.IOException
@@ -144,23 +145,21 @@ class LocalCloudWriter(
         inputStream: InputStream,
         targetAbsolutePath: String,
         overwriteIfExists: Boolean,
-        bufferSize: Int,
-        writingCallback: ((Long) -> Unit)?,
-        finishCallback: ((Long,Long) -> Unit)?,
-        requiredSpeedBytesPerSecondSupplier: androidx.core.util.Supplier<Long>
+        progressCallback: ((totalBytesTransferred: Long, speed: Int) -> Unit)?,
+        finishCallback: ((Long, Long) -> Unit)?,
+        requiredSpeedBytesPerSecondSupplier: Supplier<Int>,
     ) {
         val targetFile = File(targetAbsolutePath)
 
         if (targetFile.exists() && !overwriteIfExists)
             return
 
-        copyBetweenStreamsWithCounting(
+        copyBetweenStreamsWithSpeed(
             inputStream = inputStream,
             outputStream = targetFile.outputStream(),
-            writingCallback = writingCallback,
+            speedBytesPerSecond = requiredSpeedBytesPerSecondSupplier.get(),
             finishCallback = finishCallback,
-            bufferSize = bufferSize,
-            requiredSpeedBytesPerSecond = requiredSpeedBytesPerSecondSupplier
+            progressCallback = progressCallback,
         )
     }
 

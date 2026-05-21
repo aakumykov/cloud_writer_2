@@ -4,7 +4,7 @@ import android.util.Log
 import com.github.aakumykov.cloud_writer.CloudWriter
 import com.github.aakumykov.cloud_writer.CloudWriter.OperationTimeoutException
 import com.github.aakumykov.cloud_writer.CloudWriter.OperationUnsuccessfulException
-import com.github.aakumykov.copy_between_streams_with_counting.copyBetweenStreamsWithCounting
+import com.github.aakumykov.copy_between_streams_with_speed.copyBetweenStreamsWithSpeed
 import com.google.gson.Gson
 import com.yandex.disk.rest.json.Link
 import okhttp3.HttpUrl.Companion.toHttpUrl
@@ -175,20 +175,18 @@ class YandexDiskCloudWriter(
         inputStream: InputStream,
         targetAbsolutePath: String,
         overwriteIfExists: Boolean,
-        bufferSize: Int,
-        writingCallback: ((Long) -> Unit)?,
+        progressCallback: ((totalBytesTransferred:Long, speed:Int) -> Unit)?,
         finishCallback: ((Long,Long) -> Unit)?,
-        requiredSpeedBytesPerSecondSupplier: androidx.core.util.Supplier<Long>
+        requiredSpeedBytesPerSecondSupplier: androidx.core.util.Supplier<Int>,
     ) {
-        Log.d(TAG, "putStream(inputStream = $inputStream, targetPath = $targetAbsolutePath, overwriteIfExists = $overwriteIfExists, writingCallback = $writingCallback, finishCallback = $finishCallback)")
         val uploadURL = getURLForUpload(targetAbsolutePath, overwriteIfExists)
+
         putStreamReal(
-            inputStream,
-            uploadURL,
-            bufferSize,
-            writingCallback,
-            finishCallback,
-            requiredSpeedBytesPerSecondSupplier
+            inputStream = inputStream,
+            uploadURL = uploadURL,
+            speedBytesPerSecondSupplier = requiredSpeedBytesPerSecondSupplier,
+            progressCallback = progressCallback,
+            finishCallback = finishCallback,
         )
     }
 
@@ -440,25 +438,21 @@ class YandexDiskCloudWriter(
     private fun putStreamReal(
         inputStream: InputStream,
         uploadURL: String,
-        bufferSize: Int,
-        writingCallback: ((Long) -> Unit)? = null,
-        finishCallback: ((Long, Long) -> Unit)? = null,
-        speedBytesPerSecondSupplier: androidx.core.util.Supplier<Long>
+        speedBytesPerSecondSupplier: androidx.core.util.Supplier<Int>,
+        progressCallback: ((totalBytesTransferred:Long, speed:Int) -> Unit)?,
+        finishCallback: ((Long, Long) -> Unit)? = null
     ) {
-        Log.d(TAG, "putStreamReal(inputStream = $inputStream, uploadURL = $uploadURL, writingCallback = $writingCallback, finishCallback = $finishCallback)")
-
         val requestBody: RequestBody = object: RequestBody() {
 
             override fun contentType(): MediaType = defaultMediaType
 
             override fun writeTo(sink: BufferedSink) {
-                copyBetweenStreamsWithCounting(
+                copyBetweenStreamsWithSpeed(
                     inputStream = inputStream,
                     outputStream = sink.outputStream(),
-                    writingCallback = writingCallback,
+                    progressCallback = progressCallback,
                     finishCallback = finishCallback,
-                    bufferSize = bufferSize,
-                    requiredSpeedBytesPerSecond = speedBytesPerSecondSupplier
+                    speedBytesPerSecond = speedBytesPerSecondSupplier.get()
                 )
             }
         }
@@ -541,5 +535,5 @@ class YandexDiskCloudWriter(
     @Deprecated("Избавиться")
     class IndeterminateOperationException(val operationStatusLink: String) : Exception()
 
-    inner class OperationStatus(val status: String)
+    class OperationStatus(val status: String)
 }
