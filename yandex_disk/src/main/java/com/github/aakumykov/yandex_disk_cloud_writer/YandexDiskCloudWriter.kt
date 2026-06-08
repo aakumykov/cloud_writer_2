@@ -4,7 +4,7 @@ import android.util.Log
 import com.github.aakumykov.cloud_writer.CloudWriter
 import com.github.aakumykov.cloud_writer.CloudWriter.OperationTimeoutException
 import com.github.aakumykov.cloud_writer.CloudWriter.OperationUnsuccessfulException
-import com.github.aakumykov.copy_between_streams_with_speed.copyBetweenStreamsWithSpeed
+import com.github.aakumykov.copy_between_streams_with_speed.copyBetweenStreamsWithSpeed2
 import com.google.gson.Gson
 import com.yandex.disk.rest.json.Link
 import okhttp3.HttpUrl.Companion.toHttpUrl
@@ -169,15 +169,14 @@ class YandexDiskCloudWriter(
         putFileReal(sourceFile, uploadURL)
     }
 
-
     @Throws(IOException::class, OperationUnsuccessfulException::class)
     override fun putStream(
         inputStream: InputStream,
         targetAbsolutePath: String,
         overwriteIfExists: Boolean,
-        progressCallback: ((totalBytesTransferred:Long, speed:Int) -> Unit)?,
-        finishCallback: ((Long,Long) -> Unit)?,
         requiredSpeedBytesPerSecondSupplier: androidx.core.util.Supplier<Int>,
+        progressCallback: ((transferredBytes:Long, speedBytesPerSec:Long) -> Unit)?,
+        finishCallback: ((transferredBytes:Long, timeElapsedMs:Long, speedBytesPerSec:Long) -> Unit)?
     ) {
         val uploadURL = getURLForUpload(targetAbsolutePath, overwriteIfExists)
 
@@ -439,20 +438,20 @@ class YandexDiskCloudWriter(
         inputStream: InputStream,
         uploadURL: String,
         speedBytesPerSecondSupplier: androidx.core.util.Supplier<Int>,
-        progressCallback: ((totalBytesTransferred:Long, speed:Int) -> Unit)?,
-        finishCallback: ((Long, Long) -> Unit)? = null
+        progressCallback: ((transferredBytes:Long, speedBytesPerSec:Long) -> Unit)? = null,
+        finishCallback: ((transferredBytes:Long, timeElapsedMs:Long, speedBytesPerSec:Long) -> Unit)? = null
     ) {
         val requestBody: RequestBody = object: RequestBody() {
 
             override fun contentType(): MediaType = defaultMediaType
 
             override fun writeTo(sink: BufferedSink) {
-                copyBetweenStreamsWithSpeed(
+                copyBetweenStreamsWithSpeed2(
                     inputStream = inputStream,
                     outputStream = sink.outputStream(),
                     progressCallback = progressCallback,
                     finishCallback = finishCallback,
-                    speedBytesPerSecond = speedBytesPerSecondSupplier.get()
+                    speed = speedBytesPerSecondSupplier.get()
                 )
             }
         }

@@ -1,6 +1,7 @@
 [versions]
 agp = "8.13.0"
 copy_between_streams_with_counting = "0.0.8-alpha"
+copy_between_streams_with_speed = "0.0.4-alpha"
 coreKtxVersion = "1.18.0"
 appcompatVersion = "1.7.1"
 diskRestapiSdk = "1.03"
@@ -21,6 +22,7 @@ androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = 
 androidx-core-ktx-v1120 = { module = "androidx.core:core-ktx", version.ref = "coreKtxVersion" }
 androidx-preference-ktx = { module = "androidx.preference:preference-ktx", version.ref = "preferenceKtx" }
 copy_between_streams_with_counting = { module = "com.github.aakumykov:copy_between_streams_with_counting", version.ref = "copy_between_streams_with_counting" }
+copy_between_streams_with_speed = { module = "com.github.aakumykov:copy_between_streams_with_speed", version.ref = "copy_between_streams_with_speed" }
 disk-restapi-sdk = { module = "com.yandex.android:disk-restapi-sdk", version.ref = "diskRestapiSdk" }
 gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
