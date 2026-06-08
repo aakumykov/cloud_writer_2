@@ -24,5 +24,4 @@ rootProject.name = "cloud_writer_2"
 include ':cloud_writer'
 include ':local'
 include ':yandex_disk'
-include ':copy_between_streams_with_speed'
 include ':app'
