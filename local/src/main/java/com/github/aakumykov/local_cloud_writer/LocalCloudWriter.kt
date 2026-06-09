@@ -156,7 +156,7 @@ class LocalCloudWriter(
         copyBetweenStreamsWithSpeed2(
             inputStream = inputStream,
             outputStream = targetFile.outputStream(),
-            speed = requiredSpeedBytesPerSecondSupplier.get(),
+            speedBytesPerSec = requiredSpeedBytesPerSecondSupplier.get(),
             finishCallback = finishCallback,
             progressCallback = progressCallback,
         )
