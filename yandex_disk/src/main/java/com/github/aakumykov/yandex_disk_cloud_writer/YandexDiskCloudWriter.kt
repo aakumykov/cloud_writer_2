@@ -451,7 +451,7 @@ class YandexDiskCloudWriter(
                     outputStream = sink.outputStream(),
                     progressCallback = progressCallback,
                     finishCallback = finishCallback,
-                    speed = speedBytesPerSecondSupplier.get()
+                    speedBytesPerSec = speedBytesPerSecondSupplier.get()
                 )
             }
         }
