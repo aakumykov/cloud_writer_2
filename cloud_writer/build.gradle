@@ -57,7 +57,6 @@ dependencies {
     testImplementation libs.junit
     androidTestImplementation libs.androidx.junit
 
-//    api libs.copy.between.streams.with.counting
     api libs.copy.between.streams.with.speed
 }
 
