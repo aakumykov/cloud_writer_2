@@ -4,7 +4,7 @@ import android.util.Log
 import com.github.aakumykov.cloud_writer.CloudWriter
 import com.github.aakumykov.cloud_writer.CloudWriter.OperationTimeoutException
 import com.github.aakumykov.cloud_writer.CloudWriter.OperationUnsuccessfulException
-import com.github.aakumykov.copy_between_streams_with_speed.copyBetweenStreamsWithSpeed2
+import com.github.aakumykov.copy_between_streams_with_speed.copyBetweenStreamsWithSpeed
 import java.io.File
 import java.io.FileNotFoundException
 import java.io.IOException
@@ -153,7 +153,7 @@ class LocalCloudWriter(
         if (targetFile.exists() && !overwriteIfExists)
             return
 
-        copyBetweenStreamsWithSpeed2(
+        copyBetweenStreamsWithSpeed(
             inputStream = inputStream,
             outputStream = targetFile.outputStream(),
             speedBytesPerSec = requiredSpeedBytesPerSecondSupplier.get(),
