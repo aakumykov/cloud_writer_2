@@ -4,7 +4,7 @@ import android.util.Log
 import com.github.aakumykov.cloud_writer.CloudWriter
 import com.github.aakumykov.cloud_writer.CloudWriter.OperationTimeoutException
 import com.github.aakumykov.cloud_writer.CloudWriter.OperationUnsuccessfulException
-import com.github.aakumykov.copy_between_streams_with_speed.copyBetweenStreamsWithSpeed2
+import com.github.aakumykov.copy_between_streams_with_speed.copyBetweenStreamsWithSpeed
 import com.google.gson.Gson
 import com.yandex.disk.rest.json.Link
 import okhttp3.HttpUrl.Companion.toHttpUrl
@@ -446,7 +446,7 @@ class YandexDiskCloudWriter(
             override fun contentType(): MediaType = defaultMediaType
 
             override fun writeTo(sink: BufferedSink) {
-                copyBetweenStreamsWithSpeed2(
+                copyBetweenStreamsWithSpeed(
                     inputStream = inputStream,
                     outputStream = sink.outputStream(),
                     progressCallback = progressCallback,
