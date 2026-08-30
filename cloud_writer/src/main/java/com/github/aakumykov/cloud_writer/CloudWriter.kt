@@ -4,15 +4,10 @@ import com.github.aakumykov.cloud_writer.extensions.stripMultiSlashes
 import java.io.File
 import java.io.IOException
 import java.io.InputStream
-import java.io.OutputStream
-import java.io.OutputStreamWriter
 
 // TODO: suspend-методы
 // TODO: возвращать Result вместо выборса исключений
 interface CloudWriter {
-
-    @Throws(IOException::class, OperationUnsuccessfulException::class)
-    fun getOutputStream(basePath: String, dirName: String): OutputStream
 
     /**
      * Пробует создать каталог по указанному пути.

@@ -4,16 +4,11 @@ import android.util.Log
 import com.github.aakumykov.cloud_writer.CloudWriter
 import com.github.aakumykov.cloud_writer.CloudWriter.OperationTimeoutException
 import com.github.aakumykov.cloud_writer.CloudWriter.OperationUnsuccessfulException
-import com.github.aakumykov.copy_between_streams_with_speed.CertainSpeedStreamCopier
 import com.github.aakumykov.copy_between_streams_with_speed.copyBetweenStreamsWithSpeed
-import kotlinx.coroutines.CoroutineName
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import java.io.File
 import java.io.FileNotFoundException
 import java.io.IOException
 import java.io.InputStream
-import java.io.OutputStream
 
 /**
  * @param virtualRootDir Параметр конструктора. Путь, относительно которого будут создаваться каталоги.
@@ -27,14 +22,6 @@ class LocalCloudWriter(
     private val authToken: String = ""
 ): CloudWriter
 {
-    @Throws(IOException::class, OperationUnsuccessfulException::class)
-    override fun getOutputStream(
-        basePath: String,
-        dirName: String
-    ): OutputStream {
-        return File(virtualRootPlus(basePath, dirName)).outputStream()
-    }
-
     /**
      * Создаёт каталог по пути [virtualRootDir] + [basePath] + [dirName]
      */
@@ -165,13 +152,6 @@ class LocalCloudWriter(
 
         if (targetFile.exists() && !overwriteIfExists)
             return
-
-        val scope = CoroutineScope(CoroutineName("CertainSpeedStreamCopier"))
-
-        val speedCopier = CertainSpeedStreamCopier(
-            scope = scope,
-            desiredSpeedBytesPerSec = requiredSpeedBytesPerSecondSupplier.get(),
-        )
 
         targetFile.outputStream().use { outputStream ->
             copyBetweenStreamsWithSpeed(
