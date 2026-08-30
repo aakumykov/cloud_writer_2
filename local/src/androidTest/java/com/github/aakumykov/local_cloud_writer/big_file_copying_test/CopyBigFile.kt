@@ -15,29 +15,32 @@ class CopyBigFile : StorageAccessTestCase() {
     private val localCloudWriter get() = LocalCloudWriter()
 
     @Test
-    fun copying_big_file_duration() {
+    fun copying_big_file_as_stream_duration() {
 
         val sourceFileName = "debian.iso"
         val targetFileName = "debian2.iso"
 
-        val downloadsDir =
-            File(Environment.getExternalStorageDirectory(), Environment.DIRECTORY_DOWNLOADS)
-        val musicDir =
-            File(Environment.getExternalStorageDirectory(), Environment.DIRECTORY_DOWNLOADS)
+        val downloadsDir = File(Environment.getExternalStorageDirectory(), Environment.DIRECTORY_DOWNLOADS)
+        val musicDir = File(Environment.getExternalStorageDirectory(), Environment.DIRECTORY_DOWNLOADS)
 
         val sourceFile = File(downloadsDir, sourceFileName)
         val targetFile = File(musicDir, targetFileName)
 
         Assert.assertTrue(sourceFile.exists())
 
-        val startTime = currentTime
-        localCloudWriter.copyFile(
-            sourceFile.absolutePath,
-            targetFile.absolutePath,
-            overwriteIfExists = true
-        )
-        val duration = currentTime - startTime
-        Log.d(TAG,"продолжительность копирования $duration")
+
+        sourceFile.inputStream().use { inputStream ->
+            val startTime = currentTime
+            localCloudWriter.putStream(
+                inputStream,
+                targetFile.absolutePath,
+                overwriteIfExists = true,
+                finishCallback = { _,_,_ ->
+                    val duration = currentTime - startTime
+                    Log.d(TAG,"продолжительность копирования $duration")
+                }
+            )
+        }
 
         TestCase.assertTrue(sourceFile.exists())
         TestCase.assertTrue(targetFile.exists())
