@@ -153,13 +153,15 @@ class LocalCloudWriter(
         if (targetFile.exists() && !overwriteIfExists)
             return
 
-        copyBetweenStreamsWithSpeed(
-            inputStream = inputStream,
-            outputStream = targetFile.outputStream(),
-            speedBytesPerSec = requiredSpeedBytesPerSecondSupplier.get(),
-            finishCallback = finishCallback,
-            progressCallback = progressCallback,
-        )
+        targetFile.outputStream().use { outputStream ->
+            copyBetweenStreamsWithSpeed(
+                inputStream = inputStream,
+                outputStream = outputStream,
+                speedBytesPerSec = requiredSpeedBytesPerSecondSupplier.get(),
+                finishCallback = finishCallback,
+                progressCallback = progressCallback,
+            )
+        }
     }
 
 

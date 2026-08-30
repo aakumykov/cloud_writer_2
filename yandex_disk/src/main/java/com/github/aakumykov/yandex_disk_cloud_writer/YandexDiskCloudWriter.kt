@@ -446,13 +446,15 @@ class YandexDiskCloudWriter(
             override fun contentType(): MediaType = defaultMediaType
 
             override fun writeTo(sink: BufferedSink) {
-                copyBetweenStreamsWithSpeed(
-                    inputStream = inputStream,
-                    outputStream = sink.outputStream(),
-                    progressCallback = progressCallback,
-                    finishCallback = finishCallback,
-                    speedBytesPerSec = speedBytesPerSecondSupplier.get()
-                )
+                sink.outputStream().use { outputStream ->
+                    copyBetweenStreamsWithSpeed(
+                        inputStream = inputStream,
+                        outputStream = outputStream,
+                        progressCallback = progressCallback,
+                        finishCallback = finishCallback,
+                        speedBytesPerSec = speedBytesPerSecondSupplier.get()
+                    )
+                }
             }
         }
 
