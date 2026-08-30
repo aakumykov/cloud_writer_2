@@ -4,9 +4,6 @@ import android.content.Context
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.github.aakumykov.cloud_writer.CloudWriter
-import junit.framework.TestCase.assertEquals
-import junit.framework.TestCase.assertFalse
-import junit.framework.TestCase.assertTrue
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
@@ -62,10 +59,11 @@ open class LocalCloudWriterInstrumentedTest {
 
 
 
-    fun createSourceFile() {
+    fun createSourceFile(size: Int = 10) {
         sourceFile.apply {
             createNewFile()
-            writeBytes(randomBytes)
+
+            writeBytes(randomBytes(size))
         }
         Assert.assertTrue(sourceFile.exists())
         Assert.assertTrue(sourceFileContents.isNotEmpty())
@@ -74,15 +72,16 @@ open class LocalCloudWriterInstrumentedTest {
     fun createTargetFile() {
         targetFile.apply {
             createNewFile()
-            writeBytes(randomBytes)
+            writeBytes(randomBytes10)
         }
         Assert.assertTrue(targetFile.exists())
         Assert.assertTrue(targetFileContents.isNotEmpty())
     }
 
+    protected fun randomBytes(count: Int) = Random.nextBytes(count)
 
-    protected val randomBytes: ByteArray
-        get() = Random.nextBytes(10)
+    protected val randomBytes10: ByteArray
+        get() = randomBytes(10)
 
 
     protected val localCloudWriter: CloudWriter
@@ -94,3 +93,5 @@ open class LocalCloudWriterInstrumentedTest {
         const val TARGET_FILE_NAME = "target_file.txt"
     }
 }
+
+val currentTime get() = java.util.Date().time
