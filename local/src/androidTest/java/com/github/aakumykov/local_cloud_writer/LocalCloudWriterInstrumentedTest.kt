@@ -18,21 +18,27 @@ open class LocalCloudWriterInstrumentedTest {
         InstrumentationRegistry.getInstrumentation().context
     }
 
-    protected val sourceFile: File
-        get() = File(context.cacheDir, SOURCE_FILE_NAME)
-
-    protected val targetFile: File
-        get() = File(context.cacheDir, TARGET_FILE_NAME)
-
-
-    protected val testDirParentPath: String
-        get() = context.cacheDir.absolutePath
-
     protected val testDirName: String
         get() = "test_dir_1"
 
     protected val testDir: File
         get() = File(testDirParentPath, testDirName)
+
+    protected val testDirParentPath: String
+        get() = context.cacheDir.absolutePath
+
+
+    protected val sourceFileParentPath: String = testDir.absolutePath
+    protected val targetFileParentPath: String = testDir.absolutePath
+
+    protected val sourceFileDir: File  = File(sourceFileParentPath)
+    protected val targetFileDir: File  = File(targetFileParentPath)
+
+    protected val sourceFile: File
+        get() = File(sourceFileDir, SOURCE_FILE_NAME)
+
+    protected val targetFile: File
+        get() = File(targetFileDir, TARGET_FILE_NAME)
 
 
     protected val sourceFileContents: String
@@ -60,9 +66,11 @@ open class LocalCloudWriterInstrumentedTest {
 
 
     fun createSourceFile(size: Int = 10) {
-        sourceFile.apply {
-            createNewFile()
+        sourceFileDir.mkdirs()
+        Assert.assertTrue(sourceFileDir.exists())
 
+        sourceFile.apply {
+            createNewFile().also { Assert.assertTrue(it) }
             writeBytes(randomBytes(size))
         }
         Assert.assertTrue(sourceFile.exists())
@@ -70,8 +78,11 @@ open class LocalCloudWriterInstrumentedTest {
     }
 
     fun createTargetFile() {
+        targetFileDir.mkdirs()
+        Assert.assertTrue(targetFileDir.exists())
+
         targetFile.apply {
-            createNewFile()
+            createNewFile().also { Assert.assertTrue(it) }
             writeBytes(randomBytes10)
         }
         Assert.assertTrue(targetFile.exists())
