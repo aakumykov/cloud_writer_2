@@ -18,21 +18,21 @@ open class LocalCloudWriterInstrumentedTest {
         InstrumentationRegistry.getInstrumentation().context
     }
 
-    protected val sourceFile: File
-        get() = File(context.cacheDir, SOURCE_FILE_NAME)
-
-    protected val targetFile: File
-        get() = File(context.cacheDir, TARGET_FILE_NAME)
-
-
-    protected val testDirParentPath: String
-        get() = context.cacheDir.absolutePath
-
     protected val testDirName: String
         get() = "test_dir_1"
 
     protected val testDir: File
         get() = File(testDirParentPath, testDirName)
+
+    protected val testDirParentPath: String
+        get() = context.cacheDir.absolutePath
+
+
+    protected val sourceFile: File
+        get() = File(testDir, SOURCE_FILE_NAME)
+
+    protected val targetFile: File
+        get() = File(testDir, TARGET_FILE_NAME)
 
 
     protected val sourceFileContents: String
