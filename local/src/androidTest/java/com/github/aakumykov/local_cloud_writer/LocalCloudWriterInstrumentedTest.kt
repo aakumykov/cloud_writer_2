@@ -60,10 +60,6 @@ open class LocalCloudWriterInstrumentedTest {
     }
 
 
-    @Test
-    fun empty_test(){}
-
-
 
     fun createSourceFile(size: Int = 10) {
         sourceFileDir.mkdirs()
