@@ -1,6 +1,7 @@
 package com.github.aakumykov.cloud_writer
 
 import com.github.aakumykov.cloud_writer.extensions.stripMultiSlashes
+import kotlinx.coroutines.flow.Flow
 import java.io.File
 import java.io.IOException
 import java.io.InputStream
@@ -95,6 +96,7 @@ interface CloudWriter {
 
     /**
      * Записывает поток в файл по указанному пути, читая данные из InputStream.
+     * @return Flow<Long> - сведения о количестве переданных байт.
      */
     @Throws(IOException::class, OperationUnsuccessfulException::class)
     fun putStream(
@@ -104,7 +106,7 @@ interface CloudWriter {
         requiredSpeedBytesPerSecondSupplier: androidx.core.util.Supplier<Int> = androidx.core.util.Supplier { -1 },
         progressCallback: ((transferredBytes:Long, speedBytesPerSec:Long) -> Unit)? = null,
         finishCallback: ((transferredBytes:Long, timeElapsedMs:Long, speedBytesPerSec:Long) -> Unit)? = null,
-    )
+    ): Flow<Long>
 
 
     @Throws(IOException::class, OperationUnsuccessfulException::class)

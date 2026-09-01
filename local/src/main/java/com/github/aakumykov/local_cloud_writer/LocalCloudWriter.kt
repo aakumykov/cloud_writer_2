@@ -5,6 +5,10 @@ import com.github.aakumykov.cloud_writer.CloudWriter
 import com.github.aakumykov.cloud_writer.CloudWriter.OperationTimeoutException
 import com.github.aakumykov.cloud_writer.CloudWriter.OperationUnsuccessfulException
 import com.github.aakumykov.copy_between_streams_with_speed.copyBetweenStreamsWithSpeed
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.emptyFlow
 import java.io.File
 import java.io.FileNotFoundException
 import java.io.IOException
@@ -147,20 +151,27 @@ class LocalCloudWriter(
         requiredSpeedBytesPerSecondSupplier: androidx.core.util.Supplier<Int>,
         progressCallback: ((transferredBytes:Long, speedBytesPerSec:Long) -> Unit)?,
         finishCallback: ((transferredBytes:Long, timeElapsedMs:Long, speedBytesPerSec:Long) -> Unit)?
-    ) {
+    ): Flow<Long> {
+
         val targetFile = File(targetAbsolutePath)
 
         if (targetFile.exists() && !overwriteIfExists)
-            return
+            return emptyFlow()
 
-        targetFile.outputStream().use { outputStream ->
-            copyBetweenStreamsWithSpeed(
-                inputStream = inputStream,
-                outputStream = outputStream,
-                speedBytesPerSec = requiredSpeedBytesPerSecondSupplier.get(),
-                finishCallback = finishCallback,
-                progressCallback = progressCallback,
-            )
+        return callbackFlow {
+            targetFile.outputStream().use { outputStream ->
+                copyBetweenStreamsWithSpeed(
+                    inputStream = inputStream,
+                    outputStream = outputStream,
+                    speedBytesPerSec = requiredSpeedBytesPerSecondSupplier.get(),
+                    finishCallback = finishCallback,
+                    progressCallback = { transferredBytes:Long, speedBytesPerSec:Long ->
+                        trySend(transferredBytes)
+                    },
+                )
+            }
+            // TODO: нужно ли здесь закрывать поток чтения?
+            awaitClose {  }
         }
     }
 

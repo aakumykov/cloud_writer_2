@@ -7,6 +7,9 @@ import com.github.aakumykov.cloud_writer.CloudWriter.OperationUnsuccessfulExcept
 import com.github.aakumykov.copy_between_streams_with_speed.copyBetweenStreamsWithSpeed
 import com.google.gson.Gson
 import com.yandex.disk.rest.json.Link
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.MediaType
 import okhttp3.MediaType.Companion.toMediaType
@@ -177,16 +180,22 @@ class YandexDiskCloudWriter(
         requiredSpeedBytesPerSecondSupplier: androidx.core.util.Supplier<Int>,
         progressCallback: ((transferredBytes:Long, speedBytesPerSec:Long) -> Unit)?,
         finishCallback: ((transferredBytes:Long, timeElapsedMs:Long, speedBytesPerSec:Long) -> Unit)?
-    ) {
+    ): Flow<Long> {
         val uploadURL = getURLForUpload(targetAbsolutePath, overwriteIfExists)
 
-        putStreamReal(
-            inputStream = inputStream,
-            uploadURL = uploadURL,
-            speedBytesPerSecondSupplier = requiredSpeedBytesPerSecondSupplier,
-            progressCallback = progressCallback,
-            finishCallback = finishCallback,
-        )
+        return callbackFlow {
+            putStreamReal(
+                inputStream = inputStream,
+                uploadURL = uploadURL,
+                speedBytesPerSecondSupplier = requiredSpeedBytesPerSecondSupplier,
+                progressCallback = { transferredBytes:Long, speedBytesPerSec:Long ->
+                    trySend(transferredBytes)
+                },
+                finishCallback = finishCallback,
+            )
+            // TODO: нужно ли здесь закрывать поток чтения?
+            awaitClose {  }
+        }
     }
 
 

@@ -1,4 +1,4 @@
-package com.github.aakumykov.local_cloud_writer.big_file_copying_test
+package com.github.aakumykov.local_cloud_writer.different_tests
 
 import android.os.Environment
 import android.util.Log
@@ -10,7 +10,7 @@ import org.junit.Assert
 import org.junit.Test
 import java.io.File
 
-class CopyBigFile : StorageAccessTestCase() {
+class CopyBigFileInstrumentedTest : StorageAccessTestCase() {
 
     private val localCloudWriter get() = LocalCloudWriter()
 
@@ -47,6 +47,6 @@ class CopyBigFile : StorageAccessTestCase() {
     }
 
     companion object {
-        val TAG: String = CopyBigFile::class.java.simpleName
+        val TAG: String = CopyBigFileInstrumentedTest::class.java.simpleName
     }
 }
