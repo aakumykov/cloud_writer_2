@@ -290,3 +290,16 @@ class LocalCloudWriter(
         val TAG: String = LocalCloudWriter::class.java.simpleName
     }
 }
+
+class QwertyProducer {
+    fun work(count: Int = 5): Flow<Int> = callbackFlow {
+        repeat(count) {
+            trySend(it+1)
+        }
+        trySend(-1)
+        awaitClose {  }
+    }
+    companion object {
+        val TAG: String = QwertyProducer::class.java.simpleName
+    }
+}
