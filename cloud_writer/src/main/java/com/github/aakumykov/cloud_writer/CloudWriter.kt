@@ -4,6 +4,7 @@ import com.github.aakumykov.cloud_writer.extensions.stripMultiSlashes
 import java.io.File
 import java.io.IOException
 import java.io.InputStream
+import java.io.OutputStream
 
 // TODO: suspend-методы
 // TODO: возвращать Result вместо выборса исключений
@@ -91,6 +92,13 @@ interface CloudWriter {
         overwriteIfExists: Boolean = false,
         bufferSize: Int = DEFAULT_BUFFER_SIZE
     )
+
+
+    @Throws(IOException::class, OperationUnsuccessfulException::class)
+    fun getInputStream(basePath: String, dirName: String): InputStream
+
+    @Throws(IOException::class, OperationUnsuccessfulException::class)
+    fun getOutputStream(basePath: String, dirName: String): OutputStream
 
 
     /**

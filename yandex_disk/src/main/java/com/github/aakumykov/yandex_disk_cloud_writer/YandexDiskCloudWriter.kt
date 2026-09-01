@@ -20,6 +20,7 @@ import okio.BufferedSink
 import java.io.File
 import java.io.IOException
 import java.io.InputStream
+import java.io.OutputStream
 import java.util.concurrent.TimeUnit
 
 class YandexDiskCloudWriter(
@@ -154,6 +155,16 @@ class YandexDiskCloudWriter(
         if (!force && !fileExists(absoluteDirPath))
             createOneLevelDir(absoluteDirPath)
         return absoluteDirPath
+    }
+
+
+    override fun getInputStream(basePath: String, dirName: String): InputStream {
+
+    }
+
+
+    override fun getOutputStream(basePath: String, dirName: String): OutputStream {
+
     }
 
 
@@ -415,6 +426,7 @@ class YandexDiskCloudWriter(
 
         okHttpClient.newCall(request).execute().use { response ->
             if (response.isSuccessful)
+                response.body?.byteStream()
                 return linkFromResponse(response)
             else
                 throw unsuccessfulResponseException(response, "Fail getting url for upload for path '$targetFilePath' with overwriteIfExists='$overwriteIfExists'")

@@ -9,6 +9,7 @@ import java.io.File
 import java.io.FileNotFoundException
 import java.io.IOException
 import java.io.InputStream
+import java.io.OutputStream
 
 /**
  * @param virtualRootDir Параметр конструктора. Путь, относительно которого будут создаваться каталоги.
@@ -138,6 +139,19 @@ class LocalCloudWriter(
         if (!isMoved)
             throw IOException("File cannot be not moved from '${sourceFile.absolutePath}' to '${targetAbsolutePath}'")
     }
+
+
+    @Throws(IOException::class, OperationUnsuccessfulException::class)
+    override fun getInputStream(basePath: String, dirName: String): InputStream {
+        return File(virtualRootPlus(basePath, dirName)).inputStream()
+    }
+
+
+    @Throws(IOException::class, OperationUnsuccessfulException::class)
+    override fun getOutputStream(basePath: String, dirName: String): OutputStream {
+        return File(virtualRootPlus(basePath, dirName)).outputStream()
+    }
+
 
     @Throws(IOException::class, OperationUnsuccessfulException::class)
     override fun putStream(
