@@ -1,10 +1,10 @@
 package com.github.aakumykov.local_cloud_writer
 
 import android.util.Log
+import com.github.aakumykov.cloud_writer.BaseCloudWriter
 import com.github.aakumykov.cloud_writer.CloudWriter
 import com.github.aakumykov.cloud_writer.CloudWriter.OperationTimeoutException
 import com.github.aakumykov.cloud_writer.CloudWriter.OperationUnsuccessfulException
-import com.github.aakumykov.copy_between_streams_with_speed.copyBetweenStreamsWithSpeed
 import java.io.File
 import java.io.FileNotFoundException
 import java.io.IOException
@@ -20,7 +20,7 @@ import java.io.InputStream
 class LocalCloudWriter(
     private val virtualRootDir: String = "",
     private val authToken: String = ""
-): CloudWriter
+): BaseCloudWriter()
 {
     /**
      * Создаёт каталог по пути [virtualRootDir] + [basePath] + [dirName]

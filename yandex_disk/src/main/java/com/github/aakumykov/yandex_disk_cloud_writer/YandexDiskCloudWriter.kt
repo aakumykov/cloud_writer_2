@@ -1,10 +1,10 @@
 package com.github.aakumykov.yandex_disk_cloud_writer
 
 import android.util.Log
+import com.github.aakumykov.cloud_writer.BaseCloudWriter
 import com.github.aakumykov.cloud_writer.CloudWriter
 import com.github.aakumykov.cloud_writer.CloudWriter.OperationTimeoutException
 import com.github.aakumykov.cloud_writer.CloudWriter.OperationUnsuccessfulException
-import com.github.aakumykov.copy_between_streams_with_speed.copyBetweenStreamsWithSpeed
 import com.google.gson.Gson
 import com.yandex.disk.rest.json.Link
 import okhttp3.HttpUrl.Companion.toHttpUrl
@@ -26,7 +26,7 @@ class YandexDiskCloudWriter(
     private val authToken: String,
     private val okHttpClient: OkHttpClient = OkHttpClient.Builder().build(),
     private val gson: Gson = Gson()
-) : CloudWriter {
+): BaseCloudWriter() {
 
     private val defaultMediaType: MediaType get() = DEFAULT_MEDIA_TYPE.toMediaType()
 
