@@ -24,10 +24,18 @@ import java.util.concurrent.TimeUnit
 
 class YandexDiskCloudWriter(
     private val authToken: String,
-    private val okHttpClient: OkHttpClient = OkHttpClient.Builder().build(),
-    private val gson: Gson = Gson()
-): BaseCloudWriter() {
 
+    private val connectionTimeoutSec: Long = DEFAULT_CONNECTION_TIMEOUT_SEC,
+    private val writeTimeoutSec: Long = DEFAULT_WRITE_TIMEOUT_SEC,
+    private val readTimeoutSec: Long = DEFAULT_READ_TIMEOUT_SEC,
+
+    private val okHttpClient: OkHttpClient = defaultOkHttpClient(
+        connectionTimeoutSec,writeTimeoutSec,readTimeoutSec),
+
+    private val gson: Gson = Gson(),
+)
+    : BaseCloudWriter()
+{
     private val defaultMediaType: MediaType get() = DEFAULT_MEDIA_TYPE.toMediaType()
 
     // TODO: проверить с разными аргументами
@@ -531,6 +539,20 @@ class YandexDiskCloudWriter(
         private const val COPY_BASE_URL = "$RESOURCES_BASE_URL/copy"
 
         private const val DEFAULT_MEDIA_TYPE = "application/octet-stream"
+
+        const val DEFAULT_CONNECTION_TIMEOUT_SEC: Long = 60
+        const val DEFAULT_WRITE_TIMEOUT_SEC: Long = 300
+        const val DEFAULT_READ_TIMEOUT_SEC: Long = 600
+
+        private fun defaultOkHttpClient(
+            connectionTimeoutSec: Long,
+            writeTimeoutSec: Long,
+            readTimeoutSec: Long
+        ): OkHttpClient = OkHttpClient.Builder()
+                .connectTimeout(connectionTimeoutSec, TimeUnit.SECONDS)
+                .writeTimeout(writeTimeoutSec, TimeUnit.SECONDS)
+                .readTimeout(readTimeoutSec, TimeUnit.SECONDS)
+                .build()
     }
 
     @Deprecated("Избавиться")
