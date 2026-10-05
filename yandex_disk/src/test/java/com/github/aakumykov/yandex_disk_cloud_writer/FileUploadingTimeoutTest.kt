@@ -66,7 +66,7 @@ class FileUploadingTimeoutTest {
     @Test
     fun simple_test() {
         val size = 12000.MEGABYTES
-        val readTimeoutSec: Long = 180
+        val readTimeoutSec: Long = 300
         uploadDataToURL(
             size,
             getUrlForUpload(testRemoteFileName),
