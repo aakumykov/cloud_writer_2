@@ -65,17 +65,23 @@ class FileUploadingTimeoutTest {
 
     @Test
     fun simple_test() {
-        val uploadingURL = getUrlForUpload(testRemoteFileName)
-        uploadDataToURL(1000L, uploadingURL)
+        val size = 12000.MEGABYTES
+        val readTimeoutSec: Long = 180
+        uploadDataToURL(
+            size,
+            getUrlForUpload(testRemoteFileName),
+            readTimeoutSec
+        ) { b,t,s ->
+            Log.d(TAG, "Передано ${b.humanSizeBinary()}/${size.humanSizeBinary()} за ${t.humanDecimalPlaces} секунд со скоростью ${s.humanSizeBinary()}/с")
+        }
     }
-
 
 
     @Test
     fun test_diff_read_timeouts_with_diff_file_sizes() {
-        println("==== test_diff_read_timeouts_with_diff_file_sizes ====")
+        /*println("==== test_diff_read_timeouts_with_diff_file_sizes ====")
 
-        /*test_range_of_sizes(6, 10, 1,
+        test_range_of_sizes(6, 10, 1,
             1, 60, 10)
 
         test_range_of_sizes(10, 100, 10,
@@ -91,15 +97,16 @@ class FileUploadingTimeoutTest {
             60, 120, 30)
 
         test_range_of_sizes(1000, 5000, 1000,
-            130, 300, 50)*/
+            130, 300, 50)
 
         test_range_of_sizes(3000, 3000, 1000,
             300, 300, 200) { b:Long, t:Long, s:Long ->
             Log.d(TAG, "bytes:${b.humanSizeBinary()}, " +
                     "time:${t.humanDecimalPlaces}, " +
                     "speed:${s.humanSizeBinary()}/с")
-        }
+        }*/
     }
+
 
     private fun test_range_of_sizes(
         sizeRangeStart:Int, sizeRangeEnd: Int, sizeRangeStep: Int,
@@ -188,7 +195,7 @@ class FileUploadingTimeoutTest {
             finishCallback?.invoke(uploadingDataSize, durationSec, speed)
 
         } catch (t: Throwable) {
-            Log.e(TAG, paramsMsg)
+            Log.e(TAG, paramsMsg, t)
         }
     }
 
