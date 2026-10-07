@@ -5,7 +5,7 @@ import org.junit.Before
 import org.junit.Test
 import java.io.File
 
-class LocalCloudWriterUnitTest {
+class LocalCloudWriterCreateDirSomeUnitTests {
 
     companion object {
         private const val ROOT_DIR_PATH = "tests_dir"
