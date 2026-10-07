@@ -35,6 +35,8 @@ class LocalCloudWriter(
     /**
      * Создаёт каталог по пути [virtualRootDir] + [path]
      * Если промежуточные каталоги отсутствуют, они будут созданы.
+     *
+     * @return Абсолютный путь (относительно виртуального корня) к созданному каталогу.
      */
     @Throws(IOException::class, OperationUnsuccessfulException::class)
     override fun createDir(path: String): String {
@@ -47,7 +49,8 @@ class LocalCloudWriter(
     /**
      * Создаёт каталог по пути [virtualRootDir] + [basePath] + [dirName],
      * если таковой не существует.
-     * @return Полный путь к каталогу.
+     *
+     * @return Абсолютный путь (относительно виртуального корня) к созданному каталогу.
      */
     @Throws(IOException::class, OperationUnsuccessfulException::class)
     override fun createDirIfNotExists(basePath: String, dirName: String, force: Boolean): String {
@@ -55,7 +58,9 @@ class LocalCloudWriter(
         return createDirIfNotExists(virtualRootPlus(basePath, dirName))
     }
 
-
+    /**
+     * @return Абсолютный путь (относительно виртуального корня) к созданному каталогу.
+     */
     @Throws(IOException::class, OperationUnsuccessfulException::class)
     override fun createDirIfNotExists(absoluteDirPath: String, force: Boolean): String {
         Log.d(TAG, "createDirIfNotExists(absoluteDirPath = $absoluteDirPath, force = $force)")
@@ -266,9 +271,12 @@ class LocalCloudWriter(
      * Создаёт каталог по указанному в аргументе [absolutePath] пути.
      * Не добавляет виртуальный корень в качестве префикса.
      * Не создаёт отсутствующие промежуточные каталоги.
+     *
+     * @return Абсолютный путь (относительно виртуального корня) к созданному каталогу.
      */
     private fun createDirReal(absolutePath: String): String {
         return with(File(absolutePath)) {
+            if (this.exists()) throw OperationUnsuccessfulException("Каталог '$absolutePath' уже существует.")
             if (mkdir()) absolutePath
             else throw OperationUnsuccessfulException("Каталог '$absolutePath' не создан.")
         }
