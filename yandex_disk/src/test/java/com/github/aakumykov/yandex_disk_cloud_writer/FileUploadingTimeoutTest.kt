@@ -19,22 +19,12 @@ import java.util.concurrent.TimeUnit
 import kotlin.math.min
 import kotlin.random.Random
 
-class FileUploadingTimeoutTest {
-
-    private val localPropertiesFilePath = "../local.properties"
+class FileUploadingTimeoutTest : YandexDiskUnitTestBase("YANDEX_AUTH_ID_EXP_TEST") {
 
     private val testRemoteFileName = "test.file"
 
     private val defaultReadTimeoutSec: Long = 60
 
-
-    private val yandexAuthId: String by lazy {
-        val localPropertiesFile = File(localPropertiesFilePath)
-        val keyYandexAuthId = "YANDEX_AUTH_ID"
-        Properties().apply {
-            load(localPropertiesFile.inputStream())
-        }.getProperty(keyYandexAuthId)
-    }
 
     private fun okHttpClient(connectTimeoutSec: Long = 60,
                              writeTimeoutSec: Long = 120,
